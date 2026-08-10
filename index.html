@@ -227,6 +227,25 @@
   .metric-card.alert-c .value{color:var(--alert);}
   .metric-card.asof-c .asof-row{display:flex;align-items:center;gap:6px;}
   .metric-card.asof-c input[type=date]{padding:6px 8px;font-size:11.5px;width:auto;flex:1;}
+  .donuts-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+  .donut-card{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    padding:14px 16px;box-shadow:var(--shadow-md);
+  }
+  .donut-card-head h3{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:10px;}
+  .donut-body{display:flex;align-items:center;gap:18px;}
+  .donut-svg-wrap{position:relative;width:128px;height:128px;flex-shrink:0;}
+  .donut-svg-wrap svg{width:128px;height:128px;display:block;}
+  .donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;text-align:center;}
+  .donut-center-value{font-size:22px;font-weight:700;color:var(--ink);line-height:1;}
+  .donut-center-label{font-size:10px;color:var(--muted);font-weight:500;margin-top:2px;}
+  .donut-legend{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0;}
+  .donut-legend-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink);}
+  .donut-legend-item .sw{width:9px;height:9px;border-radius:2px;flex-shrink:0;}
+  .donut-legend-item .lbl{flex:1;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .donut-legend-item .val{font-weight:600;color:var(--ink);flex-shrink:0;}
+  .donut-empty{font-size:12px;color:var(--muted);}
+  @media (max-width:900px){ .donuts-row{grid-template-columns:1fr;} }
 
   .board{display:grid;grid-template-columns:1fr 427px;gap:14px;}
 
@@ -848,6 +867,34 @@
     <div class="page-head">
       <div class="page-title">Branch Operation Overview</div>
       <div class="page-sub">Live status across all branches · pins and alerts update automatically when a request is approved</div>
+    </div>
+    <div class="donuts-row">
+      <div class="donut-card">
+        <div class="donut-card-head"><h3>Branch Status</h3></div>
+        <div class="donut-body">
+          <div class="donut-svg-wrap">
+            <svg viewBox="0 0 128 128" id="donutStatusSvg"></svg>
+            <div class="donut-center">
+              <div class="donut-center-value" id="donutStatusValue">0</div>
+              <div class="donut-center-label">Total</div>
+            </div>
+          </div>
+          <div class="donut-legend" id="donutStatusLegend"></div>
+        </div>
+      </div>
+      <div class="donut-card">
+        <div class="donut-card-head"><h3>Reason for Closure</h3></div>
+        <div class="donut-body">
+          <div class="donut-svg-wrap">
+            <svg viewBox="0 0 128 128" id="donutReasonSvg"></svg>
+            <div class="donut-center">
+              <div class="donut-center-value" id="donutReasonValue">0</div>
+              <div class="donut-center-label">Closed</div>
+            </div>
+          </div>
+          <div class="donut-legend" id="donutReasonLegend"></div>
+        </div>
+      </div>
     </div>
 
     <div class="metrics">
@@ -1982,9 +2029,76 @@ function checkHolidayOverlap(){
     suggestEl.style.display = 'block';
   }
 }
+const DONUT_REASON_COLORS = {
+  'Calamity':'#e67e22','Flooding':'#2980b9','Power Outage':'#f1c40f','Connectivity':'#8e44ad',
+  'System Maintenance':'#16a085','Security Incident':'#c0392b','Holiday':'#3498db','Other':'#7f8c8d'
+};
 
+function getClosureCategory(b, dateStr){
+  if(b.history && b.history[0] && b.history[0][0].indexOf('Closed') === 0){
+    return b.history[0][0].replace('Closed — ','').trim();
+  }
+  if(isNonWorkingHoliday(dateStr, b.code)) return 'Holiday';
+  return b.category || 'Other';
+}
+
+function drawDonut(svgEl, segments){
+  const r = 50, cx = 64, cy = 64, sw = 18;
+  const circumference = 2 * Math.PI * r;
+  const total = segments.reduce((s,d)=>s+d.value,0);
+  let html = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#eef1f6" stroke-width="${sw}"></circle>`;
+  let offset = 0;
+  segments.forEach(seg=>{
+    if(!seg.value) return;
+    const frac = total ? seg.value/total : 0;
+    const len = frac * circumference;
+    html += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${seg.color}" stroke-width="${sw}" stroke-dasharray="${len.toFixed(2)} ${(circumference-len).toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"><title>${seg.label}: ${seg.value}</title></circle>`;
+    offset += len;
+  });
+  svgEl.innerHTML = html;
+}
+
+function renderDonutLegend(containerEl, segments, total){
+  if(!segments.length || total === 0){
+    containerEl.innerHTML = '<div class="donut-empty">No data</div>';
+    return;
+  }
+  containerEl.innerHTML = segments.filter(s=>s.value>0).map(s=>{
+    const pct = total ? Math.round((s.value/total)*100) : 0;
+    return `<div class="donut-legend-item"><span class="sw" style="background:${s.color}"></span><span class="lbl">${s.label}</span><span class="val">${s.value} (${pct}%)</span></div>`;
+  }).join('');
+}
+
+function renderDonuts(){
+  const total = branches.length;
+  const closedList = branches.filter(b=>effectiveStatus(b, asOfDate)==='closed');
+  const openCount = total - closedList.length;
+
+  const statusSegments = [
+    {label:'Open', value:openCount, color:'var(--open)'},
+    {label:'Closed', value:closedList.length, color:'var(--closed)'}
+  ];
+  drawDonut(document.getElementById('donutStatusSvg'), statusSegments);
+  renderDonutLegend(document.getElementById('donutStatusLegend'), statusSegments, total);
+  document.getElementById('donutStatusValue').textContent = total;
+
+  const reasonCounts = {};
+  closedList.forEach(b=>{
+    const cat = getClosureCategory(b, asOfDate);
+    reasonCounts[cat] = (reasonCounts[cat]||0) + 1;
+  });
+  const reasonSegments = Object.keys(reasonCounts).map(cat=>({
+    label: cat,
+    value: reasonCounts[cat],
+    color: DONUT_REASON_COLORS[cat] || '#95a5a6'
+  })).sort((a,b)=>b.value-a.value);
+  drawDonut(document.getElementById('donutReasonSvg'), reasonSegments);
+  renderDonutLegend(document.getElementById('donutReasonLegend'), reasonSegments, closedList.length);
+  document.getElementById('donutReasonValue').textContent = closedList.length;
+}
 function refreshAll(){
   renderMetrics();
+  renderDonuts();
   renderPins();
   renderRegionList();
   renderAlertFeed();
