@@ -225,6 +225,8 @@
   .metric-card.open-c .value{color:var(--open);}
   .metric-card.closed-c .value{color:var(--closed);}
   .metric-card.alert-c .value{color:var(--alert);}
+  .metric-card.asof-c .asof-row{display:flex;align-items:center;gap:6px;}
+  .metric-card.asof-c input[type=date]{padding:6px 8px;font-size:11.5px;width:auto;flex:1;}
 
   .board{display:grid;grid-template-columns:1fr 427px;gap:14px;}
 
@@ -843,7 +845,13 @@
       <div class="metric-card"><div class="top"><span class="dot"></span><span class="label">Total Branches</span></div><div class="value" id="mTotal">0</div></div>
       <div class="metric-card open-c"><div class="top"><span class="dot"></span><span class="label">Open</span></div><div class="value" id="mOpen">0</div></div>
       <div class="metric-card closed-c"><div class="top"><span class="dot"></span><span class="label">Closed</span></div><div class="value" id="mClosed">0</div></div>
-      <div class="metric-card alert-c"><div class="top"><span class="dot"></span><span class="label">Active Alerts Feed</span></div><div class="value" id="mAlert">0</div></div>
+      <div class="metric-card asof-c">
+        <div class="top"><span class="dot"></span><span class="label">As of</span></div>
+        <div class="asof-row">
+          <input type="date" id="asOfDate">
+          <button type="button" id="asOfTodayBtn" class="btn btn-ghost btn-sm">TODAY</button>
+        </div>
+      </div>
     </div>
 
     <div class="board">
@@ -882,7 +890,7 @@
           <div id="regionList"></div>
         </div>
         <div class="rail-card">
-          <h3>Active Alert Feed</h3>
+          <h3>Closed Branches</h3>
           <div id="alertFeed"></div>
         </div>
       </div>
@@ -1762,34 +1770,40 @@ svg.appendChild(pinsLayer);
    ========================================================= */
 const tooltip = document.getElementById('tooltip');
 
+let asOfDate = new Date().toISOString().split('T')[0];
+function effectiveStatus(b, dateStr){
+  if(b.closedFrom && b.closedUntil){
+    return (dateStr >= b.closedFrom && dateStr <= b.closedUntil) ? 'closed' : 'open';
+  }
+  return b.status;
+}
+
 function renderMetrics(){
   const total = branches.length;
-  const closed = branches.filter(b=>b.status==='closed');
+  const closed = branches.filter(b=>effectiveStatus(b, asOfDate)==='closed');
   document.getElementById('mTotal').textContent = total;
   document.getElementById('mOpen').textContent = total - closed.length;
   document.getElementById('mClosed').textContent = closed.length;
-  document.getElementById('mAlert').textContent = branches.filter(b=>b.emergency).length;
 }
 
 function renderPins(){
   pinsLayer.innerHTML = '';
   branches.forEach(b=>{
+    const st = effectiveStatus(b, asOfDate);
+    const isEmergency = b.emergency && st==='closed';
     const {x,y} = project(b.lat,b.lng);
     const g = document.createElementNS(ns,'g');
-    g.setAttribute('class','pin'+(b.emergency?' emergency':''));
+    g.setAttribute('class','pin'+(isEmergency?' emergency':''));
     g.setAttribute('transform',`translate(${x},${y})`);
-
     const halo = document.createElementNS(ns,'circle');
     halo.setAttribute('class','halo'); halo.setAttribute('r','5');
     g.appendChild(halo);
-
     const core = document.createElementNS(ns,'circle');
     core.setAttribute('class','core'); core.setAttribute('r','4.8');
-    core.setAttribute('fill', b.status==='open' ? '#16a34a' : '#dc2626');
+    core.setAttribute('fill', st==='open' ? '#16a34a' : '#dc2626');
     g.appendChild(core);
-
     g.addEventListener('mouseenter',()=>{
-      tooltip.innerHTML = `<span class="t-name">${b.name}</span><span class="t-status ${b.status}">● ${b.status.toUpperCase()}</span>`;
+      tooltip.innerHTML = `<span class="t-name">${b.name}</span><span class="t-status ${st}">● ${st.toUpperCase()}</span>`;
       tooltip.style.left = x+'px';
       tooltip.style.top = y+'px';
       tooltip.classList.add('show');
@@ -1804,7 +1818,7 @@ function renderRegionList(){
   const regionMap = {};
   branches.forEach(b=>{
     regionMap[b.region] = regionMap[b.region] || {open:0,closed:0};
-    regionMap[b.region][b.status]++;
+    regionMap[b.region][effectiveStatus(b, asOfDate)]++;
   });
   const regionList = document.getElementById('regionList');
   regionList.innerHTML = '';
@@ -1820,17 +1834,17 @@ function renderRegionList(){
 
 function renderAlertFeed(){
   const alertFeed = document.getElementById('alertFeed');
-  const closed = branches.filter(b=>b.status==='closed');
+  const closed = branches.filter(b=>effectiveStatus(b, asOfDate)==='closed');
   alertFeed.innerHTML = '';
   if(closed.length===0){
-    alertFeed.innerHTML = '<div class="empty">No active alerts.</div>';
+    alertFeed.innerHTML = '<div class="empty">No closed branches on this date.</div>';
   } else {
     closed.forEach(b=>{
       const item = document.createElement('div');
       item.className='alert-item';
-      const cat = b.history[0][0].replace('Closed — ','');
+      const cat = b.history[0] ? b.history[0][0].replace('Closed — ','') : (b.category||'Closed');
       item.innerHTML = `<div class="a-top"><span>${b.name}</span><span class="tag">${cat}</span></div>
-        <div class="a-meta">${b.region} · since ${b.history[0][2].toLowerCase()}</div>`;
+        <div class="a-meta">${b.region} · since ${b.history[0] ? b.history[0][2].toLowerCase() : ''}</div>`;
       item.addEventListener('click',()=>openDrawer(b));
       alertFeed.appendChild(item);
     });
@@ -2229,6 +2243,8 @@ function approveRequest(id){
   const reviewer = USERS[currentRole].name;
   if(req.requestedStatus==='closed'){
     b.status = 'closed';
+    b.closedFrom = req.closedFrom;
+    b.closedUntil = req.closedUntil;
     const catLabel = req.category || 'Other';
     const untilDate = req.closedUntil ? new Date(req.closedUntil+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
     b.hours = catLabel==='System Maintenance' ? 'Suspended for scheduled maintenance'
@@ -2241,6 +2257,8 @@ function approveRequest(id){
     b.emergency = catLabel !== 'System Maintenance';
   } else {
     b.status = 'open';
+    b.closedFrom = null;
+    b.closedUntil = null;
     b.hours = '9:00 AM – 3:00 PM';
     b.history.unshift(['Opened', req.reason || 'Regular operating hours resumed', 'Just now', `${reviewer} (Approved ${req.id})`]);
     b.emergency = false;
@@ -2487,6 +2505,17 @@ document.getElementById('link-user-access').addEventListener('click',(e)=>{
    INIT
    ========================================================= */
 applyRole('admin');
+document.getElementById('asOfDate').value = asOfDate;
+document.getElementById('asOfDate').addEventListener('change', function(){
+  asOfDate = this.value || new Date().toISOString().split('T')[0];
+  refreshAll();
+});
+document.getElementById('asOfTodayBtn').addEventListener('click', function(){
+  asOfDate = new Date().toISOString().split('T')[0];
+  document.getElementById('asOfDate').value = asOfDate;
+  refreshAll();
+});
+
 refreshAll();
 populateBranchSelect();
 syncStatusChoiceUI();
