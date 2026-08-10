@@ -1702,10 +1702,8 @@ function applyRole(role){
   document.body.classList.add('role-'+role);
   const u = USERS[role];
   document.getElementById('userAvatar').textContent = u.initials;
-  document.getElementById('userName').textContent = u.name;
   document.getElementById('userNameFull').textContent = u.name;
   document.getElementById('userRoleFull').textContent = u.roleLabel;
-  document.getElementById('userRolePill').textContent = u.pill;
   // If a non-admin is sitting on the approval view, bounce to dashboard
   if(role!=='admin' && document.getElementById('view-approval').classList.contains('active')){
     switchView('dashboard');
