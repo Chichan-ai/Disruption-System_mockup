@@ -333,13 +333,24 @@
   .rail-card > div::-webkit-scrollbar{width:7px;}
   .rail-card > div::-webkit-scrollbar-thumb{background:#d3d7dc;border-radius:5px;}
   .rail-card > div::-webkit-scrollbar-track{background:transparent;}
-  .region-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:12px;border-bottom:1px solid var(--border);}
+  .region-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:12px;border-bottom:1px solid var(--border);cursor:pointer;border-radius:7px;padding-left:6px;padding-right:6px;margin:0 -6px;transition:background .12s;}
   .region-row:last-child{border-bottom:none;}
+  .region-row:hover{background:var(--bg);}
   .region-row .name{font-weight:500;color:var(--ink);}
   .region-row .counts{color:var(--muted);font-weight:500;}
   .region-row .counts b{font-weight:600;}
   .region-row .counts b.o{color:var(--open);}
   .region-row .counts b.c{color:var(--closed);}
+
+  .region-branch-item{display:flex;justify-content:space-between;align-items:center;padding:10px 8px;border-bottom:1px solid var(--border);border-radius:7px;cursor:pointer;transition:background .12s;}
+  .region-branch-item:last-child{border-bottom:none;}
+  .region-branch-item:hover{background:var(--bg);}
+  .region-branch-item .rb-name{font-size:12.5px;font-weight:600;color:var(--ink);}
+  .region-branch-item .rb-code{font-size:10.5px;color:var(--muted);margin-top:1px;}
+  .region-branch-item .rb-status{font-size:10.5px;font-weight:600;}
+  .region-branch-item .rb-status.open{color:var(--open);}
+  .region-branch-item .rb-status.closed{color:var(--closed);}
+  .region-drawer-hint{font-size:11px;color:var(--muted);margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);}
 
   .alert-item{padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;}
   .alert-item:last-child{border-bottom:none;}
@@ -934,6 +945,7 @@
     <div class="tab-pane" id="pane-history">
       <div id="historyList"></div>
     </div>
+    <div class="tab-pane" id="pane-region"></div>
   </div>
 </div>
 
@@ -1404,6 +1416,7 @@ function renderRegionList(){
     const row = document.createElement('div');
     row.className='region-row';
     row.innerHTML = `<span class="name">${region}</span><span class="counts"><b class="o">${counts.open||0} open</b> · <b class="c">${counts.closed||0} closed</b></span>`;
+    row.addEventListener('click',()=>openRegionDrawer(region));
     regionList.appendChild(row);
   });
 }
@@ -1440,6 +1453,12 @@ function refreshAll(){
 const drawer = document.getElementById('drawer');
 const scrim = document.getElementById('scrim');
 function openDrawer(b){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelector('.tab[data-tab="directory"]').classList.add('active');
+  document.getElementById('pane-directory').classList.add('active');
+  document.querySelector('.tabs').style.display='';
+
   document.getElementById('dCode').textContent = b.code;
   document.getElementById('dName').textContent = b.name;
   const pill = document.getElementById('dStatus');
@@ -1466,6 +1485,43 @@ function openDrawer(b){
     item.innerHTML = `<div class="h-title">${title}</div><div class="h-meta">${reason} — ${when} · ${by}</div>`;
     hist.appendChild(item);
   });
+
+  drawer.classList.add('show');
+  scrim.classList.add('show');
+}
+function openRegionDrawer(regionName){
+  const regionBranches = branches.filter(b=>b.region===regionName);
+  const openCount = regionBranches.filter(b=>b.status==='open').length;
+  const closedCount = regionBranches.filter(b=>b.status==='closed').length;
+
+  document.getElementById('dCode').textContent = regionBranches.length+' branches';
+  document.getElementById('dName').textContent = regionName;
+  const pill = document.getElementById('dStatus');
+  pill.className = 'status-pill open';
+  document.getElementById('dStatusText').textContent = openCount+' open · '+closedCount+' closed';
+
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelector('.tabs').style.display='none';
+
+  document.getElementById('pane-region').innerHTML =
+    `<div class="region-drawer-hint">Click a branch to view its full details.</div>` +
+    regionBranches.sort((a,b)=>a.name.localeCompare(b.name)).map(b=>
+      `<div class="region-branch-item" data-code="${b.code}">
+        <div><div class="rb-name">${b.name}</div><div class="rb-code">${b.code}</div></div>
+        <span class="rb-status ${b.status}">${b.status==='open'?'Open':'Closed'}</span>
+      </div>`
+    ).join('');
+
+  document.getElementById('pane-region').querySelectorAll('.region-branch-item').forEach(item=>{
+    item.addEventListener('click',()=>{
+      const code = item.getAttribute('data-code');
+      const b = branches.find(x=>x.code===code);
+      if(b) openDrawer(b);
+    });
+  });
+
+  document.getElementById('pane-region').classList.add('active');
 
   drawer.classList.add('show');
   scrim.classList.add('show');
