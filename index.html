@@ -376,6 +376,30 @@
   .holiday-suggest{margin-top:8px;background:#eaf2f8;border:1px solid #aed6f1;border-radius:8px;padding:10px 12px;font-size:11.5px;color:#1a5276;line-height:1.5;}
   .holiday-suggest strong{font-weight:700;}
 
+  .sms-scrim{position:fixed;inset:0;background:rgba(20,20,30,.45);opacity:0;pointer-events:none;transition:opacity .2s;z-index:50;}
+  .sms-scrim.show{opacity:1;pointer-events:auto;}
+  .sms-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.95);background:#fff;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.25);width:400px;max-width:92vw;z-index:51;opacity:0;pointer-events:none;transition:opacity .2s, transform .2s;display:flex;flex-direction:column;max-height:85vh;}
+  .sms-modal.show{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1);}
+  .sms-modal-head{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;}
+  .sms-modal-head h3{font-size:14px;font-weight:700;color:var(--ink);margin:0;}
+  .sms-modal-head .sms-close{width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:#fff;color:var(--muted);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .sms-modal-head .sms-close:hover{background:var(--bg);}
+  .sms-modal-body{padding:16px 20px;overflow-y:auto;flex:1;}
+  .sms-modal-foot{padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;}
+
+  .sms-phone{background:#f0f2f5;border-radius:12px;padding:3px;margin-bottom:14px;}
+  .sms-bubble{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-family:'Courier New',Courier,monospace;font-size:11.5px;line-height:1.65;color:var(--ink);white-space:pre-wrap;word-break:break-word;max-height:340px;overflow-y:auto;}
+  .sms-bubble::-webkit-scrollbar{width:6px;}
+  .sms-bubble::-webkit-scrollbar-thumb{background:#d3d7dc;border-radius:4px;}
+  .sms-sender{font-size:10.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:6px 16px 2px;}
+  .sms-timestamp{font-size:10px;color:var(--muted);text-align:center;padding:8px 0 4px;}
+
+  .sms-config-note{background:#eaf2f8;border:1px solid #aed6f1;border-radius:8px;padding:10px 14px;font-size:11.5px;color:#1a5276;line-height:1.5;margin-bottom:16px;}
+  .sms-config-note strong{font-weight:700;}
+
+  .sms-recipients{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+  .sms-rcpt-tag{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:3px 10px;font-size:11px;font-weight:500;color:var(--ink);}
+
   .alert-item{padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;}
   .alert-item:last-child{border-bottom:none;}
   .alert-item .a-top{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;}
@@ -740,6 +764,7 @@
     <div class="navitem" id="nav-forms" style="position:relative;">Maintenance <span class="chev">▾</span>
       <div class="dropdown" id="dd-forms">
         <a href="#" id="link-forms-request">New Branch Status Request</a>
+        <a href="#" id="link-sms">SMS Notification</a>
         <a href="#">Holiday Declaration Form</a>
         <a href="#">Incident Report Form</a>
       </div>
@@ -935,6 +960,75 @@
     <div class="req-list" id="archiveList"></div>
   </div>
 
+  <!-- ============ SMS NOTIFICATION VIEW ============ -->
+  <div class="view" id="view-sms">
+    <div class="page-head">
+      <div class="page-title">SMS Notification</div>
+      <div class="page-sub">Configure an automated daily SMS report listing all branches that are currently closed. This is a mockup — no messages are actually sent.</div>
+    </div>
+
+    <div class="form-layout">
+      <div class="form-card">
+        <h2>SMS Configuration</h2>
+        <div class="hint">Set up who receives the daily branch status report and customize the message template.</div>
+
+        <div class="sms-config-note">
+          <strong>ℹ Mockup Notice</strong> — This feature is under development. The "View Message" button below will render a sample SMS based on the current branch statuses. No messages will be sent.
+        </div>
+
+        <form id="smsForm">
+          <div class="f-group">
+            <label for="smsRecipients">Recipients</label>
+            <input type="text" id="smsRecipients" value="0917-555-4657, 0917-555-7912, 0917-555-8527, 0917-555-6155" placeholder="Comma-separated phone numbers">
+            <div class="f-help">Comma-separated mobile numbers. These are mockup values.</div>
+          </div>
+
+          <div class="f-group">
+            <label for="smsSchedule">Schedule</label>
+            <select id="smsSchedule">
+              <option value="daily-6am" selected>Daily at 6:00 AM</option>
+              <option value="daily-12pm">Daily at 12:00 PM</option>
+              <option value="daily-6pm">Daily at 6:00 PM</option>
+              <option value="weekly-monday">Weekly every Monday</option>
+            </select>
+          </div>
+
+          <div class="f-group">
+            <label for="smsTemplate">Message Template</label>
+            <textarea id="smsTemplate" rows="10">[CBAMS] Daily Branch Status Report — {{DATE}}
+
+CLOSED today:
+{{CLOSED_LIST}}
+
+Total: {{CLOSED_COUNT}} closed of {{TOTAL_COUNT}} branches
+For concerns, contact the CBAMS Helpdesk.</textarea>
+            <div class="f-help">Use {{DATE}}, {{CLOSED_LIST}}, {{CLOSED_COUNT}}, and {{TOTAL_COUNT}} as placeholders. These will be replaced automatically.</div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-primary" id="smsViewBtn">View Message</button>
+            <button type="button" class="btn btn-ghost" id="smsTestBtn">Send Test</button>
+            <button type="submit" class="btn btn-ghost" id="smsSaveBtn">Save</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="tips-card">
+        <h3>How the daily SMS works</h3>
+        <ul>
+          <li>Every day at the scheduled time, CBAMS compiles a list of all branches with <b>closed</b> status.</li>
+          <li>The message is sent to all configured recipients.</li>
+          <li>Placeholders in the template are replaced with real data at send time.</li>
+          <li>This is a <b>mockup</b> — no actual SMS integration is active yet.</li>
+        </ul>
+        <div style="margin-top:14px;">
+          <h4 style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;">Current Recipients</h4>
+          <div id="smsRecipientTags" class="sms-recipients"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </main>
 
 <div class="toast-stack" id="toastStack"></div>
@@ -980,6 +1074,24 @@
       <div id="historyList"></div>
     </div>
     <div class="tab-pane" id="pane-region"></div>
+  </div>
+</div>
+
+<div class="sms-scrim" id="smsScrim"></div>
+<div class="sms-modal" id="smsModal">
+  <div class="sms-modal-head">
+    <h3>SMS Preview — Daily Branch Status Report</h3>
+    <button class="sms-close" id="smsModalClose">✕</button>
+  </div>
+  <div class="sms-modal-body">
+    <div class="sms-sender">CBAMS automated message</div>
+    <div class="sms-phone">
+      <div class="sms-bubble" id="smsBubble"></div>
+    </div>
+    <div class="sms-timestamp" id="smsTimestamp"></div>
+  </div>
+  <div class="sms-modal-foot">
+    <button class="btn btn-ghost" id="smsModalCloseBtn">Close</button>
   </div>
 </div>
 
@@ -1511,6 +1623,7 @@ document.getElementById('link-approval-locked').addEventListener('click',(e)=>{
   showToast('Approval queue requires admin access. Switch role in the account menu.', 'error');
 });
 document.getElementById('link-archive').addEventListener('click',(e)=>{e.preventDefault(); switchView('archive');});
+document.getElementById('link-sms').addEventListener('click',(e)=>{e.preventDefault(); switchView('sms'); renderSmsRecipientTags();});
 
 /* =========================================================
    PHILIPPINES MAP — projection + outline
@@ -2087,6 +2200,68 @@ window.addEventListener('mousemove',(e)=>{
   mapScroll.scrollTop = startScrollT - (e.clientY-dragStartY);
 });
 window.addEventListener('mouseup',()=>{ isDragging=false; mapScroll.classList.remove('dragging'); });
+
+/* =========================================================
+   SMS NOTIFICATION (MOCKUP)
+   ========================================================= */
+function renderSmsRecipientTags(){
+  const input = document.getElementById('smsRecipients').value;
+  const tags = document.getElementById('smsRecipientTags');
+  const numbers = input.split(',').map(s=>s.trim()).filter(Boolean);
+  tags.innerHTML = numbers.map(n=>`<span class="sms-rcpt-tag">${n}</span>`).join('');
+}
+
+function buildSmsMessage(){
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  const closed = branches.filter(b=>b.status==='closed');
+  const open = branches.filter(b=>b.status==='open');
+  let list = '';
+  if(closed.length === 0){
+    list = '(No branches currently closed)';
+  } else {
+    list = closed.map((b,i)=>{
+      const reason = b.hours || 'Suspended until further notice';
+      return `${i+1}. ${b.name} (${b.code}) — ${reason.replace('Suspended — ','').replace('Suspended for ','').replace('Suspended until ','').toLowerCase()}`;
+    }).join('\n');
+  }
+  const template = document.getElementById('smsTemplate').value;
+  return template
+    .replace(/\{\{DATE\}\}/g, dateStr)
+    .replace(/\{\{CLOSED_LIST\}\}/g, list)
+    .replace(/\{\{CLOSED_COUNT\}\}/g, closed.length)
+    .replace(/\{\{TOTAL_COUNT\}\}/g, branches.length);
+}
+
+function showSmsModal(){
+  const msg = buildSmsMessage();
+  document.getElementById('smsBubble').textContent = msg;
+  const now = new Date();
+  document.getElementById('smsTimestamp').textContent = now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true});
+  document.getElementById('smsScrim').classList.add('show');
+  document.getElementById('smsModal').classList.add('show');
+}
+
+function closeSmsModal(){
+  document.getElementById('smsScrim').classList.remove('show');
+  document.getElementById('smsModal').classList.remove('show');
+}
+
+document.getElementById('smsViewBtn').addEventListener('click', showSmsModal);
+document.getElementById('smsModalClose').addEventListener('click', closeSmsModal);
+document.getElementById('smsModalCloseBtn').addEventListener('click', closeSmsModal);
+document.getElementById('smsScrim').addEventListener('click', closeSmsModal);
+
+document.getElementById('smsTestBtn').addEventListener('click', ()=>{
+  showToast('Test SMS sent to ' + document.getElementById('smsRecipients').value.split(',').length + ' recipient(s). (mockup)', 'info');
+});
+
+document.getElementById('smsForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  showToast('SMS schedule saved. (mockup)', 'success');
+});
+
+document.getElementById('smsRecipients').addEventListener('input', renderSmsRecipientTags);
 
 /* =========================================================
    INIT
