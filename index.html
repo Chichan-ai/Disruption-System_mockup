@@ -937,13 +937,20 @@
             </select>
           </div>
 
-          <div class="f-group" id="closedUntilGroup" style="display:none;">
-            <label for="reqClosedUntil">Closed until</label>
-            <input type="date" id="reqClosedUntil" min="">
-            <div class="f-help">The branch will remain closed until this date.</div>
-            <div id="holidayIndicator" class="holiday-indicator" style="display:none;"></div>
-            <div id="holidayOverlap" class="holiday-overlap" style="display:none;"></div>
-            <div id="holidaySuggest" class="holiday-suggest" style="display:none;"></div>
+          <div class="f-row" style="display:flex; gap:12px;">
+            <div class="f-group" id="closedFromGroup" style="display:none;">
+              <label for="reqClosedFrom">Closed from</label>
+              <input type="date" id="reqClosedFrom" min="">
+              <div class="f-help">The date the branch closure begins.</div>
+            </div>
+            <div class="f-group" id="closedUntilGroup" style="display:none;">
+              <label for="reqClosedUntil">Closed until</label>
+              <input type="date" id="reqClosedUntil" min="">
+              <div class="f-help">The branch will remain closed until this date.</div>
+              <div id="holidayIndicator" class="holiday-indicator" style="display:none;"></div>
+              <div id="holidayOverlap" class="holiday-overlap" style="display:none;"></div>
+              <div id="holidaySuggest" class="holiday-suggest" style="display:none;"></div>
+            </div>
           </div>
 
           <div class="f-group">
