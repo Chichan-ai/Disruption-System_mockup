@@ -291,6 +291,32 @@
     background:var(--bg);
     font-weight:600;
   }
+  .open-pct-badge{
+    position:absolute;
+    top:56px;
+    left:28px;
+    z-index:11;
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:12px;
+    box-shadow:var(--shadow-md);
+    padding:12px 18px;
+    text-align:center;
+    pointer-events:none;
+  }
+  .open-pct-badge .pct-value{
+    font-size:32px;
+    font-weight:800;
+    line-height:1;
+    color:var(--open);
+  }
+  .open-pct-badge .pct-label{
+    font-size:10.5px;
+    color:var(--muted);
+    font-weight:600;
+    margin-top:4px;
+    white-space:nowrap;
+  }
 
   .map-scroll{
     height:700px;overflow:auto;border:1px solid var(--border);border-radius:var(--radius);
@@ -1841,9 +1867,15 @@ function effectiveStatus(b, dateStr){
 function renderMetrics(){
   const total = branches.length;
   const closed = branches.filter(b=>effectiveStatus(b, asOfDate)==='closed');
+  const openCount = total - closed.length;
   document.getElementById('mTotal').textContent = total;
-  document.getElementById('mOpen').textContent = total - closed.length;
+  document.getElementById('mOpen').textContent = openCount;
   document.getElementById('mClosed').textContent = closed.length;
+
+  const pct = total ? Math.round((openCount / total) * 100) : 0;
+  document.getElementById('openPctValue').textContent = pct + '%';
+  document.getElementById('openPctDate').textContent = new Date(asOfDate+'T00:00:00')
+    .toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
 }
 
 function renderPins(){
