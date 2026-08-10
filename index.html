@@ -673,6 +673,36 @@
   .alert-item{cursor:pointer;border-radius:7px;padding:9px 6px;margin:0 -6px;}
   .alert-item:hover{background:var(--bg);}
 
+  /* ===== User Access Settings ===== */
+  .access-table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow-x:auto;}
+  .access-table{width:100%;border-collapse:collapse;font-size:12px;min-width:820px;}
+  .access-table th{text-align:center;padding:10px 10px;border-bottom:2px solid var(--border);font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;background:#fafbfc;white-space:nowrap;}
+  .access-table th:first-child,.access-table th:nth-child(2){text-align:left;}
+  .access-table td{padding:10px 10px;border-bottom:1px solid var(--border);vertical-align:middle;text-align:center;}
+  .access-table td:first-child,.access-table td:nth-child(2){text-align:left;}
+  .access-table tr:last-child td{border-bottom:none;}
+  .access-table tr:hover td{background:var(--bg);}
+  .access-table .au-name{font-weight:600;color:var(--ink);white-space:nowrap;}
+  .access-table .au-role{font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:20px;background:rgba(46,139,63,.12);color:var(--forest);white-space:nowrap;}
+  .access-table .au-role.role-admin{background:rgba(255,193,7,.15);color:#b8860b;}
+  .access-table .au-role.role-supervisor{background:rgba(52,152,219,.12);color:#2980b9;}
+
+  .toggle{position:relative;display:inline-block;width:34px;height:18px;cursor:pointer;}
+  .toggle input{opacity:0;width:0;height:0;}
+  .toggle .slider{
+    position:absolute;inset:0;background:#d1d5db;border-radius:20px;transition:all .2s;
+  }
+  .toggle .slider::before{
+    content:'';position:absolute;width:14px;height:14px;left:2px;bottom:2px;background:#fff;border-radius:50%;transition:all .2s;box-shadow:0 1px 2px rgba(0,0,0,.15);
+  }
+  .toggle input:checked+.slider{background:var(--forest);}
+  .toggle input:checked+.slider::before{transform:translateX(16px);}
+  .toggle input:disabled{opacity:.45;cursor:not-allowed;}
+  .toggle input:disabled+.slider{cursor:not-allowed;}
+
+  .access-actions{display:flex;gap:8px;margin-top:14px;justify-content:flex-end;}
+  .access-hint{font-size:11.5px;color:var(--muted);margin-bottom:14px;line-height:1.5;}
+
   @media(max-width:900px){
     .form-layout{grid-template-columns:1fr;}
   }
@@ -780,6 +810,7 @@
       <div class="dropdown" id="dd-forms">
         <a href="#" id="link-sms">SMS Notification</a>
         <a href="#" id="link-holidays">Holidays List</a>
+        <a href="#" id="link-user-access">User Access Settings</a>
       </div>
     </div>
   </nav>
@@ -1069,6 +1100,38 @@ For concerns, contact the CBAMS Helpdesk.</textarea>
         </thead>
         <tbody id="holidayTableBody"></tbody>
       </table>
+    </div>
+  </div>
+
+  <div class="view" id="view-user-access">
+    <div class="page-head">
+      <div class="page-title">User Access Settings</div>
+      <div class="page-sub">Manage user permissions for system modules and features. Changes here are for demonstration purposes only.</div>
+    </div>
+    <div class="access-hint">Toggle permissions for each user. Permission changes will not be saved in this mockup.</div>
+    <div class="access-table-wrap">
+      <table class="access-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>Login</th>
+            <th>Dashboard</th>
+            <th>Request</th>
+            <th>Approve</th>
+            <th>User Access</th>
+            <th>Archive</th>
+            <th>Export</th>
+            <th>Manage Users</th>
+            <th>Audit Log</th>
+          </tr>
+        </thead>
+        <tbody id="accessTableBody"></tbody>
+      </table>
+    </div>
+    <div class="access-actions">
+      <button class="btn btn-ghost" id="btnResetAccess" disabled>Reset</button>
+      <button class="btn btn-primary" id="btnSaveAccess" disabled>Save Changes</button>
     </div>
   </div>
 
@@ -2351,6 +2414,46 @@ document.querySelectorAll('#holidayFilterRow .filter-chip').forEach(chip=>{
     holidayFilter = chip.dataset.filter;
     renderHolidaysList();
   });
+});
+
+/* =========================================================
+   USER ACCESS SETTINGS — mockup
+   ========================================================= */
+const ACCESS_USERS = [
+  { name:'fjprincipe',  role:'Admin',      roleClass:'role-admin',     perms:{can_login:true,can_access_dashboard:true,can_request:true,can_approve:true,can_access_user_access:true,can_view_archive:true,can_export_data:true,can_manage_users:true,can_view_audit_log:true} },
+  { name:'cbulayan',    role:'User',       roleClass:'',               perms:{can_login:true,can_access_dashboard:true,can_request:true,can_approve:false,can_access_user_access:false,can_view_archive:true,can_export_data:false,can_manage_users:false,can_view_audit_log:false} },
+  { name:'mgarcia',     role:'Supervisor', roleClass:'role-supervisor', perms:{can_login:true,can_access_dashboard:true,can_request:true,can_approve:true,can_access_user_access:false,can_view_archive:true,can_export_data:true,can_manage_users:false,can_view_audit_log:false} },
+  { name:'rdela Cruz',  role:'Staff',      roleClass:'',               perms:{can_login:true,can_access_dashboard:true,can_request:false,can_approve:false,can_access_user_access:false,can_view_archive:false,can_export_data:false,can_manage_users:false,can_view_audit_log:false} },
+];
+
+const ACCESS_PERMS = [
+  { key:'can_login',              label:'Login' },
+  { key:'can_access_dashboard',   label:'Dashboard' },
+  { key:'can_request',            label:'Request' },
+  { key:'can_approve',            label:'Approve' },
+  { key:'can_access_user_access', label:'User Access' },
+  { key:'can_view_archive',       label:'Archive' },
+  { key:'can_export_data',        label:'Export' },
+  { key:'can_manage_users',       label:'Manage Users' },
+  { key:'can_view_audit_log',     label:'Audit Log' },
+];
+
+function renderAccessTable(){
+  const tbody = document.getElementById('accessTableBody');
+  tbody.innerHTML = ACCESS_USERS.map(u=>{
+    const roleTag = u.roleClass ? `<span class="au-role ${u.roleClass}">${u.role}</span>` : `<span class="au-role">${u.role}</span>`;
+    const toggles = ACCESS_PERMS.map(p=>{
+      const checked = u.perms[p.key] ? 'checked' : '';
+      return `<td><label class="toggle"><input type="checkbox" ${checked} data-user="${u.name}" data-perm="${p.key}"><span class="slider"></span></label></td>`;
+    }).join('');
+    return `<tr><td class="au-name">${u.name}</td><td>${roleTag}</td>${toggles}</tr>`;
+  }).join('');
+}
+
+document.getElementById('link-user-access').addEventListener('click',(e)=>{
+  e.preventDefault();
+  switchView('user-access');
+  renderAccessTable();
 });
 
 /* =========================================================
