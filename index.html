@@ -2040,6 +2040,8 @@ reqBranchSel.addEventListener('change',()=>{
     optOpenLabel.querySelector('input').checked = true;
   }
   const today = new Date().toISOString().split('T')[0];
+  document.getElementById('reqClosedFrom').min = today;
+  document.getElementById('reqClosedFrom').value = '';
   document.getElementById('reqClosedUntil').min = today;
   document.getElementById('reqClosedUntil').value = '';
   document.getElementById('holidayOverlap').style.display = 'none';
@@ -2053,17 +2055,27 @@ function syncStatusChoiceUI(){
   document.getElementById('optOpen').classList.toggle('checked', val==='open');
   document.getElementById('optClosed').classList.toggle('checked', val==='closed');
   document.getElementById('categoryGroup').style.display = val==='closed' ? 'block' : 'none';
+  document.getElementById('closedFromGroup').style.display = val==='closed' ? 'block' : 'none';
   document.getElementById('closedUntilGroup').style.display = val==='closed' ? 'block' : 'none';
   if(val!=='closed'){
     document.getElementById('holidayIndicator').style.display = 'none';
     document.getElementById('holidayOverlap').style.display = 'none';
     document.getElementById('holidaySuggest').style.display = 'none';
+    document.getElementById('reqClosedFrom').value = '';
     document.getElementById('reqClosedUntil').value = '';
   }
 }
 document.querySelectorAll('input[name=reqStatus]').forEach(r=>r.addEventListener('change', syncStatusChoiceUI));
 
 document.getElementById('reqClosedUntil').addEventListener('change', checkHolidayOverlap);
+document.getElementById('reqClosedFrom').addEventListener('change', function(){
+  const today = new Date().toISOString().split('T')[0];
+  const untilInput = document.getElementById('reqClosedUntil');
+  untilInput.min = this.value || today;
+  if(untilInput.value && untilInput.value < untilInput.min){
+    untilInput.value = '';
+  }
+});
 
 let reqIdCounter = 1;
 let requests = [];
@@ -2080,7 +2092,12 @@ document.getElementById('requestForm').addEventListener('submit', function(e){
 
   const requestedStatus = statusInput.value;
   const category = requestedStatus==='closed' ? document.getElementById('reqCategory').value : null;
+  const closedFrom = requestedStatus==='closed' ? document.getElementById('reqClosedFrom').value : null;
   const closedUntil = requestedStatus==='closed' ? document.getElementById('reqClosedUntil').value : null;
+  if(requestedStatus==='closed' && !closedFrom){
+    showToast('Select a "Closed from" date.', 'error');
+    return;
+  }
   if(requestedStatus==='closed' && !closedUntil){
     showToast('Select a "Closed until" date.', 'error');
     return;
@@ -2092,7 +2109,7 @@ document.getElementById('requestForm').addEventListener('submit', function(e){
     branchName: b.name,
     region: b.region,
     currentStatus: b.status,
-    requestedStatus, category, reason, closedUntil,
+    requestedStatus, category, reason, closedFrom, closedUntil,
     submittedBy: USERS[currentRole].name,
     submittedByRole: currentRole,
     submittedAt: 'Just now',
@@ -2107,6 +2124,7 @@ document.getElementById('requestForm').addEventListener('submit', function(e){
   document.getElementById('optOpen').classList.remove('disabled');
   document.getElementById('optClosed').querySelector('input').disabled = false;
   document.getElementById('optOpen').querySelector('input').disabled = false;
+  document.getElementById('reqClosedFrom').value = '';
   document.getElementById('reqClosedUntil').value = '';
   document.getElementById('holidayIndicator').style.display = 'none';
   document.getElementById('holidayOverlap').style.display = 'none';
@@ -2122,6 +2140,7 @@ document.getElementById('reqResetBtn').addEventListener('click', ()=>{
     document.getElementById('optOpen').classList.remove('disabled');
     document.getElementById('optClosed').querySelector('input').disabled = false;
     document.getElementById('optOpen').querySelector('input').disabled = false;
+    document.getElementById('reqClosedFrom').value = '';
     document.getElementById('reqClosedUntil').value = '';
     document.getElementById('holidayIndicator').style.display = 'none';
     document.getElementById('holidayOverlap').style.display = 'none';
@@ -2131,9 +2150,10 @@ document.getElementById('reqResetBtn').addEventListener('click', ()=>{
 });
 
 function reqCardHTML(r, withActions){
+  const closedFromDate = r.closedFrom ? new Date(r.closedFrom+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
   const closedUntilDate = r.closedUntil ? new Date(r.closedUntil+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
   const changeHTML = r.requestedStatus==='closed'
-    ? `<span class="pill open">OPEN</span><span class="arrow">→</span><span class="pill closed">CLOSED</span>${r.category?`<span class="pill cat">${r.category}</span>`:''}${closedUntilDate?`<span class="pill cat">until ${closedUntilDate}</span>`:''}`
+    ? `<span class="pill open">OPEN</span><span class="arrow">→</span><span class="pill closed">CLOSED</span>${r.category?`<span class="pill cat">${r.category}</span>`:''}${closedFromDate?`<span class="pill cat">from ${closedFromDate}</span>`:''}${closedUntilDate?`<span class="pill cat">until ${closedUntilDate}</span>`:''}`
     : `<span class="pill closed">CLOSED</span><span class="arrow">→</span><span class="pill open">OPEN</span>`;
   const statusPillHTML = r.status==='pending'
     ? `<span class="pill pending">PENDING</span>`
