@@ -512,12 +512,12 @@
   .f-group label{display:block;font-size:11.5px;font-weight:600;color:var(--ink);margin-bottom:6px;}
   .f-group .f-help{font-size:10.5px;color:var(--muted);margin-top:5px;}
   .f-row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-  select,textarea,input[type=text]{
+  select,textarea,input[type=text],input[type=date]{
     width:100%;font-family:var(--f);font-size:12.5px;color:var(--ink);
     border:1px solid var(--border);border-radius:8px;padding:10px 12px;background:#fff;
     outline:none;transition:border-color .15s;
   }
-  select:focus,textarea:focus,input[type=text]:focus{border-color:var(--forest);}
+  select:focus,textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--forest);}
   textarea{resize:vertical;min-height:84px;font-family:var(--f);}
 
   .status-choice{display:flex;gap:10px;}
@@ -529,6 +529,7 @@
   .status-opt .so-label{font-size:12px;font-weight:600;}
   .status-opt.sel-open.checked{border-color:var(--open);background:#e7f8ee;}
   .status-opt.sel-closed.checked{border-color:var(--closed);background:#fbe9e9;}
+  .status-opt.disabled{opacity:.45;pointer-events:none;cursor:not-allowed;}
 
   .branch-preview{
     margin-top:4px;padding:11px 13px;border-radius:9px;background:var(--bg);border:1px solid var(--border);
@@ -841,6 +842,12 @@
               <option value="Security Incident">Security Incident</option>
               <option value="Other">Other</option>
             </select>
+          </div>
+
+          <div class="f-group" id="closedUntilGroup" style="display:none;">
+            <label for="reqClosedUntil">Closed until</label>
+            <input type="date" id="reqClosedUntil" min="">
+            <div class="f-help">The branch will remain closed until this date.</div>
           </div>
 
           <div class="f-group">
@@ -1583,9 +1590,24 @@ reqBranchSel.addEventListener('change',()=>{
   if(!b){ branchPreview.classList.remove('show'); return; }
   branchPreview.classList.add('show');
   branchPreview.innerHTML = `<b>${b.region}</b> · currently <b>${b.status.toUpperCase()}</b> · ${b.address||'—'}`;
-  // Pre-suggest the opposite action of current status
-  if(b.status==='open'){ document.getElementById('optClosed').querySelector('input').checked = true; }
-  else { document.getElementById('optOpen').querySelector('input').checked = true; }
+  const optClosedLabel = document.getElementById('optClosed');
+  const optOpenLabel = document.getElementById('optOpen');
+  optClosedLabel.classList.remove('disabled');
+  optOpenLabel.classList.remove('disabled');
+  optClosedLabel.querySelector('input').disabled = false;
+  optOpenLabel.querySelector('input').disabled = false;
+  if(b.status==='open'){
+    optOpenLabel.classList.add('disabled');
+    optOpenLabel.querySelector('input').disabled = true;
+    optClosedLabel.querySelector('input').checked = true;
+  } else {
+    optClosedLabel.classList.add('disabled');
+    optClosedLabel.querySelector('input').disabled = true;
+    optOpenLabel.querySelector('input').checked = true;
+  }
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('reqClosedUntil').min = today;
+  document.getElementById('reqClosedUntil').value = '';
   syncStatusChoiceUI();
 });
 
@@ -1594,6 +1616,7 @@ function syncStatusChoiceUI(){
   document.getElementById('optOpen').classList.toggle('checked', val==='open');
   document.getElementById('optClosed').classList.toggle('checked', val==='closed');
   document.getElementById('categoryGroup').style.display = val==='closed' ? 'block' : 'none';
+  document.getElementById('closedUntilGroup').style.display = val==='closed' ? 'block' : 'none';
 }
 document.querySelectorAll('input[name=reqStatus]').forEach(r=>r.addEventListener('change', syncStatusChoiceUI));
 
@@ -1612,6 +1635,11 @@ document.getElementById('requestForm').addEventListener('submit', function(e){
 
   const requestedStatus = statusInput.value;
   const category = requestedStatus==='closed' ? document.getElementById('reqCategory').value : null;
+  const closedUntil = requestedStatus==='closed' ? document.getElementById('reqClosedUntil').value : null;
+  if(requestedStatus==='closed' && !closedUntil){
+    showToast('Select a "Closed until" date.', 'error');
+    return;
+  }
 
   const req = {
     id: 'REQ-'+String(1000+reqIdCounter++),
@@ -1619,7 +1647,7 @@ document.getElementById('requestForm').addEventListener('submit', function(e){
     branchName: b.name,
     region: b.region,
     currentStatus: b.status,
-    requestedStatus, category, reason,
+    requestedStatus, category, reason, closedUntil,
     submittedBy: USERS[currentRole].name,
     submittedByRole: currentRole,
     submittedAt: 'Just now',
@@ -1630,17 +1658,31 @@ document.getElementById('requestForm').addEventListener('submit', function(e){
   showToast(`Request ${req.id} submitted for approval.`, 'success');
   this.reset();
   branchPreview.classList.remove('show');
+  document.getElementById('optClosed').classList.remove('disabled');
+  document.getElementById('optOpen').classList.remove('disabled');
+  document.getElementById('optClosed').querySelector('input').disabled = false;
+  document.getElementById('optOpen').querySelector('input').disabled = false;
+  document.getElementById('reqClosedUntil').value = '';
   syncStatusChoiceUI();
   updatePendingBadge();
   renderMySubmissions();
 });
 document.getElementById('reqResetBtn').addEventListener('click', ()=>{
-  setTimeout(()=>{ branchPreview.classList.remove('show'); syncStatusChoiceUI(); }, 0);
+  setTimeout(()=>{
+    branchPreview.classList.remove('show');
+    document.getElementById('optClosed').classList.remove('disabled');
+    document.getElementById('optOpen').classList.remove('disabled');
+    document.getElementById('optClosed').querySelector('input').disabled = false;
+    document.getElementById('optOpen').querySelector('input').disabled = false;
+    document.getElementById('reqClosedUntil').value = '';
+    syncStatusChoiceUI();
+  }, 0);
 });
 
 function reqCardHTML(r, withActions){
+  const closedUntilDate = r.closedUntil ? new Date(r.closedUntil+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
   const changeHTML = r.requestedStatus==='closed'
-    ? `<span class="pill open">OPEN</span><span class="arrow">→</span><span class="pill closed">CLOSED</span>${r.category?`<span class="pill cat">${r.category}</span>`:''}`
+    ? `<span class="pill open">OPEN</span><span class="arrow">→</span><span class="pill closed">CLOSED</span>${r.category?`<span class="pill cat">${r.category}</span>`:''}${closedUntilDate?`<span class="pill cat">until ${closedUntilDate}</span>`:''}`
     : `<span class="pill closed">CLOSED</span><span class="arrow">→</span><span class="pill open">OPEN</span>`;
   const statusPillHTML = r.status==='pending'
     ? `<span class="pill pending">PENDING</span>`
@@ -1717,10 +1759,12 @@ function approveRequest(id){
   if(req.requestedStatus==='closed'){
     b.status = 'closed';
     const catLabel = req.category || 'Other';
+    const untilDate = req.closedUntil ? new Date(req.closedUntil+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
     b.hours = catLabel==='System Maintenance' ? 'Suspended for scheduled maintenance'
       : catLabel==='Power Outage' ? 'Suspended — power outage'
       : catLabel==='Connectivity' ? 'Suspended — network outage'
       : catLabel==='Flooding' ? 'Suspended — flooding'
+      : untilDate ? `Suspended until ${untilDate}`
       : 'Suspended until further notice';
     b.history.unshift([`Closed — ${catLabel}`, req.reason, 'Just now', `${reviewer} (Approved ${req.id})`]);
     b.emergency = catLabel !== 'System Maintenance';
