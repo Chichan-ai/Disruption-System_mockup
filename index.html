@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Agribank - Disruption System</title>
+<title>CBAMS — Agribank Branch Operations</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -44,11 +44,22 @@
     flex:1 1 66%;width:66%;height:100vh;position:relative;overflow:hidden;
     background:linear-gradient(135deg,var(--login-green-900),var(--login-green-700));
   }
-  #login-page .media-track{display:flex;height:100%;align-items:center;transition:transform .8s cubic-bezier(.65,0,.35,1);}
+  #login-page .media-track{position:relative;height:100%;}
   #login-page .media-slide{
-    flex:0 0 100%;width:100%;height:100%;display:flex;flex-direction:column;
+    position:absolute;inset:0;width:100%;height:100%;display:flex;flex-direction:column;
     align-items:center;justify-content:center;text-align:center;padding:48px;color:#fff;
+    opacity:0;transition:opacity 1s ease;pointer-events:none;
   }
+  #login-page .media-slide.active{opacity:1;pointer-events:auto;}
+  #login-page .media-slide .ad-photo{
+    position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;
+  }
+  #login-page .media-slide .ad-overlay{
+    position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.55));z-index:1;
+  }
+  #login-page .media-slide .icon,
+  #login-page .media-slide h3,
+  #login-page .media-slide p{position:relative;z-index:2;}
   #login-page .media-slide .icon{
     width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.14);
     display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:20px;
@@ -600,17 +611,26 @@
   <!-- ============ LEFT: BRAND / ANNOUNCEMENT PANEL ============ -->
   <section class="media" aria-label="Announcements">
     <div class="media-track" id="mediaTrack">
-      <div class="media-slide">
+      <div class="media-slide active">
+        <!-- Drop your ad photo's path/URL into the src below -->
+        <img class="ad-photo" src="Untitled design (10).png" alt="Advertisement 1" onerror="this.style.display='none';">
+        <div class="ad-overlay"></div>
         <div class="icon">🏦</div>
         <h3>Photo of Ads Here</h3>
         <p>Description</p>
       </div>
        <div class="media-slide">
+        <!-- Drop your ad photo's path/URL into the src below -->
+        <img class="ad-photo" src="ChatGPT Image Jul 23, 2026, 05_33_12 PM.png" alt="Advertisement 2" onerror="this.style.display='none';">
+        <div class="ad-overlay"></div>
         <div class="icon">🏦</div>
         <h3>Photo of Ads Here</h3>
         <p>Description</p>
       </div>
       <div class="media-slide">
+        <!-- Drop your ad photo's path/URL into the src below -->
+        <img class="ad-photo" src="PChatGPT Image Jul 23, 2026, 05_24_35 PM.png" alt="Advertisement 3" onerror="this.style.display='none';">
+        <div class="ad-overlay"></div>
         <div class="icon">🏦</div>
         <h3>Photo of Ads Here</h3>
         <p>Description</p>
@@ -689,7 +709,7 @@
       <div class="dropdown" id="dd-records">
         <a href="#" id="link-request">Request</a>
         <a href="#" id="link-approval" class="admin-only">Approval <span class="pill pending" id="pendingCountBadge" style="display:none;"></span></a>
-        <a href="#" id="link-approval-locked" class="locked" style="display:flex;">Approval <span class="lock">🔒 Admin</span></a>
+        <a href="#" id="link-approval-locked" class="locked">Approval <span class="lock">🔒 Admin</span></a>
         <a href="#" id="link-archive">Archive</a>
       </div>
     </div>
@@ -1268,12 +1288,13 @@ loginToggleBtn.addEventListener('click', ()=>{
 
 // auto-sliding announcement panel
 const loginMediaTrack = document.getElementById('mediaTrack');
+const loginMediaSlides = loginMediaTrack.querySelectorAll('.media-slide');
 const loginMediaDots = document.querySelectorAll('#mediaDots span');
-const loginSlideCount = loginMediaTrack.children.length;
+const loginSlideCount = loginMediaSlides.length;
 let loginSlideCurrent = 0;
 function goToSlide(i){
   loginSlideCurrent = i;
-  loginMediaTrack.style.transform = `translateX(-${loginSlideCurrent * 100}%)`;
+  loginMediaSlides.forEach((s, idx) => s.classList.toggle('active', idx === loginSlideCurrent));
   loginMediaDots.forEach((d, idx) => d.classList.toggle('active', idx === loginSlideCurrent));
 }
 setInterval(() => goToSlide((loginSlideCurrent + 1) % loginSlideCount), 4500);
@@ -1508,7 +1529,7 @@ function populateBranchSelect(){
   sorted.forEach(b=>{
     const opt = document.createElement('option');
     opt.value = b.code;
-    opt.textContent = `${b.name} — ${b.code} (${b.status.toUpperCase()})`;
+    opt.textContent = b.name;
     reqBranchSel.appendChild(opt);
   });
 }
