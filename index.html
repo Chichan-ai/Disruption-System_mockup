@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -152,7 +151,9 @@
     display:flex;align-items:center;height:100px;padding:0 22px;
     position:relative;z-index:20;
   }
-  .brand{display:flex;align-items:center;gap:10px;margin-right:32px;}
+  .brand{display:flex;align-items:center;gap:10px;margin-right:20px;}
+  .brand-stack{display:flex;flex-direction:column;justify-content:center;gap:6px;}
+  .brand-title{font-size:12.5px;font-weight:800;letter-spacing:.12em;color:rgba(255,255,255,.85);white-space:nowrap;padding-left:10px;}
 
   header.topbar .brand-logo {
     max-height: 70px;
@@ -571,7 +572,7 @@
     position: absolute;
     left: 10px;
     right: 10px;
-    bottom: -12px; /* Decreased value pushes the underline lower toward the header border */
+    bottom: -2px; /* Decreased value pushes the underline lower toward the header border */
     height: 2px;
     background: #e9dc4f;
     border-radius: 2px 2px 0 0;
@@ -849,7 +850,9 @@
   <div class="brand" id="brand-home" style="cursor:pointer;">
     <img src="ABC-RB  - APPROVED  LOGO - FULL COLOR-04.png" alt="Agribank Logo" class="brand-logo">
   </div>
-  <nav class="navrow">
+  <div class="brand-stack">
+    <div class="brand-title">DISRUPTION MONITORING SYSTEM</div>
+    <nav class="navrow">
     <div class="navitem current" id="nav-dashboard" style="position:relative;">Dashboard</div>
     <div class="navitem" id="nav-records" style="position:relative;">Records <span class="chev">▾</span>
       <div class="dropdown" id="dd-records">
@@ -868,6 +871,7 @@
       </div>
     </div>
   </nav>
+  </div>
   <div class="spacer"></div>
   <div class="account" id="account-cell">
     <div class="avatar" id="userAvatar">FJ</div>
@@ -1903,6 +1907,7 @@ document.getElementById('link-sms').addEventListener('click',(e)=>{e.preventDefa
 let directorySelectedCode = null;
 let directoryCollapsed = {};
 let directoryListInitialized = false;
+let directorySearchActive = false;
 function renderDirectoryList(filterText){
   const list = document.getElementById('directoryList');
   const q = (filterText||'').trim().toLowerCase();
@@ -1923,6 +1928,11 @@ function renderDirectoryList(filterText){
   }
   if(q){
     regionNames.forEach(region => { directoryCollapsed[region] = false; });
+    directorySearchActive = true;
+  } else if(directorySearchActive){
+    // search was just cleared — go back to the collapsed per-region list
+    Object.keys(directoryCollapsed).forEach(region => { directoryCollapsed[region] = true; });
+    directorySearchActive = false;
   }
   list.innerHTML = regionNames.map(region=>{
     const items = groups[region].sort((a,b)=>a.name.localeCompare(b.name));
