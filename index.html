@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -330,7 +331,7 @@
   }
   .map-scroll.dragging{cursor:grabbing;}
   .map-scroll::-webkit-scrollbar{width:9px;height:9px;}
-  .map-scroll::-webkit-scrollbar-thumb{background:#d3d7dc;border-radius:5px;}
+  .map-scroll::-webkit-scrollbar-thumb{background:#d3d7dc;border-radius:0px;}
   .map-scroll::-webkit-scrollbar-track{background:transparent;}
 
   .map-inner{position:relative;width:640px;padding:14px 0;margin:0 auto;cursor:grab;}
@@ -482,6 +483,25 @@
   .holiday-table .ht-scope .scope-national{color:var(--muted);}
   .holiday-table .ht-scope .scope-local{color:var(--ink);font-weight:500;}
   .holiday-table .ht-scope .scope-none{color:var(--muted);font-style:italic;}
+
+  /* ===== Reports ===== */
+  .report-summary{display:flex;gap:24px;flex-wrap:wrap;padding:4px 4px 2px;}
+  .report-stat{display:flex;flex-direction:column;gap:2px;min-width:70px;}
+  .report-stat .rs-val{font-size:22px;font-weight:700;color:var(--ink);}
+  .report-stat .rs-lbl{font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+  .cat-inline-add{display:flex;gap:8px;}
+  .cat-inline-add input{flex:1;}
+
+  /* ===== Add Branch modal ===== */
+  .ab-modal{width:640px;}
+  .ab-modal-body{display:grid;grid-template-columns:1fr 1fr;gap:14px 16px;}
+  .ab-modal-body .f-group.full{grid-column:1 / -1;}
+  .ab-modal-body .f-group label{font-size:11.5px;font-weight:600;color:var(--ink);display:block;margin-bottom:4px;}
+  .ab-modal-body .f-group input,.ab-modal-body .f-group select{
+    width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:7px;font-size:12.5px;font-family:var(--f);
+  }
+  .directory-head-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+  .directory-head-row .directory-search{flex:1;margin-bottom:0;}
 
   .alert-item{padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;}
   .alert-item:last-child{border-bottom:none;}
@@ -852,7 +872,7 @@
     <img src="ABC-RB  - APPROVED  LOGO - FULL COLOR-04.png" alt="Agribank Logo" class="brand-logo">
   </div>
   <div class="brand-stack">
-    <div class="brand-title">BRANCH DISRUPTION MONITORING SYSTEM</div>
+    <div class="brand-title">DISRUPTION MONITORING SYSTEM</div>
     <nav class="navrow">
     <div class="navitem current" id="nav-dashboard" style="position:relative;">Dashboard</div>
     <div class="navitem" id="nav-records" style="position:relative;">Records <span class="chev">▾</span>
@@ -867,6 +887,7 @@
     <div class="navitem" id="nav-forms" style="position:relative;">Maintenance <span class="chev">▾</span>
       <div class="dropdown" id="dd-forms">
         <a href="#" id="link-sms">SMS Notification</a>
+        <a href="#" id="link-reports">Reports</a>
         <a href="#" id="link-holidays">Holidays List</a>
         <a href="#" id="link-user-access">User Access Settings</a>
       </div>
@@ -967,7 +988,7 @@
 
       <div class="rail">
         <div class="rail-card">
-          <h3>Regional Breakdown</h3>
+          <h3>Nationwide Status</h3>
           <div id="regionList"></div>
         </div>
         <div class="rail-card">
@@ -1015,30 +1036,55 @@
 
           <div class="f-group" id="categoryGroup" style="display:none;">
             <label for="reqCategory">Category</label>
-            <select id="reqCategory">
-              <option value="Calamity">Calamity (typhoon, earthquake, flood)</option>
-              <option value="Flooding">Flooding</option>
-              <option value="Power Outage">Power Outage</option>
-              <option value="Connectivity">Connectivity / System Outage</option>
-              <option value="System Maintenance">Scheduled System Maintenance</option>
-              <option value="Security Incident">Security Incident</option>
-              <option value="Other">Other</option>
-            </select>
+            <select id="reqCategory"></select>
           </div>
 
-          <div class="f-row" style="display:flex; gap:12px;">
-            <div class="f-group" id="closedFromGroup" style="display:none;">
+          <div class="f-group" id="newCategoryGroup" style="display:none;">
+            <label for="newCategoryInput">New category name</label>
+            <div class="cat-inline-add">
+              <input type="text" id="newCategoryInput" placeholder="e.g. Civil Unrest">
+              <button type="button" class="btn btn-ghost btn-sm" id="addCategoryBtn">Add</button>
+              <button type="button" class="btn btn-ghost btn-sm" id="cancelCategoryBtn">Cancel</button>
+            </div>
+            <div class="f-help">Creates a new top-level category with its own subcategories.</div>
+          </div>
+
+          <div class="f-group" id="subcategoryGroup" style="display:none;">
+            <label for="reqSubcategory">Subcategory</label>
+            <select id="reqSubcategory"></select>
+          </div>
+
+          <div class="f-group" id="newSubcategoryGroup" style="display:none;">
+            <label for="newSubcategoryInput">New subcategory name</label>
+            <div class="cat-inline-add">
+              <input type="text" id="newSubcategoryInput" placeholder="e.g. Landslide">
+              <button type="button" class="btn btn-ghost btn-sm" id="addSubcategoryBtn">Add</button>
+              <button type="button" class="btn btn-ghost btn-sm" id="cancelSubcategoryBtn">Cancel</button>
+            </div>
+            <div class="f-help">Adds a new subcategory under the selected category.</div>
+          </div>
+
+          <div class="f-row" style="display:flex; gap:12px; flex-wrap:wrap;">
+            <div class="f-group" id="closedFromGroup" style="display:none; flex:1; min-width:150px;">
               <label for="reqClosedFrom">Closed from</label>
               <input type="date" id="reqClosedFrom" min="">
               <div class="f-help">The date the branch closure begins.</div>
             </div>
-            <div class="f-group" id="closedUntilGroup" style="display:none;">
+            <div class="f-group" id="closedFromTimeGroup" style="display:none; flex:0 0 130px;">
+              <label for="reqClosedFromTime">Time</label>
+              <input type="time" id="reqClosedFromTime" value="08:00">
+            </div>
+            <div class="f-group" id="closedUntilGroup" style="display:none; flex:1; min-width:150px;">
               <label for="reqClosedUntil">Closed until</label>
               <input type="date" id="reqClosedUntil" min="">
               <div class="f-help">The branch will remain closed until this date.</div>
               <div id="holidayIndicator" class="holiday-indicator" style="display:none;"></div>
               <div id="holidayOverlap" class="holiday-overlap" style="display:none;"></div>
               <div id="holidaySuggest" class="holiday-suggest" style="display:none;"></div>
+            </div>
+            <div class="f-group" id="closedUntilTimeGroup" style="display:none; flex:0 0 130px;">
+              <label for="reqClosedUntilTime">Time</label>
+              <input type="time" id="reqClosedUntilTime" value="15:00">
             </div>
           </div>
 
@@ -1106,7 +1152,10 @@
       <div class="page-title">Branch Directory</div>
       <div class="page-sub">Branches grouped by region. Click a branch to view its date opened and location.</div>
     </div>
-    <input type="text" id="directorySearch" class="directory-search" placeholder="Search branch name or code…">
+    <div class="directory-head-row">
+      <input type="text" id="directorySearch" class="directory-search" placeholder="Search branch name or code…">
+      <button type="button" class="btn btn-primary admin-only" id="openAddBranchBtn">+ Add Branch</button>
+    </div>
     <div class="directory-layout">
       <div class="directory-list" id="directoryList"></div>
       <div class="directory-detail" id="directoryDetail">
@@ -1181,6 +1230,71 @@ For concerns, contact the CBAMS Helpdesk.</textarea>
           <div id="smsRecipientTags" class="sms-recipients"></div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ============ MAINTENANCE REPORTS VIEW ============ -->
+  <div class="view" id="view-reports">
+    <div class="page-head">
+      <div class="page-title">Maintenance Reports</div>
+      <div class="page-sub">Generate and export branch status request reports for a selected date range.</div>
+    </div>
+
+    <div class="form-card" style="margin-bottom:16px;">
+      <h2>Report Filters</h2>
+      <div class="hint">Filter submitted requests by date range, category, and status, then generate or export the results.</div>
+      <div class="f-row" style="display:flex;gap:12px;flex-wrap:wrap;">
+        <div class="f-group" style="flex:1;min-width:150px;">
+          <label for="reportFrom">From</label>
+          <input type="date" id="reportFrom">
+        </div>
+        <div class="f-group" style="flex:1;min-width:150px;">
+          <label for="reportTo">To</label>
+          <input type="date" id="reportTo">
+        </div>
+        <div class="f-group" style="flex:1;min-width:170px;">
+          <label for="reportCategory">Category</label>
+          <select id="reportCategory"><option value="all">All categories</option></select>
+        </div>
+        <div class="f-group" style="flex:1;min-width:150px;">
+          <label for="reportStatus">Status</label>
+          <select id="reportStatus">
+            <option value="all">All statuses</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-primary" id="reportGenerateBtn">Generate Report</button>
+        <button type="button" class="btn btn-ghost" id="reportExportBtn">Export CSV</button>
+        <button type="button" class="btn btn-ghost" id="reportResetBtn">Reset Filters</button>
+      </div>
+    </div>
+
+    <div class="donut-card" style="margin-bottom:16px;">
+      <div class="donut-card-head"><h3>Summary</h3></div>
+      <div id="reportSummary" class="report-summary"></div>
+    </div>
+
+    <div class="holiday-table-wrap">
+      <table class="holiday-table" id="reportTable">
+        <thead>
+          <tr>
+            <th>Request ID</th>
+            <th>Branch</th>
+            <th>Region</th>
+            <th>Category</th>
+            <th>Subcategory</th>
+            <th>Change</th>
+            <th>Status</th>
+            <th>Submitted</th>
+            <th>Reviewed</th>
+          </tr>
+        </thead>
+        <tbody id="reportTableBody"></tbody>
+      </table>
     </div>
   </div>
 
@@ -1309,6 +1423,74 @@ For concerns, contact the CBAMS Helpdesk.</textarea>
   </div>
   <div class="sms-modal-foot">
     <button class="btn btn-ghost" id="smsModalCloseBtn">Close</button>
+  </div>
+</div>
+
+<div class="sms-scrim" id="addBranchScrim"></div>
+<div class="sms-modal ab-modal" id="addBranchModal">
+  <div class="sms-modal-head">
+    <h3>Add New Branch</h3>
+    <button class="sms-close" id="addBranchModalClose">✕</button>
+  </div>
+  <div class="sms-modal-body">
+    <form id="addBranchForm" class="ab-modal-body">
+      <div class="f-group">
+        <label for="abCode">Branch Code</label>
+        <input type="text" id="abCode" placeholder="e.g. BR-2050" required>
+      </div>
+      <div class="f-group">
+        <label for="abName">Branch Name</label>
+        <input type="text" id="abName" placeholder="e.g. Calapan City Branch" required>
+      </div>
+      <div class="f-group">
+        <label for="abRegion">Region</label>
+        <select id="abRegion" required></select>
+      </div>
+      <div class="f-group">
+        <label for="abAnniversary">Date Opened</label>
+        <input type="date" id="abAnniversary">
+      </div>
+      <div class="f-group">
+        <label for="abLat">Latitude</label>
+        <input type="number" id="abLat" step="0.0001" placeholder="e.g. 13.4115" required>
+      </div>
+      <div class="f-group">
+        <label for="abLng">Longitude</label>
+        <input type="number" id="abLng" step="0.0001" placeholder="e.g. 121.1803" required>
+      </div>
+      <div class="f-group full">
+        <label for="abAddress">Address</label>
+        <input type="text" id="abAddress" placeholder="e.g. Calapan City Branch Office">
+      </div>
+      <div class="f-group">
+        <label for="abManager">Branch Manager</label>
+        <input type="text" id="abManager" placeholder="e.g. J. Santos">
+      </div>
+      <div class="f-group">
+        <label for="abManagerPhone">Manager Phone</label>
+        <input type="text" id="abManagerPhone" placeholder="e.g. (043) 288-1234">
+      </div>
+      <div class="f-group">
+        <label for="abManagerEmail">Manager Email</label>
+        <input type="email" id="abManagerEmail" placeholder="e.g. jsantos@agribank.ph">
+      </div>
+      <div class="f-group">
+        <label for="abOps">Operations Officer</label>
+        <input type="text" id="abOps" placeholder="e.g. M. Cruz">
+      </div>
+      <div class="f-group">
+        <label for="abOpsPhone">Ops Phone</label>
+        <input type="text" id="abOpsPhone" placeholder="e.g. (043) 288-1235">
+      </div>
+      <div class="f-group">
+        <label for="abHotline">Branch Hotline</label>
+        <input type="text" id="abHotline" placeholder="e.g. 0917-555-0000">
+      </div>
+    </form>
+  </div>
+  <div class="sms-modal-foot">
+    <button class="btn btn-ghost" id="addBranchCancelBtn">Cancel</button>
+    <button class="btn btn-primary" id="addBranchSaveBtn">Save Branch</button>
   </div>
 </div>
 
@@ -1888,6 +2070,7 @@ function switchView(name){
   if(name==='archive') renderArchiveList();
   if(name==='request') renderMySubmissions();
   if(name==='branch-directory') renderDirectoryList();
+  if(name==='reports'){ populateReportCategoryFilter(); renderReportTable(); }
   window.scrollTo({top:0, behavior:'smooth'});
 }
 document.getElementById('nav-dashboard').addEventListener('click', ()=>switchView('dashboard'));
@@ -1901,6 +2084,7 @@ document.getElementById('link-approval-locked').addEventListener('click',(e)=>{
 });
 document.getElementById('link-archive').addEventListener('click',(e)=>{e.preventDefault(); switchView('archive');});
 document.getElementById('link-sms').addEventListener('click',(e)=>{e.preventDefault(); switchView('sms'); renderSmsRecipientTags();});
+document.getElementById('link-reports').addEventListener('click',(e)=>{e.preventDefault(); switchView('reports');});
 
 /* =========================================================
    BRANCH DIRECTORY — grouped by region
@@ -1987,6 +2171,96 @@ function showDirectoryDetail(b){
 document.getElementById('directorySearch').addEventListener('input',(e)=>{
   renderDirectoryList(e.target.value);
 });
+
+/* =========================================================
+   ADD BRANCH — modal form
+   ========================================================= */
+function getKnownRegions(){
+  return [...new Set(branches.map(b=>b.region))].sort();
+}
+function populateAddBranchRegions(){
+  const sel = document.getElementById('abRegion');
+  const current = sel.value;
+  const regions = getKnownRegions();
+  sel.innerHTML = regions.map(r=>`<option value="${r}">${r}</option>`).join('')
+    + `<option value="__add__">+ Add new region…</option>`;
+  if(current && regions.includes(current)) sel.value = current;
+}
+document.getElementById('abRegion').addEventListener('change', function(){
+  if(this.value === '__add__'){
+    const name = prompt('Enter the new region name:');
+    if(name && name.trim()){
+      const trimmed = name.trim();
+      populateAddBranchRegions();
+      if(![...this.options].some(o=>o.value===trimmed)){
+        const opt = document.createElement('option');
+        opt.value = trimmed; opt.textContent = trimmed;
+        this.insertBefore(opt, this.lastElementChild);
+      }
+      this.value = trimmed;
+    } else {
+      this.value = getKnownRegions()[0] || '';
+    }
+  }
+});
+
+function openAddBranchModal(){
+  document.getElementById('addBranchForm').reset();
+  populateAddBranchRegions();
+  document.getElementById('addBranchScrim').classList.add('show');
+  document.getElementById('addBranchModal').classList.add('show');
+}
+function closeAddBranchModal(){
+  document.getElementById('addBranchScrim').classList.remove('show');
+  document.getElementById('addBranchModal').classList.remove('show');
+}
+document.getElementById('openAddBranchBtn').addEventListener('click', openAddBranchModal);
+document.getElementById('addBranchModalClose').addEventListener('click', closeAddBranchModal);
+document.getElementById('addBranchCancelBtn').addEventListener('click', closeAddBranchModal);
+document.getElementById('addBranchScrim').addEventListener('click', closeAddBranchModal);
+
+document.getElementById('addBranchSaveBtn').addEventListener('click', function(){
+  const code = document.getElementById('abCode').value.trim();
+  const name = document.getElementById('abName').value.trim();
+  const region = document.getElementById('abRegion').value;
+  const anniversary = document.getElementById('abAnniversary').value;
+  const lat = parseFloat(document.getElementById('abLat').value);
+  const lng = parseFloat(document.getElementById('abLng').value);
+  const address = document.getElementById('abAddress').value.trim();
+  const manager = document.getElementById('abManager').value.trim();
+  const managerPhone = document.getElementById('abManagerPhone').value.trim();
+  const managerEmail = document.getElementById('abManagerEmail').value.trim();
+  const ops = document.getElementById('abOps').value.trim();
+  const opsPhone = document.getElementById('abOpsPhone').value.trim();
+  const hotline = document.getElementById('abHotline').value.trim();
+
+  if(!code || !name){ showToast('Branch code and name are required.', 'error'); return; }
+  if(!region || region==='__add__'){ showToast('Select or add a region.', 'error'); return; }
+  if(isNaN(lat) || isNaN(lng)){ showToast('Enter valid latitude and longitude.', 'error'); return; }
+  if(branches.some(b=>b.code.toLowerCase()===code.toLowerCase())){
+    showToast(`Branch code "${code}" already exists.`, 'error');
+    return;
+  }
+
+  const newBranch = {
+    code, name, region, lat, lng, status:'open',
+    anniversary: anniversary || new Date().toISOString().split('T')[0],
+    address: address || `${name} Office`,
+    hours: '9:00 AM – 3:00 PM',
+    manager: manager || '—', managerPhone: managerPhone || '—', managerEmail: managerEmail || '—',
+    ops: ops || '—', opsPhone: opsPhone || '—', hotline: hotline || '—',
+    history:[['Opened', 'Branch added to directory', 'Just now', `${USERS[currentRole].name} (Added new branch)`]]
+  };
+  branches.push(newBranch);
+
+  closeAddBranchModal();
+  populateBranchSelect();
+  renderDirectoryList(document.getElementById('directorySearch').value);
+  showDirectoryDetail(newBranch);
+  refreshAll();
+  showToast(`Branch "${name}" (${code}) added to the directory.`, 'success');
+});
+
 
 /* =========================================================
    PHILIPPINES MAP — projection + outline
@@ -2150,7 +2424,8 @@ function checkHolidayOverlap(){
 }
 const DONUT_REASON_COLORS = {
   'Calamity':'#e67e22','Flooding':'#2980b9','Power Outage':'#f1c40f','Connectivity':'#8e44ad',
-  'System Maintenance':'#16a085','Security Incident':'#c0392b','Holiday':'#3498db','Other':'#7f8c8d'
+  'System Maintenance':'#16a085','Security Incident':'#c0392b','Holiday':'#3498db','Other':'#7f8c8d',
+  'Natural Disruption':'#e67e22','Political Disruption':'#9b59b6','Disaster':'#d35400','Operational':'#16a085'
 };
 
 function getClosureCategory(b, dateStr){
@@ -2345,12 +2620,19 @@ document.addEventListener('click', closeAllDropdowns);
 const reqBranchSel = document.getElementById('reqBranch');
 function populateBranchSelect(){
   const sorted = [...branches].sort((a,b)=>a.name.localeCompare(b.name));
+  // Clear any previously-appended branch options (keep the placeholder option) so
+  // re-calling this after adding a new branch doesn't duplicate the whole list.
+  Array.from(reqBranchSel.querySelectorAll('option')).forEach(opt=>{
+    if(opt.value) opt.remove();
+  });
+  const currentVal = reqBranchSel.value;
   sorted.forEach(b=>{
     const opt = document.createElement('option');
     opt.value = b.code;
     opt.textContent = b.name;
     reqBranchSel.appendChild(opt);
   });
+  if(currentVal && sorted.some(b=>b.code===currentVal)) reqBranchSel.value = currentVal;
 }
 const branchPreview = document.getElementById('branchPreview');
 reqBranchSel.addEventListener('change',()=>{
@@ -2389,14 +2671,22 @@ function syncStatusChoiceUI(){
   document.getElementById('optOpen').classList.toggle('checked', val==='open');
   document.getElementById('optClosed').classList.toggle('checked', val==='closed');
   document.getElementById('categoryGroup').style.display = val==='closed' ? 'block' : 'none';
+  document.getElementById('subcategoryGroup').style.display = val==='closed' ? 'block' : 'none';
   document.getElementById('closedFromGroup').style.display = val==='closed' ? 'block' : 'none';
+  document.getElementById('closedFromTimeGroup').style.display = val==='closed' ? 'block' : 'none';
   document.getElementById('closedUntilGroup').style.display = val==='closed' ? 'block' : 'none';
+  document.getElementById('closedUntilTimeGroup').style.display = val==='closed' ? 'block' : 'none';
   if(val!=='closed'){
+    document.getElementById('newCategoryGroup').style.display = 'none';
+    document.getElementById('newSubcategoryGroup').style.display = 'none';
     document.getElementById('holidayIndicator').style.display = 'none';
     document.getElementById('holidayOverlap').style.display = 'none';
     document.getElementById('holidaySuggest').style.display = 'none';
     document.getElementById('reqClosedFrom').value = '';
     document.getElementById('reqClosedUntil').value = '';
+  } else {
+    populateCategorySelect(true);
+    populateSubcategorySelect(true);
   }
 }
 document.querySelectorAll('input[name=reqStatus]').forEach(r=>r.addEventListener('change', syncStatusChoiceUI));
@@ -2410,6 +2700,101 @@ document.getElementById('reqClosedFrom').addEventListener('change', function(){
     untilInput.value = '';
   }
 });
+
+/* =========================================================
+   CLOSURE CATEGORIES & SUBCATEGORIES
+   ========================================================= */
+let CLOSURE_CATEGORIES = {
+  'Natural Disruption': ['Flood','Typhoon','Volcanic Activity','Earthquake','Landslide','Storm Surge','Other'],
+  'Political Disruption': ['Rally / Protest','Transport Strike','Election-related','Civil Disturbance','Other'],
+  'Disaster': ['Fire','Explosion','Structural Damage','Other'],
+  'Security Incident': ['Robbery','Theft','Bomb Threat','Armed Threat','Other'],
+  'Operational': ['Power Outage','Connectivity / System Outage','Scheduled System Maintenance','Other'],
+  'Other': ['Other']
+};
+
+function populateCategorySelect(preserveValue){
+  const sel = document.getElementById('reqCategory');
+  const current = preserveValue ? sel.value : null;
+  sel.innerHTML = Object.keys(CLOSURE_CATEGORIES).map(c=>`<option value="${c}">${c}</option>`).join('')
+    + `<option value="__add__">+ Add new category…</option>`;
+  if(current && CLOSURE_CATEGORIES[current]) sel.value = current;
+}
+
+function populateSubcategorySelect(preserveValue){
+  const cat = document.getElementById('reqCategory').value;
+  const sel = document.getElementById('reqSubcategory');
+  const current = preserveValue ? sel.value : null;
+  const subs = CLOSURE_CATEGORIES[cat] || ['Other'];
+  sel.innerHTML = subs.map(s=>`<option value="${s}">${s}</option>`).join('')
+    + `<option value="__add__">+ Add new subcategory…</option>`;
+  if(current && subs.includes(current)) sel.value = current;
+}
+
+document.getElementById('reqCategory').addEventListener('change', function(){
+  if(this.value === '__add__'){
+    document.getElementById('newCategoryGroup').style.display = 'block';
+    document.getElementById('subcategoryGroup').style.display = 'none';
+    document.getElementById('newSubcategoryGroup').style.display = 'none';
+    document.getElementById('newCategoryInput').focus();
+  } else {
+    document.getElementById('newCategoryGroup').style.display = 'none';
+    document.getElementById('subcategoryGroup').style.display = 'block';
+    populateSubcategorySelect(false);
+  }
+});
+
+document.getElementById('addCategoryBtn').addEventListener('click', function(){
+  const input = document.getElementById('newCategoryInput');
+  const name = input.value.trim();
+  if(!name){ showToast('Enter a category name.', 'error'); return; }
+  if(!CLOSURE_CATEGORIES[name]) CLOSURE_CATEGORIES[name] = ['Other'];
+  populateCategorySelect(false);
+  document.getElementById('reqCategory').value = name;
+  input.value = '';
+  document.getElementById('newCategoryGroup').style.display = 'none';
+  document.getElementById('subcategoryGroup').style.display = 'block';
+  populateSubcategorySelect(false);
+  showToast(`Category "${name}" added.`, 'success');
+});
+document.getElementById('cancelCategoryBtn').addEventListener('click', function(){
+  document.getElementById('newCategoryInput').value = '';
+  document.getElementById('newCategoryGroup').style.display = 'none';
+  document.getElementById('reqCategory').value = Object.keys(CLOSURE_CATEGORIES)[0];
+  document.getElementById('subcategoryGroup').style.display = 'block';
+  populateSubcategorySelect(false);
+});
+
+document.getElementById('reqSubcategory').addEventListener('change', function(){
+  document.getElementById('newSubcategoryGroup').style.display = this.value==='__add__' ? 'block' : 'none';
+  if(this.value==='__add__') document.getElementById('newSubcategoryInput').focus();
+});
+
+document.getElementById('addSubcategoryBtn').addEventListener('click', function(){
+  const cat = document.getElementById('reqCategory').value;
+  const input = document.getElementById('newSubcategoryInput');
+  const name = input.value.trim();
+  if(!name){ showToast('Enter a subcategory name.', 'error'); return; }
+  if(!CLOSURE_CATEGORIES[cat]) CLOSURE_CATEGORIES[cat] = [];
+  if(!CLOSURE_CATEGORIES[cat].includes(name)){
+    const list = CLOSURE_CATEGORIES[cat];
+    const otherIdx = list.indexOf('Other');
+    if(otherIdx>-1) list.splice(otherIdx,0,name); else list.push(name);
+  }
+  populateSubcategorySelect(false);
+  document.getElementById('reqSubcategory').value = name;
+  input.value = '';
+  document.getElementById('newSubcategoryGroup').style.display = 'none';
+  showToast(`Subcategory "${name}" added.`, 'success');
+});
+document.getElementById('cancelSubcategoryBtn').addEventListener('click', function(){
+  document.getElementById('newSubcategoryInput').value = '';
+  document.getElementById('newSubcategoryGroup').style.display = 'none';
+  document.getElementById('reqSubcategory').value = (CLOSURE_CATEGORIES[document.getElementById('reqCategory').value]||['Other'])[0];
+});
+
+populateCategorySelect(false);
+populateSubcategorySelect(false);
 
 let reqIdCounter = 1;
 let requests = [];
@@ -2426,8 +2811,19 @@ document.getElementById('requestForm').addEventListener('submit', function(e){
 
   const requestedStatus = statusInput.value;
   const category = requestedStatus==='closed' ? document.getElementById('reqCategory').value : null;
+  const subcategory = requestedStatus==='closed' ? document.getElementById('reqSubcategory').value : null;
   const closedFrom = requestedStatus==='closed' ? document.getElementById('reqClosedFrom').value : null;
   const closedUntil = requestedStatus==='closed' ? document.getElementById('reqClosedUntil').value : null;
+  const closedFromTime = requestedStatus==='closed' ? (document.getElementById('reqClosedFromTime').value || '08:00') : null;
+  const closedUntilTime = requestedStatus==='closed' ? (document.getElementById('reqClosedUntilTime').value || '15:00') : null;
+  if(requestedStatus==='closed' && category==='__add__'){
+    showToast('Finish adding the new category, or choose an existing one.', 'error');
+    return;
+  }
+  if(requestedStatus==='closed' && subcategory==='__add__'){
+    showToast('Finish adding the new subcategory, or choose an existing one.', 'error');
+    return;
+  }
   if(requestedStatus==='closed' && !closedFrom){
     showToast('Select a "Closed from" date.', 'error');
     return;
@@ -2437,18 +2833,21 @@ document.getElementById('requestForm').addEventListener('submit', function(e){
     return;
   }
 
+  const now = new Date();
   const req = {
     id: 'REQ-'+String(1000+reqIdCounter++),
     branchCode: b.code,
     branchName: b.name,
     region: b.region,
     currentStatus: b.status,
-    requestedStatus, category, reason, closedFrom, closedUntil,
+    requestedStatus, category, subcategory, reason, closedFrom, closedUntil, closedFromTime, closedUntilTime,
     submittedBy: USERS[currentRole].name,
     submittedByRole: currentRole,
+    submittedByPosition: USERS[currentRole].roleLabel,
     submittedAt: 'Just now',
+    submittedAtDate: now,
     status: 'pending',
-    reviewedBy: null, reviewedAt: null
+    reviewedBy: null, reviewedAt: null, reviewedAtDate: null
   };
   requests.unshift(req);
   showToast(`Request ${req.id} submitted for approval.`, 'success');
@@ -2483,11 +2882,17 @@ document.getElementById('reqResetBtn').addEventListener('click', ()=>{
   }, 0);
 });
 
+function fmtDateTime(dateStr, timeStr){
+  if(!dateStr) return '';
+  const d = new Date(dateStr+'T'+(timeStr||'00:00')+':00');
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + (timeStr ? ', '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true}) : '');
+}
+
 function reqCardHTML(r, withActions){
-  const closedFromDate = r.closedFrom ? new Date(r.closedFrom+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
-  const closedUntilDate = r.closedUntil ? new Date(r.closedUntil+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
+  const closedFromDate = r.closedFrom ? fmtDateTime(r.closedFrom, r.closedFromTime) : '';
+  const closedUntilDate = r.closedUntil ? fmtDateTime(r.closedUntil, r.closedUntilTime) : '';
   const changeHTML = r.requestedStatus==='closed'
-    ? `<span class="pill open">OPEN</span><span class="arrow">→</span><span class="pill closed">CLOSED</span>${r.category?`<span class="pill cat">${r.category}</span>`:''}${closedFromDate?`<span class="pill cat">from ${closedFromDate}</span>`:''}${closedUntilDate?`<span class="pill cat">until ${closedUntilDate}</span>`:''}`
+    ? `<span class="pill open">OPEN</span><span class="arrow">→</span><span class="pill closed">CLOSED</span>${r.category?`<span class="pill cat">${r.category}</span>`:''}${r.subcategory?`<span class="pill cat">${r.subcategory}</span>`:''}${closedFromDate?`<span class="pill cat">from ${closedFromDate}</span>`:''}${closedUntilDate?`<span class="pill cat">until ${closedUntilDate}</span>`:''}`
     : `<span class="pill closed">CLOSED</span><span class="arrow">→</span><span class="pill open">OPEN</span>`;
   const statusPillHTML = r.status==='pending'
     ? `<span class="pill pending">PENDING</span>`
@@ -2508,7 +2913,7 @@ function reqCardHTML(r, withActions){
       </div>
       <div class="req-change">${changeHTML}</div>
       <div class="req-reason">${r.reason}</div>
-      <div class="req-meta"><span>${r.id}</span><span>Submitted by ${r.submittedBy} · ${r.submittedAt}</span></div>
+      <div class="req-meta"><span>${r.id}</span><span>Submitted by ${r.submittedBy}${r.submittedByPosition?` (${r.submittedByPosition})`:''} · ${r.submittedAt}</span></div>
       ${actionsOrStatus}
     </div>`;
 }
@@ -2566,15 +2971,17 @@ function approveRequest(id){
     b.closedFrom = req.closedFrom;
     b.closedUntil = req.closedUntil;
     const catLabel = req.category || 'Other';
-    const untilDate = req.closedUntil ? new Date(req.closedUntil+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
-    b.hours = catLabel==='System Maintenance' ? 'Suspended for scheduled maintenance'
-      : catLabel==='Power Outage' ? 'Suspended — power outage'
-      : catLabel==='Connectivity' ? 'Suspended — network outage'
-      : catLabel==='Flooding' ? 'Suspended — flooding'
+    const subLabel = req.subcategory || '';
+    const untilDate = req.closedUntil ? fmtDateTime(req.closedUntil, req.closedUntilTime) : '';
+    b.hours = subLabel==='Scheduled System Maintenance' ? 'Suspended for scheduled maintenance'
+      : subLabel==='Power Outage' ? 'Suspended — power outage'
+      : subLabel==='Connectivity / System Outage' ? 'Suspended — network outage'
+      : subLabel==='Flood' ? 'Suspended — flooding'
       : untilDate ? `Suspended until ${untilDate}`
       : 'Suspended until further notice';
-    b.history.unshift([`Closed — ${catLabel}`, req.reason, 'Just now', `${reviewer} (Approved ${req.id})`]);
-    b.emergency = catLabel !== 'System Maintenance';
+    const reasonWithSub = subLabel ? `[${subLabel}] ${req.reason}` : req.reason;
+    b.history.unshift([`Closed — ${catLabel}`, reasonWithSub, 'Just now', `${reviewer} (Approved ${req.id})`]);
+    b.emergency = subLabel !== 'Scheduled System Maintenance';
   } else {
     b.status = 'open';
     b.closedFrom = null;
@@ -2587,6 +2994,7 @@ function approveRequest(id){
   req.status = 'approved';
   req.reviewedBy = reviewer;
   req.reviewedAt = 'Just now';
+  req.reviewedAtDate = new Date();
 
   refreshAll();
   renderPendingList();
@@ -2600,6 +3008,7 @@ function rejectRequest(id){
   req.status = 'rejected';
   req.reviewedBy = USERS[currentRole].name;
   req.reviewedAt = 'Just now';
+  req.reviewedAtDate = new Date();
   renderPendingList();
   updatePendingBadge();
   showToast(`Request ${req.id} rejected.`, 'info');
@@ -2782,6 +3191,104 @@ document.querySelectorAll('#holidayFilterRow .filter-chip').forEach(chip=>{
 });
 
 /* =========================================================
+   MAINTENANCE REPORTS — extract by date range
+   ========================================================= */
+function populateReportCategoryFilter(){
+  const sel = document.getElementById('reportCategory');
+  const current = sel.value;
+  const cats = Object.keys(CLOSURE_CATEGORIES);
+  sel.innerHTML = '<option value="all">All categories</option>' + cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+  if(current && (current==='all' || cats.includes(current))) sel.value = current;
+}
+
+function getReportRows(){
+  const from = document.getElementById('reportFrom').value;
+  const to = document.getElementById('reportTo').value;
+  const cat = document.getElementById('reportCategory').value;
+  const status = document.getElementById('reportStatus').value;
+  const fromDate = from ? new Date(from+'T00:00:00') : null;
+  const toDate = to ? new Date(to+'T23:59:59') : null;
+  return requests.filter(r=>{
+    if(status!=='all' && r.status!==status) return false;
+    if(cat!=='all' && r.category!==cat) return false;
+    if(fromDate && (!r.submittedAtDate || r.submittedAtDate < fromDate)) return false;
+    if(toDate && (!r.submittedAtDate || r.submittedAtDate > toDate)) return false;
+    return true;
+  });
+}
+
+function renderReportTable(){
+  const rows = getReportRows();
+  const tbody = document.getElementById('reportTableBody');
+  if(rows.length === 0){
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted);font-size:12px;">No requests match this filter.</td></tr>';
+  } else {
+    tbody.innerHTML = rows.map(r=>{
+      const change = r.requestedStatus==='closed' ? 'Open → Closed' : 'Closed → Open';
+      const statusLabel = r.status.charAt(0).toUpperCase()+r.status.slice(1);
+      return `<tr>
+        <td>${r.id}</td>
+        <td>${r.branchName} <span style="color:var(--muted);">(${r.branchCode})</span></td>
+        <td>${r.region}</td>
+        <td>${r.category||'—'}</td>
+        <td>${r.subcategory||'—'}</td>
+        <td>${change}</td>
+        <td>${statusLabel}</td>
+        <td>${r.submittedBy}${r.submittedByPosition?` (${r.submittedByPosition})`:''}, ${r.submittedAt}</td>
+        <td>${r.reviewedBy ? r.reviewedBy+', '+r.reviewedAt : '—'}</td>
+      </tr>`;
+    }).join('');
+  }
+  const total = rows.length;
+  const approved = rows.filter(r=>r.status==='approved').length;
+  const rejected = rows.filter(r=>r.status==='rejected').length;
+  const pending = rows.filter(r=>r.status==='pending').length;
+  document.getElementById('reportSummary').innerHTML = `
+    <div class="report-stat"><span class="rs-val">${total}</span><span class="rs-lbl">Total</span></div>
+    <div class="report-stat"><span class="rs-val">${approved}</span><span class="rs-lbl">Approved</span></div>
+    <div class="report-stat"><span class="rs-val">${rejected}</span><span class="rs-lbl">Rejected</span></div>
+    <div class="report-stat"><span class="rs-val">${pending}</span><span class="rs-lbl">Pending</span></div>
+  `;
+}
+
+function exportReportCSV(rows){
+  const headers = ['Request ID','Branch','Code','Region','Category','Subcategory','Change','Status','Submitted By','Submitted By Position','Submitted At','Reviewed By','Reviewed At','Reason'];
+  const csvRows = [headers.join(',')];
+  rows.forEach(r=>{
+    const change = r.requestedStatus==='closed' ? 'Open to Closed' : 'Closed to Open';
+    const vals = [
+      r.id, r.branchName, r.branchCode, r.region, r.category||'', r.subcategory||'',
+      change, r.status, r.submittedBy, r.submittedByPosition||'', r.submittedAt, r.reviewedBy||'', r.reviewedAt||'', r.reason||''
+    ].map(v => `"${String(v).replace(/"/g,'""')}"`);
+    csvRows.push(vals.join(','));
+  });
+  const blob = new Blob([csvRows.join('\n')], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `CBAMS_Maintenance_Report_${new Date().toISOString().split('T')[0]}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById('reportGenerateBtn').addEventListener('click', renderReportTable);
+document.getElementById('reportResetBtn').addEventListener('click', ()=>{
+  document.getElementById('reportFrom').value = '';
+  document.getElementById('reportTo').value = '';
+  document.getElementById('reportCategory').value = 'all';
+  document.getElementById('reportStatus').value = 'all';
+  renderReportTable();
+});
+document.getElementById('reportExportBtn').addEventListener('click', ()=>{
+  const rows = getReportRows();
+  if(rows.length === 0){ showToast('No data to export for the selected filters.', 'error'); return; }
+  exportReportCSV(rows);
+  showToast(`Exported ${rows.length} record(s) to CSV.`, 'success');
+});
+
+/* =========================================================
    USER ACCESS SETTINGS — mockup
    ========================================================= */
 const ACCESS_USERS = [
@@ -2843,6 +3350,8 @@ renderPendingList();
 renderArchiveList();
 renderMySubmissions();
 updatePendingBadge();
+populateReportCategoryFilter();
+renderReportTable();
 
 </script>
 </body>
