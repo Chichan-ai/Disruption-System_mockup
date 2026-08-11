@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1947,7 +1948,6 @@ function renderDirectoryList(filterText){
           ${items.map(b=>`
             <div class="region-branch-item ${b.code===directorySelectedCode?'selected':''}" data-code="${b.code}">
               <div><div class="rb-name">${b.name}</div><div class="rb-code">${b.code}</div></div>
-              <span class="rb-status ${b.status}">${b.status==='open'?'Open':'Closed'}</span>
             </div>`).join('')}
         </div>
       </div>`;
@@ -1977,7 +1977,7 @@ function showDirectoryDetail(b){
   const detail = document.getElementById('directoryDetail');
   detail.innerHTML = `
     <div class="dd-name">${b.name}</div>
-    <div class="dd-code">${b.code} · <span class="rb-status ${b.status}">${b.status==='open'?'Open':'Closed'}</span></div>
+    <div class="dd-code">${b.code}</div>
     <div class="info-row"><span class="k">Date Opened</span><span class="v">${b.anniversary||'—'}</span></div>
     <div class="info-row"><span class="k">Region</span><span class="v">${b.region}</span></div>
     <div class="info-row"><span class="k">Address</span><span class="v">${b.address||'—'}</span></div>
