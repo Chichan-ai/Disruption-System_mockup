@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -225,6 +226,33 @@
   .metric-card.open-c .value{color:var(--open);}
   .metric-card.closed-c .value{color:var(--closed);}
   .metric-card.alert-c .value{color:var(--alert);}
+  .metric-card.asof-c .asof-row{display:flex;align-items:center;gap:6px;}
+  .metric-card.asof-c input[type=date]{padding:6px 8px;font-size:11.5px;width:auto;flex:1;}
+  .donuts-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+  .donut-card{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    padding:14px 16px;box-shadow:var(--shadow-md);
+  }
+  .donut-card-head h3{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:10px;}
+  .donut-card-head-asof{display:flex;align-items:center;justify-content:space-between;}
+  .donut-card-head-asof h3{margin-bottom:0;}
+  .asof-inline{display:flex;align-items:center;gap:6px;}
+  .asof-inline-label{font-size:11px;color:var(--muted);font-weight:500;}
+  .asof-inline input[type=date]{padding:5px 7px;font-size:11px;width:auto;border:1px solid var(--border);border-radius:6px;font-family:inherit;background:#fff;}
+  .asof-inline .btn-sm{padding:5px 9px;font-size:10.5px;}
+  .donut-body{display:flex;align-items:center;gap:18px;}
+  .donut-svg-wrap{position:relative;width:128px;height:128px;flex-shrink:0;}
+  .donut-svg-wrap svg{width:128px;height:128px;display:block;}
+  .donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;text-align:center;}
+  .donut-center-value{font-size:22px;font-weight:700;color:var(--ink);line-height:1;}
+  .donut-center-label{font-size:10px;color:var(--muted);font-weight:500;margin-top:2px;}
+  .donut-legend{display:flex;flex-direction:column;gap:6px;flex:1;min-width:0;}
+  .donut-legend-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink);}
+  .donut-legend-item .sw{width:9px;height:9px;border-radius:2px;flex-shrink:0;}
+  .donut-legend-item .lbl{flex:1;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .donut-legend-item .val{font-weight:600;color:var(--ink);flex-shrink:0;}
+  .donut-empty{font-size:12px;color:var(--muted);}
+  @media (max-width:900px){ .donuts-row{grid-template-columns:1fr;} }
 
   .board{display:grid;grid-template-columns:1fr 427px;gap:14px;}
 
@@ -289,6 +317,32 @@
     background:var(--bg);
     font-weight:600;
   }
+  .open-pct-badge{
+    position:absolute;
+    top:56px;
+    left:28px;
+    z-index:11;
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:12px;
+    box-shadow:var(--shadow-md);
+    padding:12px 18px;
+    text-align:center;
+    pointer-events:none;
+  }
+  .open-pct-badge .pct-value{
+    font-size:32px;
+    font-weight:800;
+    line-height:1;
+    color:var(--open);
+  }
+  .open-pct-badge .pct-label{
+    font-size:10.5px;
+    color:var(--muted);
+    font-weight:600;
+    margin-top:4px;
+    white-space:nowrap;
+  }
 
   .map-scroll{
     height:700px;overflow:auto;border:1px solid var(--border);border-radius:var(--radius);
@@ -333,13 +387,121 @@
   .rail-card > div::-webkit-scrollbar{width:7px;}
   .rail-card > div::-webkit-scrollbar-thumb{background:#d3d7dc;border-radius:5px;}
   .rail-card > div::-webkit-scrollbar-track{background:transparent;}
-  .region-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:12px;border-bottom:1px solid var(--border);}
+  .region-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:12px;border-bottom:1px solid var(--border);cursor:pointer;border-radius:7px;padding-left:6px;padding-right:6px;margin:0 -6px;transition:background .12s;}
   .region-row:last-child{border-bottom:none;}
+  .region-row:hover{background:var(--bg);}
   .region-row .name{font-weight:500;color:var(--ink);}
   .region-row .counts{color:var(--muted);font-weight:500;}
   .region-row .counts b{font-weight:600;}
   .region-row .counts b.o{color:var(--open);}
   .region-row .counts b.c{color:var(--closed);}
+
+  .region-branch-item{display:flex;justify-content:space-between;align-items:center;padding:10px 8px;border-bottom:1px solid var(--border);border-radius:7px;cursor:pointer;transition:background .12s;}
+  .region-branch-item:last-child{border-bottom:none;}
+  .region-branch-item:hover{background:var(--bg);}
+  .region-branch-item.selected{background:var(--bg);box-shadow:inset 2px 0 0 var(--forest);}
+  .region-branch-item .rb-name{font-size:12.5px;font-weight:600;color:var(--ink);}
+  .region-branch-item .rb-code{font-size:10.5px;color:var(--muted);margin-top:1px;}
+  .region-branch-item .rb-status{font-size:10.5px;font-weight:600;}
+  .region-branch-item .rb-status.open{color:var(--open);}
+  .region-branch-item .rb-status.closed{color:var(--closed);}
+  .region-drawer-hint{font-size:11px;color:var(--muted);margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+
+  /* ===== Branch Directory ===== */
+  .directory-search{
+    width:100%;max-width:340px;padding:9px 12px;font-size:12.5px;border:1px solid var(--border);
+    border-radius:var(--radius);margin-bottom:14px;font-family:inherit;background:#fff;
+  }
+  .directory-search:focus{outline:none;border-color:var(--forest);}
+  .directory-layout{display:grid;grid-template-columns:340px 1fr;gap:14px;align-items:start;}
+  .directory-list{
+    background:#fff;border:1px solid var(--border);border-radius:var(--radius);
+    max-height:640px;overflow-y:auto;padding:6px 8px;
+  }
+  .directory-group{margin-bottom:4px;}
+  .directory-group-head{
+    display:flex;align-items:center;justify-content:space-between;padding:10px 8px;cursor:pointer;
+    font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--forest);
+    background:var(--bg);border-radius:7px;
+  }
+  .directory-group-head .dg-count{font-size:10px;font-weight:600;color:var(--muted);text-transform:none;letter-spacing:0;}
+  .directory-group-head .dg-chev{transition:transform .15s;color:var(--muted);}
+  .directory-group.collapsed .dg-chev{transform:rotate(-90deg);}
+  .directory-group-body{display:flex;flex-direction:column;padding:2px 0 8px;}
+  .directory-group.collapsed .directory-group-body{display:none;}
+  .directory-detail{
+    background:#fff;border:1px solid var(--border);border-radius:var(--radius);
+    padding:22px 24px;min-height:220px;
+  }
+  .directory-empty{color:var(--muted);font-size:12.5px;display:flex;align-items:center;justify-content:center;height:180px;text-align:center;}
+  .directory-detail .dd-name{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:2px;}
+  .directory-detail .dd-code{font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:16px;}
+  @media(max-width:900px){
+    .directory-layout{grid-template-columns:1fr;}
+  }
+
+  .holiday-indicator{margin-top:8px;background:#f9fafb;border:1px solid var(--border);border-radius:8px;padding:10px 12px;max-height:220px;overflow-y:auto;}
+  .holiday-indicator::-webkit-scrollbar{width:6px;}
+  .holiday-indicator::-webkit-scrollbar-thumb{background:#d3d7dc;border-radius:4px;}
+  .holiday-indicator .hi-header{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-bottom:8px;}
+  .holiday-indicator .hi-empty{font-size:11.5px;color:var(--muted);}
+  .holiday-indicator .hi-item{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);}
+  .holiday-indicator .hi-item:last-child{border-bottom:none;}
+  .holiday-indicator .hi-date{font-size:11px;font-weight:600;color:var(--ink);white-space:nowrap;min-width:72px;}
+  .holiday-indicator .hi-name{font-size:11.5px;color:var(--ink);line-height:1.4;}
+  .holiday-indicator .hi-type{display:inline-block;font-size:9.5px;font-weight:600;padding:1px 6px;border-radius:10px;margin-top:2px;}
+  .holiday-indicator .hi-type.regular{background:#fbe9e9;color:#c0392b;}
+  .holiday-indicator .hi-type.special{background:#fef3cd;color:#856404;}
+  .holiday-indicator .hi-type.additional{background:#e8daef;color:#6c3483;}
+  .holiday-indicator .hi-type.working{background:#d5f5e3;color:#1e8449;}
+  .holiday-indicator .hi-type.local{background:#d6eaf8;color:#1a5276;}
+
+  .holiday-overlap{margin-top:8px;background:#fef9e7;border:1px solid #f9e79f;border-radius:8px;padding:10px 12px;font-size:11.5px;color:#7d6608;line-height:1.5;}
+  .holiday-overlap strong{font-weight:700;}
+  .holiday-overlap .ho-item{padding:2px 0;}
+  .holiday-overlap .ho-date{font-weight:600;}
+
+  .holiday-suggest{margin-top:8px;background:#eaf2f8;border:1px solid #aed6f1;border-radius:8px;padding:10px 12px;font-size:11.5px;color:#1a5276;line-height:1.5;}
+  .holiday-suggest strong{font-weight:700;}
+
+  .sms-scrim{position:fixed;inset:0;background:rgba(20,20,30,.45);opacity:0;pointer-events:none;transition:opacity .2s;z-index:50;}
+  .sms-scrim.show{opacity:1;pointer-events:auto;}
+  .sms-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.95);background:#fff;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.25);width:400px;max-width:92vw;z-index:51;opacity:0;pointer-events:none;transition:opacity .2s, transform .2s;display:flex;flex-direction:column;max-height:85vh;}
+  .sms-modal.show{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1);}
+  .sms-modal-head{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;}
+  .sms-modal-head h3{font-size:14px;font-weight:700;color:var(--ink);margin:0;}
+  .sms-modal-head .sms-close{width:28px;height:28px;border-radius:7px;border:1px solid var(--border);background:#fff;color:var(--muted);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .sms-modal-head .sms-close:hover{background:var(--bg);}
+  .sms-modal-body{padding:16px 20px;overflow-y:auto;flex:1;}
+  .sms-modal-foot{padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;}
+
+  .sms-phone{background:#f0f2f5;border-radius:12px;padding:3px;margin-bottom:14px;}
+  .sms-bubble{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-family:'Courier New',Courier,monospace;font-size:11.5px;line-height:1.65;color:var(--ink);white-space:pre-wrap;word-break:break-word;max-height:340px;overflow-y:auto;}
+  .sms-bubble::-webkit-scrollbar{width:6px;}
+  .sms-bubble::-webkit-scrollbar-thumb{background:#d3d7dc;border-radius:4px;}
+  .sms-sender{font-size:10.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:6px 16px 2px;}
+  .sms-timestamp{font-size:10px;color:var(--muted);text-align:center;padding:8px 0 4px;}
+
+  .sms-config-note{background:#eaf2f8;border:1px solid #aed6f1;border-radius:8px;padding:10px 14px;font-size:11.5px;color:#1a5276;line-height:1.5;margin-bottom:16px;}
+  .sms-config-note strong{font-weight:700;}
+
+  .sms-recipients{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+  .sms-rcpt-tag{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:3px 10px;font-size:11px;font-weight:500;color:var(--ink);}
+
+  .holiday-table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden;}
+  .holiday-table{width:100%;border-collapse:collapse;font-size:12px;}
+  .holiday-table th{text-align:left;padding:10px 14px;border-bottom:2px solid var(--border);font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;background:#fafbfc;}
+  .holiday-table td{padding:9px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
+  .holiday-table tr:last-child td{border-bottom:none;}
+  .holiday-table tr:hover td{background:var(--bg);}
+  .holiday-table .ht-date{white-space:nowrap;font-weight:600;color:var(--ink);min-width:105px;}
+  .holiday-table .ht-name{color:var(--ink);font-weight:500;line-height:1.4;}
+  .holiday-table .ht-type{white-space:nowrap;}
+  .holiday-table .ht-ref{font-size:11px;color:var(--muted);max-width:180px;}
+  .holiday-table .ht-scope{font-size:11.5px;}
+  .holiday-table .ht-scope .scope-national{color:var(--muted);}
+  .holiday-table .ht-scope .scope-local{color:var(--ink);font-weight:500;}
+  .holiday-table .ht-scope .scope-none{color:var(--muted);font-style:italic;}
 
   .alert-item{padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;}
   .alert-item:last-child{border-bottom:none;}
@@ -501,12 +663,12 @@
   .f-group label{display:block;font-size:11.5px;font-weight:600;color:var(--ink);margin-bottom:6px;}
   .f-group .f-help{font-size:10.5px;color:var(--muted);margin-top:5px;}
   .f-row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-  select,textarea,input[type=text]{
+  select,textarea,input[type=text],input[type=date]{
     width:100%;font-family:var(--f);font-size:12.5px;color:var(--ink);
     border:1px solid var(--border);border-radius:8px;padding:10px 12px;background:#fff;
     outline:none;transition:border-color .15s;
   }
-  select:focus,textarea:focus,input[type=text]:focus{border-color:var(--forest);}
+  select:focus,textarea:focus,input[type=text]:focus,input[type=date]:focus{border-color:var(--forest);}
   textarea{resize:vertical;min-height:84px;font-family:var(--f);}
 
   .status-choice{display:flex;gap:10px;}
@@ -518,6 +680,7 @@
   .status-opt .so-label{font-size:12px;font-weight:600;}
   .status-opt.sel-open.checked{border-color:var(--open);background:#e7f8ee;}
   .status-opt.sel-closed.checked{border-color:var(--closed);background:#fbe9e9;}
+  .status-opt.disabled{opacity:.45;pointer-events:none;cursor:not-allowed;}
 
   .branch-preview{
     margin-top:4px;padding:11px 13px;border-radius:9px;background:var(--bg);border:1px solid var(--border);
@@ -543,10 +706,10 @@
     background:var(--card);border:1px solid var(--border);border-radius:11px;padding:14px 16px;
     box-shadow:var(--shadow-sm);
   }
-  .req-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px;}
+  .req-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:8px;}
   .req-branch{font-size:13px;font-weight:600;}
   .req-code{font-size:10.5px;color:var(--muted);font-weight:500;margin-top:1px;}
-  .req-change{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;margin:9px 0;}
+  .req-change{display:flex;align-items:center;flex-wrap:wrap;row-gap:6px;column-gap:6px;font-size:11.5px;font-weight:600;margin:9px 0;}
   .req-change .arrow{color:var(--muted);}
   .pill{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:5px;}
   .pill.open{background:#e7f8ee;color:var(--open);}
@@ -594,9 +757,39 @@
   .metric-card,.rail-card,.map-panel{transition:box-shadow .15s;}
   .metric-card:hover,.rail-card:hover{box-shadow:var(--shadow-sm);}
 
-  .region-row,.alert-item{cursor:default;}
+  .alert-item{cursor:default;}
   .alert-item{cursor:pointer;border-radius:7px;padding:9px 6px;margin:0 -6px;}
   .alert-item:hover{background:var(--bg);}
+
+  /* ===== User Access Settings ===== */
+  .access-table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow-x:auto;}
+  .access-table{width:100%;border-collapse:collapse;font-size:12px;min-width:820px;}
+  .access-table th{text-align:center;padding:10px 10px;border-bottom:2px solid var(--border);font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;background:#fafbfc;white-space:nowrap;}
+  .access-table th:first-child,.access-table th:nth-child(2){text-align:left;}
+  .access-table td{padding:10px 10px;border-bottom:1px solid var(--border);vertical-align:middle;text-align:center;}
+  .access-table td:first-child,.access-table td:nth-child(2){text-align:left;}
+  .access-table tr:last-child td{border-bottom:none;}
+  .access-table tr:hover td{background:var(--bg);}
+  .access-table .au-name{font-weight:600;color:var(--ink);white-space:nowrap;}
+  .access-table .au-role{font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:20px;background:rgba(46,139,63,.12);color:var(--forest);white-space:nowrap;}
+  .access-table .au-role.role-admin{background:rgba(255,193,7,.15);color:#b8860b;}
+  .access-table .au-role.role-supervisor{background:rgba(52,152,219,.12);color:#2980b9;}
+
+  .toggle{position:relative;display:inline-block;width:34px;height:18px;cursor:pointer;}
+  .toggle input{opacity:0;width:0;height:0;}
+  .toggle .slider{
+    position:absolute;inset:0;background:#d1d5db;border-radius:20px;transition:all .2s;
+  }
+  .toggle .slider::before{
+    content:'';position:absolute;width:14px;height:14px;left:2px;bottom:2px;background:#fff;border-radius:50%;transition:all .2s;box-shadow:0 1px 2px rgba(0,0,0,.15);
+  }
+  .toggle input:checked+.slider{background:var(--forest);}
+  .toggle input:checked+.slider::before{transform:translateX(16px);}
+  .toggle input:disabled{opacity:.45;cursor:not-allowed;}
+  .toggle input:disabled+.slider{cursor:not-allowed;}
+
+  .access-actions{display:flex;gap:8px;margin-top:14px;justify-content:flex-end;}
+  .access-hint{font-size:11.5px;color:var(--muted);margin-bottom:14px;line-height:1.5;}
 
   @media(max-width:900px){
     .form-layout{grid-template-columns:1fr;}
@@ -643,7 +836,7 @@
     <form id="loginForm">
       <div class="field-row">
         <label for="loginUsername">Username</label>
-        <input type="text" id="loginUsername" name="username" autocomplete="username" required>
+        <input type="text" id="loginUsername" name="username" autocomplete="username" required autofocus>
       </div>
       <div class="field-row">
         <label for="loginPassword">Password</label>
@@ -659,23 +852,10 @@
     </form>
 
     <div class="advisories">
-      <h4>Advisories</h4>
-      <div class="caption">News &amp; Tips</div>
+      <h4>BRANCH ANNIVERSARIES</h4>
+      <div class="caption">Current &amp; Upcoming (Next 30 Days)</div>
 
-      <div class="advisory-item">
-        <div class="dot red">!</div>
-        <div>
-          <b>Daily Security Reminder</b>
-          <span>Your account, your responsibility &mdash; never share it with others.</span>
-        </div>
-      </div>
-      <div class="advisory-item">
-        <div class="dot purple">i</div>
-        <div>
-          <b>Scheduled Maintenance</b>
-          <span>CBAMS will undergo brief maintenance this weekend. Save your work before Saturday, 10:00 PM.</span>
-        </div>
-      </div>
+      <div id="anniversaryList"></div>
     </div>
 
     <p class="concern-text">Do you have a concern? Submit a ticket @ <a href="https://helpdesk.agribank.com.ph/User/Login" target="_blank" rel="noopener">IT Helpdesk</a></p>
@@ -701,21 +881,18 @@
         <a href="#" id="link-archive">Archive</a>
       </div>
     </div>
+    <div class="navitem" id="nav-directory" style="position:relative;">Branch Directory</div>
     <div class="navitem" id="nav-forms" style="position:relative;">Maintenance <span class="chev">▾</span>
       <div class="dropdown" id="dd-forms">
-        <a href="#" id="link-forms-request">New Branch Status Request</a>
-        <a href="#">Holiday Declaration Form</a>
-        <a href="#">Incident Report Form</a>
+        <a href="#" id="link-sms">SMS Notification</a>
+        <a href="#" id="link-holidays">Holidays List</a>
+        <a href="#" id="link-user-access">User Access Settings</a>
       </div>
     </div>
   </nav>
   <div class="spacer"></div>
   <div class="account" id="account-cell">
-    <div class="avatar" id="userAvatar">FP</div>
-    <div class="who-inline">
-      <div class="n" id="userName">fjprincipe</div>
-      <div class="r"><span class="role-pill" id="userRolePill">ADMIN</span></div>
-    </div>
+    <div class="avatar" id="userAvatar">FJ</div>
     <div class="account-dropdown" id="dd-account">
       <div class="who"><div class="n" id="userNameFull">fjprincipe</div><div class="r" id="userRoleFull">Admin · NCR</div></div>
       <a href="#">View Profile</a>
@@ -730,15 +907,43 @@
   <!-- ============ DASHBOARD VIEW ============ -->
   <div class="view active" id="view-dashboard">
     <div class="page-head">
-      <div class="page-title">Branch Operation Overview</div>
+      <div class="page-title">Branch Operation Dashboard</div>
       <div class="page-sub">Live status across all branches · pins and alerts update automatically when a request is approved</div>
     </div>
-
-    <div class="metrics">
-      <div class="metric-card"><div class="top"><span class="dot"></span><span class="label">Total Branches</span></div><div class="value" id="mTotal">0</div></div>
-      <div class="metric-card open-c"><div class="top"><span class="dot"></span><span class="label">Open</span></div><div class="value" id="mOpen">0</div></div>
-      <div class="metric-card closed-c"><div class="top"><span class="dot"></span><span class="label">Closed</span></div><div class="value" id="mClosed">0</div></div>
-      <div class="metric-card alert-c"><div class="top"><span class="dot"></span><span class="label">Active Alerts Feed</span></div><div class="value" id="mAlert">0</div></div>
+    <div class="donuts-row">
+      <div class="donut-card">
+        <div class="donut-card-head"><h3>Branch Status</h3></div>
+        <div class="donut-body">
+          <div class="donut-svg-wrap">
+            <svg viewBox="0 0 128 128" id="donutStatusSvg"></svg>
+            <div class="donut-center">
+              <div class="donut-center-value" id="donutStatusValue">0</div>
+              <div class="donut-center-label">Total</div>
+            </div>
+          </div>
+          <div class="donut-legend" id="donutStatusLegend"></div>
+        </div>
+      </div>
+      <div class="donut-card">
+        <div class="donut-card-head donut-card-head-asof">
+          <h3>Reason for Closure</h3>
+          <div class="asof-inline">
+            <span class="asof-inline-label">As of</span>
+            <input type="date" id="asOfDate">
+            <button type="button" id="asOfTodayBtn" class="btn btn-ghost btn-sm">TODAY</button>
+          </div>
+        </div>
+        <div class="donut-body">
+          <div class="donut-svg-wrap">
+            <svg viewBox="0 0 128 128" id="donutReasonSvg"></svg>
+            <div class="donut-center">
+              <div class="donut-center-value" id="donutReasonValue">0</div>
+              <div class="donut-center-label">Closed</div>
+            </div>
+          </div>
+          <div class="donut-legend" id="donutReasonLegend"></div>
+        </div>
+      </div>
     </div>
 
     <div class="board">
@@ -749,6 +954,11 @@
             <span><i class="lg-open"></i>Open</span>
             <span><i class="lg-closed"></i>Closed</span>
           </div>
+        </div>
+
+        <div class="open-pct-badge" id="openPctBadge">
+          <div class="pct-value" id="openPctValue">—%</div>
+          <div class="pct-label">are open as of <span id="openPctDate">—</span></div>
         </div>
 
         <!-- 1. Move zoom controls OUTSIDE of map-scroll -->
@@ -777,7 +987,7 @@
           <div id="regionList"></div>
         </div>
         <div class="rail-card">
-          <h3>Active Alert Feed</h3>
+          <h3>Closed Branches</h3>
           <div id="alertFeed"></div>
         </div>
       </div>
@@ -830,6 +1040,22 @@
               <option value="Security Incident">Security Incident</option>
               <option value="Other">Other</option>
             </select>
+          </div>
+
+          <div class="f-row" style="display:flex; gap:12px;">
+            <div class="f-group" id="closedFromGroup" style="display:none;">
+              <label for="reqClosedFrom">Closed from</label>
+              <input type="date" id="reqClosedFrom" min="">
+              <div class="f-help">The date the branch closure begins.</div>
+            </div>
+            <div class="f-group" id="closedUntilGroup" style="display:none;">
+              <label for="reqClosedUntil">Closed until</label>
+              <input type="date" id="reqClosedUntil" min="">
+              <div class="f-help">The branch will remain closed until this date.</div>
+              <div id="holidayIndicator" class="holiday-indicator" style="display:none;"></div>
+              <div id="holidayOverlap" class="holiday-overlap" style="display:none;"></div>
+              <div id="holidaySuggest" class="holiday-suggest" style="display:none;"></div>
+            </div>
           </div>
 
           <div class="f-group">
@@ -890,6 +1116,152 @@
     <div class="req-list" id="archiveList"></div>
   </div>
 
+  <!-- ============ BRANCH DIRECTORY VIEW ============ -->
+  <div class="view" id="view-branch-directory">
+    <div class="page-head">
+      <div class="page-title">Branch Directory</div>
+      <div class="page-sub">Branches grouped by region. Click a branch to view its date opened and location.</div>
+    </div>
+    <input type="text" id="directorySearch" class="directory-search" placeholder="Search branch name or code…">
+    <div class="directory-layout">
+      <div class="directory-list" id="directoryList"></div>
+      <div class="directory-detail" id="directoryDetail">
+        <div class="directory-empty">Select a branch from the list to view its date opened and location.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SMS NOTIFICATION VIEW ============ -->
+  <div class="view" id="view-sms">
+    <div class="page-head">
+      <div class="page-title">SMS Notification</div>
+      <div class="page-sub">Configure an automated daily SMS report listing all branches that are currently closed. This is a mockup — no messages are actually sent.</div>
+    </div>
+
+    <div class="form-layout">
+      <div class="form-card">
+        <h2>SMS Configuration</h2>
+        <div class="hint">Set up who receives the daily branch status report and customize the message template.</div>
+
+        <div class="sms-config-note">
+          <strong>ℹ Mockup Notice</strong> — This feature is under development. The "View Message" button below will render a sample SMS based on the current branch statuses. No messages will be sent.
+        </div>
+
+        <form id="smsForm">
+          <div class="f-group">
+            <label for="smsRecipients">Recipients</label>
+            <input type="text" id="smsRecipients" value="0917-555-4657, 0917-555-7912, 0917-555-8527, 0917-555-6155" placeholder="Comma-separated phone numbers">
+            <div class="f-help">Comma-separated mobile numbers. These are mockup values.</div>
+          </div>
+
+          <div class="f-group">
+            <label for="smsSchedule">Schedule</label>
+            <select id="smsSchedule">
+              <option value="daily-6am" selected>Daily at 6:00 AM</option>
+              <option value="daily-12pm">Daily at 12:00 PM</option>
+              <option value="daily-6pm">Daily at 6:00 PM</option>
+              <option value="weekly-monday">Weekly every Monday</option>
+            </select>
+          </div>
+
+          <div class="f-group">
+            <label for="smsTemplate">Message Template</label>
+            <textarea id="smsTemplate" rows="10">[CBAMS] Daily Branch Status Report — {{DATE}}
+
+CLOSED today:
+{{CLOSED_LIST}}
+
+Total: {{CLOSED_COUNT}} closed of {{TOTAL_COUNT}} branches
+For concerns, contact the CBAMS Helpdesk.</textarea>
+            <div class="f-help">Use {{DATE}}, {{CLOSED_LIST}}, {{CLOSED_COUNT}}, and {{TOTAL_COUNT}} as placeholders. These will be replaced automatically.</div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-primary" id="smsViewBtn">View Message</button>
+            <button type="button" class="btn btn-ghost" id="smsTestBtn">Send Test</button>
+            <button type="submit" class="btn btn-ghost" id="smsSaveBtn">Save</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="tips-card">
+        <h3>How the daily SMS works</h3>
+        <ul>
+          <li>Every day at the scheduled time, CBAMS compiles a list of all branches with <b>closed</b> status.</li>
+          <li>The message is sent to all configured recipients.</li>
+          <li>Placeholders in the template are replaced with real data at send time.</li>
+          <li>This is a <b>mockup</b> — no actual SMS integration is active yet.</li>
+        </ul>
+        <div style="margin-top:14px;">
+          <h4 style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;">Current Recipients</h4>
+          <div id="smsRecipientTags" class="sms-recipients"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ HOLIDAYS LIST VIEW ============ -->
+  <div class="view" id="view-holidays">
+    <div class="page-head">
+      <div class="page-title">2026 Philippine Holidays</div>
+      <div class="page-sub">Based on Proclamation No. 1006 and local proclamations. Local holiday dates are based on 2025 proclamations and may change once 2026 official proclamations are issued.</div>
+    </div>
+    <div class="filter-row" id="holidayFilterRow">
+      <div class="filter-chip active" data-filter="all">All</div>
+      <div class="filter-chip" data-filter="regular">Regular Holiday</div>
+      <div class="filter-chip" data-filter="special">Special (Non-Working)</div>
+      <div class="filter-chip" data-filter="working">Special (Working)</div>
+      <div class="filter-chip" data-filter="additional">Additional (Non-Working)</div>
+      <div class="filter-chip" data-filter="local">Local Holiday</div>
+    </div>
+    <div class="holiday-table-wrap">
+      <table class="holiday-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Holiday</th>
+            <th>Type</th>
+            <th>Reference</th>
+            <th>Scope</th>
+          </tr>
+        </thead>
+        <tbody id="holidayTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="view" id="view-user-access">
+    <div class="page-head">
+      <div class="page-title">User Access Settings</div>
+      <div class="page-sub">Manage user permissions for system modules and features. Changes here are for demonstration purposes only.</div>
+    </div>
+    <div class="access-hint">Toggle permissions for each user. Permission changes will not be saved in this mockup.</div>
+    <div class="access-table-wrap">
+      <table class="access-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>Login</th>
+            <th>Dashboard</th>
+            <th>Request</th>
+            <th>Approve</th>
+            <th>User Access</th>
+            <th>Archive</th>
+            <th>Export</th>
+            <th>Manage Users</th>
+            <th>Audit Log</th>
+          </tr>
+        </thead>
+        <tbody id="accessTableBody"></tbody>
+      </table>
+    </div>
+    <div class="access-actions">
+      <button class="btn btn-ghost" id="btnResetAccess" disabled>Reset</button>
+      <button class="btn btn-primary" id="btnSaveAccess" disabled>Save Changes</button>
+    </div>
+  </div>
+
 </main>
 
 <div class="toast-stack" id="toastStack"></div>
@@ -934,6 +1306,25 @@
     <div class="tab-pane" id="pane-history">
       <div id="historyList"></div>
     </div>
+    <div class="tab-pane" id="pane-region"></div>
+  </div>
+</div>
+
+<div class="sms-scrim" id="smsScrim"></div>
+<div class="sms-modal" id="smsModal">
+  <div class="sms-modal-head">
+    <h3>SMS Preview — Daily Branch Status Report</h3>
+    <button class="sms-close" id="smsModalClose">✕</button>
+  </div>
+  <div class="sms-modal-body">
+    <div class="sms-sender">CBAMS automated message</div>
+    <div class="sms-phone">
+      <div class="sms-bubble" id="smsBubble"></div>
+    </div>
+    <div class="sms-timestamp" id="smsTimestamp"></div>
+  </div>
+  <div class="sms-modal-foot">
+    <button class="btn btn-ghost" id="smsModalCloseBtn">Close</button>
   </div>
 </div>
 
@@ -950,249 +1341,402 @@ const PH_PATH_D = "M 267.4,153.0 L 266.4,154.4 L 263.3,154.0 L 258.8,148.2 L 255
    BRANCH DATA
    ========================================================= */
 const branches = [
-  {code:'BR-2001', name:'Baclaran Branch', region:'NATIONAL CAPITAL REGION', lat:14.5378, lng:120.9958, status:'open',
+  {code:'BR-2001', name:'Baclaran Branch', region:'NATIONAL CAPITAL REGION', lat:14.5378, lng:120.9958, status:'open', anniversary:'2025-03-14',
    address:'Baclaran Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'O. Lopez', managerPhone:'(02) 681-5012', managerEmail:'olopez@agribank.ph',
    ops:'R. Lacson', opsPhone:'(02) 681-5013', hotline:'0917-555-4657',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2002', name:'Bacolod City Branch', region:'VIZMIN', lat:10.6713, lng:122.9511, status:'open',
+  {code:'BR-2002', name:'Bacolod City Branch', region:'VIZMIN', lat:10.6713, lng:122.9511, status:'open', anniversary:'2025-12-15',
    address:'Bacolod City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'J. Lacson', managerPhone:'(034) 958-2424', managerEmail:'jlacson@agribank.ph',
    ops:'F. Hernandez', opsPhone:'(034) 958-2425', hotline:'0917-555-7912',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2003', name:'Baler Branch', region:'REGION 2', lat:15.7592, lng:121.5629, status:'closed',
+  {code:'BR-2003', name:'Baler Branch', region:'REGION 2', lat:15.7592, lng:121.5629, status:'closed', closedFrom:'2026-08-10', closedUntil:'2026-08-12', anniversary:'2014-03-10',
    address:'Baler Branch Office', hours:'Suspended until further notice',
    manager:'M. Villar', managerPhone:'(042) 638-9279', managerEmail:'mvillar@agribank.ph',
    ops:'A. Ramos', opsPhone:'(042) 638-9280', hotline:'0917-555-1434',
    history:[['Closed — Calamity','Typhoon signal no. 2 raised, LGU-ordered suspension','Yesterday, 5:15 PM','R. Dizon, Compliance Officer']],
    emergency:true},
-  {code:'BR-2004', name:'Baliwag City Branch', region:'REGION 3', lat:14.9563, lng:120.8996, status:'open',
+  {code:'BR-2004', name:'Baliwag City Branch', region:'REGION 3', lat:14.9563, lng:120.8996, status:'open', anniversary:'2024-12-26',
    address:'Baliwag City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'H. Ferrer', managerPhone:'(044) 958-7873', managerEmail:'hferrer@agribank.ph',
    ops:'U. Espino', opsPhone:'(044) 958-7874', hotline:'0917-555-4611',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2005', name:'Bambang Branch', region:'REGION 2', lat:16.4667, lng:121.1167, status:'open',
+  {code:'BR-2005', name:'Bambang Branch', region:'REGION 2', lat:16.4667, lng:121.1167, status:'open', anniversary:'2017-12-22',
    address:'Bambang Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'K. Zamora', managerPhone:'(078) 563-7924', managerEmail:'kzamora@agribank.ph',
    ops:'V. Santos', opsPhone:'(078) 563-7925', hotline:'0917-555-6574',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2006', name:'Bantay Branch', region:'REGION 1', lat:17.6017, lng:120.5817, status:'open',
+  {code:'BR-2006', name:'Bantay Branch', region:'REGION 1', lat:17.6017, lng:120.5817, status:'open', anniversary:'2022-12-15',
    address:'Bantay Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'V. Salazar', managerPhone:'(077) 744-2674', managerEmail:'vsalazar@agribank.ph',
    ops:'E. Manansala', opsPhone:'(077) 744-2675', hotline:'0917-555-2519',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2007', name:'Bulan Branch', region:'BICOL REGION', lat:12.6708, lng:123.8756, status:'closed',
+  {code:'BR-2007', name:'Bulan Branch', region:'BICOL REGION', lat:12.6708, lng:123.8756, status:'closed', closedFrom:'2026-08-10', closedUntil:'2026-08-11', anniversary:'2025-02-14',
    address:'Bulan Branch Office', hours:'Suspended — flooding',
    manager:'N. Aquino', managerPhone:'(056) 670-1711', managerEmail:'naquino@agribank.ph',
    ops:'C. Dizon', opsPhone:'(056) 670-1712', hotline:'0917-555-8527',
    history:[['Closed — Flooding','Access roads impassable after heavy rainfall','Today, 6:50 AM','Auto-flagged, pending confirmation']],
    emergency:true},
-  {code:'BR-2008', name:'Cabanatuan City Branch', region:'REGION 3', lat:15.4864, lng:120.975, status:'open',
+  {code:'BR-2008', name:'Cabanatuan City Branch', region:'REGION 3', lat:15.4864, lng:120.975, status:'open', anniversary:'2006-01-30',
    address:'Cabanatuan City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'H. Lopez', managerPhone:'(044) 965-5803', managerEmail:'hlopez@agribank.ph',
    ops:'N. Alvarez', opsPhone:'(044) 965-5804', hotline:'0917-555-6925',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2009', name:'Cainta Branch', region:'NATIONAL CAPITAL REGION', lat:14.5786, lng:121.1222, status:'open',
+  {code:'BR-2009', name:'Cainta Branch', region:'NATIONAL CAPITAL REGION', lat:14.5786, lng:121.1222, status:'open', anniversary:'2018-02-08',
    address:'Cainta Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'T. Ferrer', managerPhone:'(02) 446-4733', managerEmail:'tferrer@agribank.ph',
    ops:'U. Bautista', opsPhone:'(02) 446-4734', hotline:'0917-555-5741',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2010', name:'Calamba City Branch', region:'CALABAZON', lat:14.2117, lng:121.1653, status:'open',
+  {code:'BR-2010', name:'Calamba City Branch', region:'CALABAZON', lat:14.2117, lng:121.1653, status:'open', anniversary:'2025-10-30',
    address:'Calamba City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'A. Fianza', managerPhone:'(049) 684-8428', managerEmail:'afianza@agribank.ph',
    ops:'F. Villaruel', opsPhone:'(049) 684-8429', hotline:'0917-555-6977',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2011', name:'Calapan City Branch', region:'MIMAROPA', lat:13.4117, lng:121.1803, status:'open',
+  {code:'BR-2011', name:'Calapan City Branch', region:'MIMAROPA', lat:13.4117, lng:121.1803, status:'open', anniversary:'2011-11-24',
    address:'Calapan City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'P. Fabros', managerPhone:'(043) 673-2169', managerEmail:'pfabros@agribank.ph',
    ops:'C. Ramos', opsPhone:'(043) 673-2170', hotline:'0917-555-3803',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2012', name:'Cauayan City Branch', region:'REGION 2', lat:16.9333, lng:121.7667, status:'open',
+  {code:'BR-2012', name:'Cauayan City Branch', region:'REGION 2', lat:16.9333, lng:121.7667, status:'open', anniversary:'2021-05-21',
    address:'Cauayan City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'H. Katigbak', managerPhone:'(078) 873-7216', managerEmail:'hkatigbak@agribank.ph',
    ops:'G. Macapagal', opsPhone:'(078) 873-7217', hotline:'0917-555-5422',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2013', name:'Cagayan De Oro City Branch', region:'VIZMIN', lat:8.4822, lng:124.6472, status:'open',
+  {code:'BR-2013', name:'Cagayan De Oro City Branch', region:'VIZMIN', lat:8.4822, lng:124.6472, status:'open', anniversary:'2026-04-08',
    address:'Cagayan De Oro City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'O. Ilagan', managerPhone:'(088) 732-1916', managerEmail:'oilagan@agribank.ph',
    ops:'H. Fianza', opsPhone:'(088) 732-1917', hotline:'0917-555-4752',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2014', name:'Daet Branch', region:'BICOL REGION', lat:14.1122, lng:122.9556, status:'closed',
+  {code:'BR-2014', name:'Daet Branch', region:'BICOL REGION', lat:14.1122, lng:122.9556, status:'closed', closedFrom:'2026-08-10', closedUntil:'2026-08-10', anniversary:'2024-01-24',
    address:'Daet Branch Office', hours:'Suspended — power outage',
    manager:'M. Marasigan', managerPhone:'(054) 467-4456', managerEmail:'mmarasigan@agribank.ph',
    ops:'N. Yap', opsPhone:'(054) 467-4457', hotline:'0917-555-6155',
    history:[['Closed — Power Outage','Grid-wide outage reported by local cooperative','Today, 7:40 AM','L. Marasigan, Regional Director']],
    emergency:true},
-  {code:'BR-2015', name:'Davao City Branch', region:'VIZMIN', lat:7.1907, lng:125.4553, status:'open',
+  {code:'BR-2015', name:'Davao City Branch', region:'VIZMIN', lat:7.1907, lng:125.4553, status:'open', anniversary:'2023-01-12',
    address:'Davao City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'E. Espino', managerPhone:'(082) 869-3340', managerEmail:'eespino@agribank.ph',
    ops:'S. Mercado', opsPhone:'(082) 869-3341', hotline:'0917-555-5339',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2016', name:'General Santos City Branch', region:'VIZMIN', lat:6.1164, lng:125.1716, status:'open',
+  {code:'BR-2016', name:'General Santos City Branch', region:'VIZMIN', lat:6.1164, lng:125.1716, status:'open', anniversary:'2008-01-30',
    address:'General Santos City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'J. Molina', managerPhone:'(083) 951-5304', managerEmail:'jmolina@agribank.ph',
    ops:'Z. Aguilar', opsPhone:'(083) 951-5305', hotline:'0917-555-8019',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2017', name:'Guimba Branch', region:'REGION 3', lat:15.6667, lng:120.7667, status:'closed',
+  {code:'BR-2017', name:'Guimba Branch', region:'REGION 3', lat:15.6667, lng:120.7667, status:'closed', closedFrom:'2026-08-10', closedUntil:'2026-08-10', anniversary:'2016-03-28',
    address:'Guimba Branch Office', hours:'Suspended — network outage',
    manager:'T. Mercado', managerPhone:'(044) 541-9348', managerEmail:'tmercado@agribank.ph',
    ops:'C. Fianza', opsPhone:'(044) 541-9349', hotline:'0917-555-9085',
    history:[['Closed — Connectivity','Fiber line cut during roadworks, backup ETA 3 hrs','Today, 8:05 AM','Auto-flagged, pending confirmation']],
    emergency:true},
-  {code:'BR-2018', name:'Iloilo City Branch', region:'VIZMIN', lat:10.7202, lng:122.5621, status:'open',
+  {code:'BR-2018', name:'Iloilo City Branch', region:'VIZMIN', lat:10.7202, lng:122.5621, status:'open', anniversary:'2022-08-19',
    address:'Iloilo City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'A. Manansala', managerPhone:'(033) 556-3621', managerEmail:'amanansala@agribank.ph',
    ops:'M. Lopez', opsPhone:'(033) 556-3622', hotline:'0917-555-7916',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2019', name:'Kawit Branch', region:'CALABAZON', lat:14.4444, lng:120.9036, status:'open',
+  {code:'BR-2019', name:'Kawit Branch', region:'CALABAZON', lat:14.4444, lng:120.9036, status:'open', anniversary:'2023-09-29',
    address:'Kawit Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'B. Bautista', managerPhone:'(046) 879-9669', managerEmail:'bbautista@agribank.ph',
    ops:'N. Villaruel', opsPhone:'(046) 879-9670', hotline:'0917-555-5119',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2020', name:'Koronadal City Branch', region:'VIZMIN', lat:6.5031, lng:124.8467, status:'open',
+  {code:'BR-2020', name:'Koronadal City Branch', region:'VIZMIN', lat:6.5031, lng:124.8467, status:'open', anniversary:'2020-09-01',
    address:'Koronadal City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'H. Santos', managerPhone:'(083) 517-9797', managerEmail:'hsantos@agribank.ph',
    ops:'Y. Katigbak', opsPhone:'(083) 517-9798', hotline:'0917-555-5371',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2021', name:'Legazpi City Branch', region:'BICOL REGION', lat:13.1391, lng:123.7438, status:'open',
+  {code:'BR-2021', name:'Legazpi City Branch', region:'BICOL REGION', lat:13.1391, lng:123.7438, status:'open', anniversary:'2010-11-08',
    address:'Legazpi City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'Q. Espino', managerPhone:'(052) 700-8123', managerEmail:'qespino@agribank.ph',
    ops:'W. Lopez', opsPhone:'(052) 700-8124', hotline:'0917-555-3591',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2022', name:'Lipa City Branch', region:'CALABAZON', lat:13.9411, lng:121.1622, status:'open',
+  {code:'BR-2022', name:'Lipa City Branch', region:'CALABAZON', lat:13.9411, lng:121.1622, status:'open', anniversary:'2025-02-12',
    address:'Lipa City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'K. Santos', managerPhone:'(043) 669-9201', managerEmail:'ksantos@agribank.ph',
    ops:'Z. Katigbak', opsPhone:'(043) 669-9202', hotline:'0917-555-3927',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2023', name:'Lucena City Branch', region:'CALABAZON', lat:13.9314, lng:121.6169, status:'open',
+  {code:'BR-2023', name:'Lucena City Branch', region:'CALABAZON', lat:13.9314, lng:121.6169, status:'open', anniversary:'2022-11-25',
    address:'Lucena City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'L. Aquino', managerPhone:'(042) 919-4258', managerEmail:'laquino@agribank.ph',
    ops:'O. Domingo', opsPhone:'(042) 919-4259', hotline:'0917-555-3504',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2024', name:'Maddela Branch', region:'REGION 2', lat:16.3833, lng:121.6167, status:'open',
+  {code:'BR-2024', name:'Maddela Branch', region:'REGION 2', lat:16.3833, lng:121.6167, status:'open', anniversary:'2025-02-14',
    address:'Maddela Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'C. Manansala', managerPhone:'(078) 943-1009', managerEmail:'cmanansala@agribank.ph',
    ops:'P. Guerrero', opsPhone:'(078) 943-1010', hotline:'0917-555-6310',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2025', name:'Mandaue City Branch', region:'VIZMIN', lat:10.3236, lng:123.9223, status:'open',
+  {code:'BR-2025', name:'Mandaue City Branch', region:'VIZMIN', lat:10.3236, lng:123.9223, status:'open', anniversary:'2024-05-08',
    address:'Mandaue City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'S. Villar', managerPhone:'(032) 714-4923', managerEmail:'svillar@agribank.ph',
    ops:'F. Fabros', opsPhone:'(032) 714-4924', hotline:'0917-555-1949',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2026', name:'Mansalay Branch', region:'MIMAROPA', lat:12.525, lng:121.42, status:'open',
+  {code:'BR-2026', name:'Mansalay Branch', region:'MIMAROPA', lat:12.525, lng:121.42, status:'open', anniversary:'2025-02-14',
    address:'Mansalay Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'G. Roxas', managerPhone:'(043) 897-2133', managerEmail:'groxas@agribank.ph',
    ops:'A. Alvarez', opsPhone:'(043) 897-2134', hotline:'0917-555-9727',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2027', name:'Masbate City Branch', region:'BICOL REGION', lat:12.3714, lng:123.6206, status:'closed',
+  {code:'BR-2027', name:'Masbate City Branch', region:'BICOL REGION', lat:12.3714, lng:123.6206, status:'closed', closedFrom:'2026-08-11', closedUntil:'2026-08-14', anniversary:'2025-02-14',
    address:'Masbate City Branch Office', hours:'Suspended until further notice',
    manager:'Q. Tolentino', managerPhone:'(056) 886-3705', managerEmail:'qtolentino@agribank.ph',
    ops:'J. Galvez', opsPhone:'(056) 886-3706', hotline:'0917-555-5342',
    history:[['Closed — Calamity','Inter-island vessels suspended, staff unable to report','Yesterday, 7:30 PM','J. Bautista, Compliance Officer']],
    emergency:true},
-  {code:'BR-2028', name:'Muntinlupa City Branch', region:'NATIONAL CAPITAL REGION', lat:14.4081, lng:121.0415, status:'open',
+  {code:'BR-2028', name:'Muntinlupa City Branch', region:'NATIONAL CAPITAL REGION', lat:14.4081, lng:121.0415, status:'open', anniversary:'2025-02-14',
    address:'Muntinlupa City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'L. Cortez', managerPhone:'(02) 952-4295', managerEmail:'lcortez@agribank.ph',
    ops:'D. Ramos', opsPhone:'(02) 952-4296', hotline:'0917-555-6107',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2029', name:'Naga City Branch', region:'BICOL REGION', lat:13.6218, lng:123.1948, status:'open',
+  {code:'BR-2029', name:'Naga City Branch', region:'BICOL REGION', lat:13.6218, lng:123.1948, status:'open', anniversary:'2010-03-08',
    address:'Naga City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'N. Galvez', managerPhone:'(054) 848-9479', managerEmail:'ngalvez@agribank.ph',
    ops:'O. Fabros', opsPhone:'(054) 848-9480', hotline:'0917-555-8397',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2030', name:'Odiongan Branch', region:'MIMAROPA', lat:12.4033, lng:122.0064, status:'closed',
+  {code:'BR-2030', name:'Odiongan Branch', region:'MIMAROPA', lat:12.4033, lng:122.0064, status:'closed', closedFrom:'2026-08-12', closedUntil:'2026-08-13', anniversary:'2025-12-10',
    address:'Odiongan Branch Office', hours:'Suspended until further notice',
    manager:'F. Molina', managerPhone:'(042) 746-1344', managerEmail:'fmolina@agribank.ph',
    ops:'G. Bautista', opsPhone:'(042) 746-1345', hotline:'0917-555-4770',
    history:[['Closed — Calamity','Typhoon signal no. 1 raised, precautionary suspension','Today, 5:00 AM','M. Fabros, Regional Director']],
    emergency:true},
-  {code:'BR-2031', name:'Ortigas Center, Pasig City Branch', region:'NATIONAL CAPITAL REGION', lat:14.5866, lng:121.063, status:'open',
+  {code:'BR-2031', name:'Ortigas Center, Pasig City Branch', region:'NATIONAL CAPITAL REGION', lat:14.5866, lng:121.063, status:'open', anniversary:'2024-06-20',
    address:'Ortigas Center, Pasig City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'T. Fianza', managerPhone:'(02) 460-4750', managerEmail:'tfianza@agribank.ph',
    ops:'R. Bautista', opsPhone:'(02) 460-4751', hotline:'0917-555-2104',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2032', name:'Puerto Princesa City Branch', region:'MIMAROPA', lat:9.7392, lng:118.7353, status:'open',
+  {code:'BR-2032', name:'Puerto Princesa City Branch', region:'MIMAROPA', lat:9.7392, lng:118.7353, status:'open', anniversary:'2010-04-28',
    address:'Puerto Princesa City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'M. Bautista', managerPhone:'(048) 643-5562', managerEmail:'mbautista@agribank.ph',
    ops:'A. Manalo', opsPhone:'(048) 643-5563', hotline:'0917-555-8953',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2033', name:'Roxas City Branch', region:'VIZMIN', lat:11.5853, lng:122.7511, status:'open',
+  {code:'BR-2033', name:'Roxas City Branch', region:'VIZMIN', lat:11.5853, lng:122.7511, status:'open', anniversary:'2022-08-11',
    address:'Roxas City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'E. Guerrero', managerPhone:'(036) 984-8744', managerEmail:'eguerrero@agribank.ph',
    ops:'J. Katigbak', opsPhone:'(036) 984-8745', hotline:'0917-555-4981',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2034', name:'San Fernando City, La Union Branch', region:'REGION 1', lat:16.6159, lng:120.3209, status:'open',
+  {code:'BR-2034', name:'San Fernando City, La Union Branch', region:'REGION 1', lat:16.6159, lng:120.3209, status:'open', anniversary:'2022-07-26',
    address:'San Fernando City, La Union Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'X. Castillo', managerPhone:'(072) 594-2545', managerEmail:'xcastillo@agribank.ph',
    ops:'X. Navarro', opsPhone:'(072) 594-2546', hotline:'0917-555-2588',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2035', name:'San Jacinto Branch', region:'BICOL REGION', lat:16.2536, lng:120.3767, status:'closed',
+  {code:'BR-2035', name:'San Jacinto Branch', region:'BICOL REGION', lat:16.2536, lng:120.3767, status:'closed', closedFrom:'2026-08-13', closedUntil:'2026-08-13', anniversary:'22025-02-14',
    address:'San Jacinto Branch Office', hours:'Suspended for scheduled maintenance',
    manager:'Y. Pascual', managerPhone:'(075) 820-8651', managerEmail:'ypascual@agribank.ph',
    ops:'C. Pascual', opsPhone:'(075) 820-8652', hotline:'0917-555-1887',
    history:[['Closed — System Maintenance','Core banking system migration, scheduled downtime','Today, 6:00 AM','IT Operations']]},
-  {code:'BR-2036', name:'San Jose City, Nueva Ecija Branch', region:'REGION 3', lat:15.7911, lng:120.9822, status:'open',
+  {code:'BR-2036', name:'San Jose City, Nueva Ecija Branch', region:'REGION 3', lat:15.7911, lng:120.9822, status:'open', anniversary:'2007-04-23',
    address:'San Jose City, Nueva Ecija Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'Y. Espino', managerPhone:'(044) 462-7596', managerEmail:'yespino@agribank.ph',
    ops:'O. Aquino', opsPhone:'(044) 462-7597', hotline:'0917-555-6559',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2037', name:'San Jose, Occ. Mindoro Branch', region:'MIMAROPA', lat:12.3517, lng:121.0678, status:'open',
+  {code:'BR-2037', name:'San Jose, Occ. Mindoro Branch', region:'MIMAROPA', lat:12.3517, lng:121.0678, status:'open', anniversary:'2012-03-28',
    address:'San Jose, Occ. Mindoro Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'X. Aquino', managerPhone:'(043) 594-9786', managerEmail:'xaquino@agribank.ph',
    ops:'G. Ferrer', opsPhone:'(043) 594-9787', hotline:'0917-555-8350',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2038', name:'Santiago City Branch', region:'REGION 2', lat:16.6889, lng:121.5486, status:'open',
+  {code:'BR-2038', name:'Santiago City Branch', region:'REGION 2', lat:16.6889, lng:121.5486, status:'open', anniversary:'2025-09-30',
    address:'Santiago City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'J. Pascual', managerPhone:'(078) 873-5092', managerEmail:'jpascual@agribank.ph',
    ops:'P. Yap', opsPhone:'(078) 873-5093', hotline:'0917-555-2235',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2039', name:'Solano Branch', region:'REGION 2', lat:16.5167, lng:121.1833, status:'open',
+  {code:'BR-2039', name:'Solano Branch', region:'REGION 2', lat:16.5167, lng:121.1833, status:'open', anniversary:'1997-10-01',
    address:'Solano Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'K. Aguilar', managerPhone:'(078) 953-1241', managerEmail:'kaguilar@agribank.ph',
    ops:'F. Dela Cruz', opsPhone:'(078) 953-1242', hotline:'0917-555-2528',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2040', name:'Sorsogon City Branch', region:'BICOL REGION', lat:12.9739, lng:124.0058, status:'open',
+  {code:'BR-2040', name:'Sorsogon City Branch', region:'BICOL REGION', lat:12.9739, lng:124.0058, status:'open', anniversary:'2025-02-14',
    address:'Sorsogon City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'Q. Molina', managerPhone:'(056) 897-8886', managerEmail:'qmolina@agribank.ph',
    ops:'P. Navarro', opsPhone:'(056) 897-8887', hotline:'0917-555-4502',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2041', name:'Tabaco City Branch', region:'BICOL REGION', lat:13.3572, lng:123.7325, status:'open',
+  {code:'BR-2041', name:'Tabaco City Branch', region:'BICOL REGION', lat:13.3572, lng:123.7325, status:'open', anniversary:'2011-02-08',
    address:'Tabaco City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'N. Dela Cruz', managerPhone:'(052) 402-7396', managerEmail:'ndelacruz@agribank.ph',
    ops:'P. Villaruel', opsPhone:'(052) 402-7397', hotline:'0917-555-5345',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2042', name:'Tacloban City Branch', region:'VIZMIN', lat:11.2444, lng:125.0043, status:'closed',
+  {code:'BR-2042', name:'Tacloban City Branch', region:'VIZMIN', lat:11.2444, lng:125.0043, status:'closed', closedFrom:'2026-08-10', closedUntil:'2026-08-14', anniversary:'2026-03-06',
    address:'Tacloban City Branch Office', hours:'Suspended until further notice',
    manager:'X. Torres', managerPhone:'(053) 969-8973', managerEmail:'xtorres@agribank.ph',
    ops:'I. Pascual', opsPhone:'(053) 969-8974', hotline:'0917-555-3536',
    history:[['Closed — Calamity','Storm surge advisory, LGU-ordered suspension','Yesterday, 9:10 PM','E. Villaruel, Compliance Officer']],
    emergency:true},
-  {code:'BR-2043', name:'Tagaytay City Branch', region:'CALABAZON', lat:14.1153, lng:120.9622, status:'open',
+  {code:'BR-2043', name:'Tagaytay City Branch', region:'CALABAZON', lat:14.1153, lng:120.9622, status:'open',  anniversary:'2025-04-24',
    address:'Tagaytay City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'E. Sy', managerPhone:'(046) 993-9883', managerEmail:'esy@agribank.ph',
    ops:'E. Dela Cruz', opsPhone:'(046) 993-9884', hotline:'0917-555-1998',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2044', name:'Tagbilaran City Branch', region:'VIZMIN', lat:9.6474, lng:123.8536, status:'open',
+  {code:'BR-2044', name:'Tagbilaran City Branch', region:'VIZMIN', lat:9.6474, lng:123.8536, status:'open', anniversary:'2024-09-17',
    address:'Tagbilaran City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'Z. Marasigan', managerPhone:'(038) 998-8811', managerEmail:'zmarasigan@agribank.ph',
    ops:'M. Dela Cruz', opsPhone:'(038) 998-8812', hotline:'0917-555-9238',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2045', name:'Tarlac City Branch', region:'REGION 3', lat:15.4802, lng:120.5979, status:'open',
+  {code:'BR-2045', name:'Tarlac City Branch', region:'REGION 3', lat:15.4802, lng:120.5979, status:'open', anniversary:'2022-09-27',
    address:'Tarlac City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'L. Macapagal', managerPhone:'(045) 482-4044', managerEmail:'lmacapagal@agribank.ph',
    ops:'M. Manalo', opsPhone:'(045) 482-4045', hotline:'0917-555-2122',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2046', name:'Tuguegarao City Branch', region:'REGION 2', lat:17.6132, lng:121.727, status:'open',
+  {code:'BR-2046', name:'Tuguegarao City Branch', region:'REGION 2', lat:17.6132, lng:121.727, status:'open', anniversary:'	2021-07-22',
    address:'Tuguegarao City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'Y. Molina', managerPhone:'(078) 983-5033', managerEmail:'ymolina@agribank.ph',
    ops:'N. Lopez', opsPhone:'(078) 983-5034', hotline:'0917-555-1651',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
-  {code:'BR-2047', name:'Urdaneta City Branch', region:'REGION 1', lat:15.9761, lng:120.5711, status:'open',
+  {code:'BR-2047', name:'Urdaneta City Branch', region:'REGION 1', lat:15.9761, lng:120.5711, status:'open', anniversary:'2023-02-14',
    address:'Urdaneta City Branch Office', hours:'9:00 AM – 3:00 PM',
    manager:'B. Alvarez', managerPhone:'(075) 997-9565', managerEmail:'balvarez@agribank.ph',
    ops:'D. Galvez', opsPhone:'(075) 997-9566', hotline:'0917-555-6183',
    history:[['Opened','Regular operating hours resumed','Today, 6:00 AM','System']]},
+  {code:'BR-2048', name:'Alicia Branch', region:'REGION 2', lat:16.7787, lng:121.6972, status:'open', anniversary:'2026-07-10',
+   address:'Purok 7, Maharlika Highway, Magsaysay, Alicia, Isabela', hours:'9:00 AM – 3:00 PM',
+   manager:'R. Domingo', managerPhone:'(078) 322-4510', managerEmail:'rdomingo@agribank.ph',
+   ops:'L. Ventura', opsPhone:'(078) 322-4511', hotline:'0917-555-2871',
+   history:[['Opened','Branch added to CBAMS','Today, 6:00 AM','System']]},
+  {code:'BR-2049', name:'Batangas City Branch', region:'CALABAZON', lat:13.7565, lng:121.0583, status:'open', anniversary:'2026-07-27',
+   address:'The Epicenter Building, National Road, Barangay Balagtas, Batangas City, Batangas', hours:'9:00 AM – 3:00 PM',
+   manager:'C. Reyes', managerPhone:'(043) 980-1122', managerEmail:'creyes@agribank.ph',
+   ops:'J. Panganiban', opsPhone:'(043) 980-1123', hotline:'0917-555-4416',
+   history:[['Opened','Branch added to CBAMS','Today, 6:00 AM','System']]},
+  {code:'HO-0001', name:'Head Office', region:'HEAD OFFICE', lat:14.5777279, lng:121.0592267, status:'open', /* anniversary:'YYYY-MM-DD', <-- ask your manager for this date */
+   address:'Escriva Drive, San Antonio, Ortigas Center, Pasig City, Metro Manila', hours:'8:00 AM – 5:00 PM',
+   manager:'M. Villanueva', managerPhone:'(02) 631-4500', managerEmail:'mvillanueva@agribank.ph',
+   ops:'A. Santos', opsPhone:'(02) 631-4501', hotline:'0917-555-1000',
+   history:[['Opened','Head Office added to CBAMS','Today, 6:00 AM','System']]},
 ];
+
+/* =========================================================
+   2026 PHILIPPINE HOLIDAYS — based on HR memo (Proclamation No. 1006)
+   Note: local holiday dates are based on 2025 proclamations and may
+   change once 2026 official proclamations are issued.
+   ========================================================= */
+const HOLIDAYS_2026 = [
+  // === REGULAR HOLIDAYS (National) ===
+  {date:'2026-01-01', name:"New Year's Day", type:'regular', ref:'Proclamation No. 1006', branches:'all'},
+  {date:'2026-04-01', name:"Eid'l Fitr", type:'regular', ref:'Proclamation No. 1006', branches:'all'},
+  {date:'2026-04-02', name:'Maundy Thursday', type:'regular', ref:'Proclamation No. 1006', branches:'all'},
+  {date:'2026-04-03', name:'Good Friday', type:'regular', ref:'Proclamation No. 1006', branches:'all'},
+  {date:'2026-04-09', name:'Araw ng Kagitingan', type:'regular', ref:'Proclamation No. 1006', branches:'all'},
+  {date:'2026-05-01', name:'Labor Day', type:'regular', ref:'Proclamation No. 1006', branches:'all'},
+  {date:'2026-06-06', name:"Eid'l Adha", type:'regular', ref:'Proclamation No. 1006', branches:'all'},
+  {date:'2026-06-12', name:'Independence Day', type:'regular', ref:'Proclamation No. 1006', branches:'all'},
+  {date:'2026-08-31', name:'National Heroes Day', type:'regular', ref:'Proclamation No. 1006', branches:'all'},
+  {date:'2026-11-30', name:'Bonifacio Day', type:'regular', ref:'Proclamation No. 1006', branches:'all'},
+  {date:'2026-12-25', name:'Christmas Day', type:'regular', ref:'Proclamation No. 1006', branches:'all'},
+  {date:'2026-12-30', name:'Rizal Day', type:'regular', ref:'Proclamation No. 1006', branches:'all'},
+  // === SPECIAL (NON-WORKING) DAYS (National) ===
+  {date:'2026-08-21', name:'Ninoy Aquino Day', type:'special', ref:'Proclamation No. 1006', branches:'all'},
+  {date:'2026-11-01', name:"All Saints' Day", type:'special', ref:'Proclamation No. 1006', branches:'all'},
+  {date:'2026-12-08', name:'Feast of the Immaculate Conception of Mary', type:'special', ref:'Proclamation No. 1006', branches:'all'},
+  {date:'2026-12-31', name:'Last Day of the Year', type:'special', ref:'Proclamation No. 1006', branches:'all'},
+  // === SPECIAL (WORKING) DAY (National) ===
+  {date:'2026-02-25', name:'EDSA People Power Revolution Anniversary', type:'working', ref:'Proclamation No. 1006', branches:'all'},
+  // === ADDITIONAL SPECIAL (NON-WORKING) DAYS (National) ===
+  {date:'2026-02-17', name:'Chinese New Year', type:'additional', ref:'Proclamation No. 1006', branches:'all'},
+  {date:'2026-04-04', name:'Black Saturday', type:'additional', ref:'Proclamation No. 1006', branches:'all'},
+  {date:'2026-11-02', name:"All Souls' Day", type:'additional', ref:'Proclamation No. 1006', branches:'all'},
+  {date:'2026-12-24', name:'Christmas Eve', type:'additional', ref:'Proclamation No. 1006', branches:'all'},
+  // === LOCAL HOLIDAYS ===
+  {date:'2026-01-10', name:'Founding Anniversary & Hinugyaw Festival', type:'local', ref:'Proclamation No. 758', branches:['BR-2020']},
+  {date:'2026-01-19', name:'Kaisa Festival', type:'local', ref:'Proclamation No. 773', branches:['BR-2045']},
+  {date:'2026-01-23', name:'Inauguration of the First Philippine Republic', type:'local', ref:'Proclamation No. 769', branches:['BR-2004']},
+  {date:'2026-01-27', name:'Isra Wal Miraj', type:'local', ref:'Board Resolution No. 2025-001', branches:['BR-2016']},
+  {date:'2026-02-03', name:'Founding Anniversary', type:'local', ref:'Republic Act No. 11375', branches:['BR-2008']},
+  {date:'2026-02-11', name:'Governor Evelio B. Javier Day', type:'local', ref:'Republic Act No. 7601', branches:['BR-2018']},
+  {date:'2026-02-27', name:'Founding Anniversary & Kalilangan Festival', type:'local', ref:'Proclamation No. 785', branches:['BR-2016']},
+  {date:'2026-03-01', name:'Araw ng Dabaw', type:'local', ref:'Republic Act No. 11379', branches:['BR-2015']},
+  {date:'2026-03-02', name:'La Union Day', type:'local', ref:'Republic Act No. 12037', branches:['BR-2034']},
+  {date:'2026-03-04', name:'Foundation Day', type:'local', ref:'Republic Act No. 7684', branches:['BR-2032']},
+  {date:'2026-03-16', name:'Foundation Day', type:'local', ref:'Republic Act No. 9642', branches:[]},
+  {date:'2026-03-18', name:'Victory Day', type:'local', ref:'Proclamation No. 430', branches:[]},
+  {date:'2026-03-20', name:'Founding Anniversary', type:'local', ref:'Republic Act No. 8945', branches:['BR-2034']},
+  {date:'2026-03-21', name:'Founding Anniversary', type:'local', ref:'Republic Act No. 8986', branches:['BR-2011']},
+  {date:'2026-03-22', name:'Birth Anniversary of Gen. Emilio Aguinaldo', type:'local', ref:'Proclamation No. 822', branches:['BR-2019']},
+  {date:'2026-03-31', name:'Cityhood Anniversary', type:'local', ref:'Executive Order No. 21', branches:['BR-2012']},
+  {date:'2026-04-03', name:'Albay Day', type:'local', ref:'Republic Act No. 11119', branches:['BR-2021']},
+  {date:'2026-04-05', name:'Founding Anniversary', type:'local', ref:'Republic Act No. 11374', branches:['BR-2047']},
+  {date:'2026-04-15', name:'President Manuel Acuña Roxas Memorial Day', type:'local', ref:'Republic Act No. 9217', branches:['BR-2033']},
+  {date:'2026-04-19', name:'Charter Anniversary', type:'local', ref:'Proclamation No. 844', branches:['BR-2045']},
+  {date:'2026-05-24', name:'Nueva Vizcaya Day', type:'local', ref:'Proclamation No. 2422', branches:['BR-2039']},
+  {date:'2026-05-27', name:'Foundation Day', type:'local', ref:'Republic Act No. 9410', branches:['BR-2029']},
+  {date:'2026-05-28', name:'Araw ng Lalawigang Tarlac', type:'local', ref:'Proclamation No. 109', branches:['BR-2045']},
+  {date:'2026-06-10', name:'Danding Cojuangco Day', type:'local', ref:'Republic Act No. 11729', branches:['BR-2045']},
+  {date:'2026-06-11', name:'Founding Anniversary', type:'local', ref:'Proclamation No. 882', branches:['BR-2009']},
+  {date:'2026-06-15', name:'Charter Anniversary', type:'local', ref:'Republic Act No. 12248', branches:['BR-2016']},
+  {date:'2026-06-18', name:'Charter Anniversary', type:'local', ref:'Republic Act No. 9210', branches:['BR-2029']},
+  {date:'2026-06-19', name:'Birth Anniversary of Dr. Jose Rizal', type:'local', ref:'Republic Act No. 11144', branches:['BR-2010']},
+  {date:'2026-06-23', name:'Foundation of the First Civil Government of Palawan', type:'local', ref:'Republic Act No. 9748', branches:['BR-2032']},
+  {date:'2026-06-24', name:'Tabak Festival', type:'local', ref:'Proclamation No. 902', branches:['BR-2041']},
+  {date:'2026-06-24', name:'Bagat-Dagat Festival', type:'local', ref:'Proclamation No. 903', branches:['BR-2027']},
+  {date:'2026-06-26', name:'Amun Jadid – Islamic New Year', type:'local', ref:'Board Resolution No. 2025-005', branches:['BR-2016']},
+  {date:'2026-06-29', name:'Aggao Nac Cagayan', type:'local', ref:'Proclamation No. 2430', branches:['BR-2046']},
+  {date:'2026-07-01', name:'Charter Day', type:'local', ref:'Republic Act No. 8267', branches:['BR-2044']},
+  {date:'2026-07-02', name:'Pasig Day', type:'local', ref:'Republic Act No. 12062', branches:['BR-2031']},
+  {date:'2026-07-18', name:"T'nalak Festival", type:'local', ref:'Republic Act No. 9654', branches:['BR-2020']},
+  {date:'2026-07-19', name:'Padigosan Festival', type:'local', ref:'Proclamation No. 938', branches:[]},
+  {date:'2026-07-21', name:'Founding Anniversary', type:'local', ref:'Proclamation No. 940', branches:[]},
+  {date:'2026-07-22', name:'Bohol Day', type:'local', ref:'Republic Act No. 7683', branches:['BR-2044']},
+  {date:'2026-08-06', name:'Foundation Day', type:'local', ref:'Republic Act No. 7698', branches:['BR-2025']},
+  {date:'2026-08-10', name:'Commemoration of Cityhood', type:'local', ref:'Republic Act No. 9776', branches:['BR-2036']},
+  {date:'2026-08-15', name:'Pavvurulun Afi Festival', type:'local', ref:'Proclamation No. 980', branches:['BR-2046']},
+  {date:'2026-08-15', name:'Founding Anniversary', type:'local', ref:'Proclamation No. 968', branches:['BR-2004']},
+  {date:'2026-08-15', name:'Kadayawan Festival', type:'local', ref:'Proclamation No. 826', branches:['BR-2015']},
+  {date:'2026-08-16', name:'Pavvurulun Afi Festival', type:'local', ref:'Proclamation No. 619', branches:['BR-2046']},
+  {date:'2026-08-19', name:'Birth Anniversary of Former President Manuel L. Quezon', type:'local', ref:'Republic Act No. 6741', branches:[]},
+  {date:'2026-08-20', name:'Araw ng Lucena', type:'local', ref:'Proclamation No. 987', branches:['BR-2023']},
+  {date:'2026-08-30', name:'Celebration of the Birthday of Marcelo Del Pilar', type:'local', ref:'Republic Act No. 7449', branches:['BR-2004']},
+  {date:'2026-08-30', name:'Charter Anniversary', type:'local', ref:'Proclamation No. 989', branches:['BR-2025']},
+  {date:'2026-09-02', name:'Nueva Ecija Day', type:'local', ref:'Republic Act No. 7596', branches:['BR-2036','BR-2008']},
+  {date:'2026-09-02', name:'Simeon Ola Day', type:'local', ref:'Republic Act No. 11136', branches:['BR-2021']},
+  {date:'2026-09-05', name:'Tuna Festival', type:'local', ref:'Proclamation No. 990', branches:['BR-2016']},
+  {date:'2026-09-09', name:'Birth Anniversary of Former President Sergio Osmeña', type:'local', ref:'Republic Act No. 6953', branches:['BR-2025']},
+  {date:'2026-09-10', name:'Founding Anniversary', type:'local', ref:'Proclamation No. 1008', branches:['BR-2024']},
+  {date:'2026-09-16', name:'Observe of 1446 Hijrah', type:'local', ref:'Presidential Decree No. 1083', branches:['BR-2016']},
+  {date:'2026-09-19', name:'Feast of Our Lady of Peñafrancia', type:'local', ref:'Resolution No. 2025-09', branches:['BR-2029']},
+  {date:'2026-10-02', name:'Solano Day', type:'local', ref:'Proclamation No. 1026', branches:['BR-2039']},
+  {date:'2026-11-13', name:'Birth of Speaker Eugenio Perez', type:'local', ref:'Republic Act No. 6721', branches:['BR-2047']},
+  {date:'2026-11-15', name:'Founding Anniversary', type:'local', ref:'Republic Act No. 11123', branches:['BR-2037']},
+  {date:'2026-11-15', name:'Araw ng Oriental Mindoro', type:'local', ref:'Republic Act No. 12055', branches:['BR-2011']},
+];
+
+function getHolidaysForBranch(branchCode){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const endOfYear = new Date('2026-12-31T00:00:00');
+  return HOLIDAYS_2026.filter(h=>{
+    const hd = new Date(h.date+'T00:00:00');
+    if(hd < today || hd > endOfYear) return false;
+    if(h.branches === 'all') return true;
+    return h.branches.includes(branchCode);
+  }).sort((a,b)=> a.date.localeCompare(b.date));
+}
+
+function getHolidaysBetween(startDate, endDate, branchCode){
+  return HOLIDAYS_2026.filter(h=>{
+    const hd = new Date(h.date+'T00:00:00');
+    if(hd < startDate || hd > endDate) return false;
+    if(h.branches === 'all') return true;
+    return h.branches.includes(branchCode);
+  }).sort((a,b)=> a.date.localeCompare(b.date));
+}
+
+function getNextBusinessDay(fromDate, branchCode){
+  const d = new Date(fromDate);
+  do { d.setDate(d.getDate()+1); }
+  while(isHoliday(d, branchCode) || d.getDay()===0 || d.getDay()===6);
+  return d;
+}
+
+function isHoliday(date, branchCode){
+  const ds = date.toISOString().split('T')[0];
+  return HOLIDAYS_2026.some(h=>{
+    if(h.date !== ds) return false;
+    if(h.branches === 'all') return true;
+    return h.branches.includes(branchCode);
+  });
+}
+
+const HOLIDAY_TYPE_LABELS = {
+  regular: 'Regular Holiday',
+  special: 'Special (Non-Working) Day',
+  additional: 'Additional Special (Non-Working) Day',
+  working: 'Special (Working) Day',
+  local: 'Local Holiday'
+};
 
 /* =========================================================
    USERS + ROLE-BASED ACCESS (role is now set by login, not a free switch)
@@ -1209,10 +1753,8 @@ function applyRole(role){
   document.body.classList.add('role-'+role);
   const u = USERS[role];
   document.getElementById('userAvatar').textContent = u.initials;
-  document.getElementById('userName').textContent = u.name;
   document.getElementById('userNameFull').textContent = u.name;
   document.getElementById('userRoleFull').textContent = u.roleLabel;
-  document.getElementById('userRolePill').textContent = u.pill;
   // If a non-admin is sitting on the approval view, bounce to dashboard
   if(role!=='admin' && document.getElementById('view-approval').classList.contains('active')){
     switchView('dashboard');
@@ -1288,6 +1830,51 @@ function goToSlide(i){
 setInterval(() => goToSlide((loginSlideCurrent + 1) % loginSlideCount), 4500);
 
 /* =========================================================
+   BRANCH ANNIVERSARIES (login page)
+   ========================================================= */
+function renderBranchAnniversaries(){
+  const list = document.getElementById('anniversaryList');
+  if(!list) return;
+  const WINDOW_DAYS = 30;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const items = [];
+  branches.forEach(b=>{
+    if(!b.anniversary) return;
+    const anniv = new Date(b.anniversary+'T00:00:00');
+    let occurs = new Date(today.getFullYear(), anniv.getMonth(), anniv.getDate());
+    let diffDays = Math.round((occurs - today) / 86400000);
+    if(diffDays < 0){
+      occurs = new Date(today.getFullYear()+1, anniv.getMonth(), anniv.getDate());
+      diffDays = Math.round((occurs - today) / 86400000);
+    }
+    if(diffDays <= WINDOW_DAYS){
+      items.push({ branch:b, occurs, diffDays, years: occurs.getFullYear() - anniv.getFullYear(), isToday: diffDays===0 });
+    }
+  });
+  items.sort((a,b)=>a.diffDays-b.diffDays);
+
+  if(items.length === 0){
+    list.innerHTML = `<div class="advisory-item"><div class="dot purple">i</div><div><b>No anniversaries this month</b><span>No branch anniversaries in the next ${WINDOW_DAYS} days.</span></div></div>`;
+    return;
+  }
+  const ord = n => { const s=['th','st','nd','rd'], v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); };
+  list.innerHTML = items.map(it=>{
+    const dateLabel = it.occurs.toLocaleDateString('en-US',{month:'long',day:'numeric'});
+    const whenLabel = it.isToday ? 'Today' : ('in '+it.diffDays+(it.diffDays===1?' day':' days'));
+    const dotClass = it.isToday ? 'red' : 'purple';
+    const dotChar = it.isToday ? '★' : it.diffDays;
+    return `<div class="advisory-item">
+      <div class="dot ${dotClass}">${dotChar}</div>
+      <div>
+        <b>${it.branch.name} — ${ord(it.years)} Anniversary</b>
+        <span>${dateLabel} (${whenLabel}) &middot; ${it.branch.region}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+renderBranchAnniversaries();
+
+/* =========================================================
    TOASTS
    ========================================================= */
 function showToast(msg, type){
@@ -1311,22 +1898,106 @@ function switchView(name){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
   document.getElementById('nav-dashboard').classList.toggle('current', name==='dashboard');
+  document.getElementById('nav-directory').classList.toggle('current', name==='branch-directory');
   closeAllDropdowns();
   if(name==='approval') renderPendingList();
   if(name==='archive') renderArchiveList();
   if(name==='request') renderMySubmissions();
+  if(name==='branch-directory') renderDirectoryList();
   window.scrollTo({top:0, behavior:'smooth'});
 }
 document.getElementById('nav-dashboard').addEventListener('click', ()=>switchView('dashboard'));
+document.getElementById('nav-directory').addEventListener('click', ()=>switchView('branch-directory'));
 document.getElementById('brand-home').addEventListener('click', ()=>switchView('dashboard'));
 document.getElementById('link-request').addEventListener('click',(e)=>{e.preventDefault(); switchView('request');});
-document.getElementById('link-forms-request').addEventListener('click',(e)=>{e.preventDefault(); switchView('request');});
 document.getElementById('link-approval').addEventListener('click',(e)=>{e.preventDefault(); switchView('approval');});
 document.getElementById('link-approval-locked').addEventListener('click',(e)=>{
   e.preventDefault();
   showToast('Approval queue requires admin access. Switch role in the account menu.', 'error');
 });
 document.getElementById('link-archive').addEventListener('click',(e)=>{e.preventDefault(); switchView('archive');});
+document.getElementById('link-sms').addEventListener('click',(e)=>{e.preventDefault(); switchView('sms'); renderSmsRecipientTags();});
+
+/* =========================================================
+   BRANCH DIRECTORY — grouped by region
+   ========================================================= */
+let directorySelectedCode = null;
+let directoryCollapsed = {};
+let directoryListInitialized = false;
+function renderDirectoryList(filterText){
+  const list = document.getElementById('directoryList');
+  const q = (filterText||'').trim().toLowerCase();
+  const filtered = q ? branches.filter(b=>b.name.toLowerCase().includes(q) || b.code.toLowerCase().includes(q)) : branches;
+  if(filtered.length===0){
+    list.innerHTML = `<div class="directory-empty">No branches match your search.</div>`;
+    return;
+  }
+  const groups = {};
+  filtered.forEach(b=>{
+    if(!groups[b.region]) groups[b.region] = [];
+    groups[b.region].push(b);
+  });
+  const regionNames = Object.keys(groups).sort();
+  if(!directoryListInitialized){
+    regionNames.forEach(region => { directoryCollapsed[region] = true; });
+    directoryListInitialized = true;
+  }
+  if(q){
+    regionNames.forEach(region => { directoryCollapsed[region] = false; });
+  }
+  list.innerHTML = regionNames.map(region=>{
+    const items = groups[region].sort((a,b)=>a.name.localeCompare(b.name));
+    const isCollapsed = !!directoryCollapsed[region];
+    return `
+      <div class="directory-group ${isCollapsed?'collapsed':''}" data-region="${region}">
+        <div class="directory-group-head">
+          <span>${region}</span>
+          <span class="dg-count">${items.length} <span class="dg-chev">▾</span></span>
+        </div>
+        <div class="directory-group-body">
+          ${items.map(b=>`
+            <div class="region-branch-item ${b.code===directorySelectedCode?'selected':''}" data-code="${b.code}">
+              <div><div class="rb-name">${b.name}</div><div class="rb-code">${b.code}</div></div>
+              <span class="rb-status ${b.status}">${b.status==='open'?'Open':'Closed'}</span>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  }).join('');
+  list.querySelectorAll('.directory-group-head').forEach(head=>{
+    head.addEventListener('click', ()=>{
+      const group = head.closest('.directory-group');
+      const region = group.getAttribute('data-region');
+      directoryCollapsed[region] = !directoryCollapsed[region];
+      group.classList.toggle('collapsed', directoryCollapsed[region]);
+    });
+  });
+  list.querySelectorAll('.region-branch-item').forEach(item=>{
+    item.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const code = item.getAttribute('data-code');
+      const b = branches.find(x=>x.code===code);
+      if(b) showDirectoryDetail(b);
+    });
+  });
+}
+function showDirectoryDetail(b){
+  directorySelectedCode = b.code;
+  document.querySelectorAll('#directoryList .region-branch-item').forEach(item=>{
+    item.classList.toggle('selected', item.getAttribute('data-code')===b.code);
+  });
+  const detail = document.getElementById('directoryDetail');
+  detail.innerHTML = `
+    <div class="dd-name">${b.name}</div>
+    <div class="dd-code">${b.code} · <span class="rb-status ${b.status}">${b.status==='open'?'Open':'Closed'}</span></div>
+    <div class="info-row"><span class="k">Date Opened</span><span class="v">${b.anniversary||'—'}</span></div>
+    <div class="info-row"><span class="k">Region</span><span class="v">${b.region}</span></div>
+    <div class="info-row"><span class="k">Address</span><span class="v">${b.address||'—'}</span></div>
+    <div class="info-row"><span class="k">Coordinates</span><span class="v">${b.lat.toFixed(3)}, ${b.lng.toFixed(3)}</span></div>
+  `;
+}
+document.getElementById('directorySearch').addEventListener('input',(e)=>{
+  renderDirectoryList(e.target.value);
+});
 
 /* =========================================================
    PHILIPPINES MAP — projection + outline
@@ -1353,34 +2024,51 @@ svg.appendChild(pinsLayer);
    ========================================================= */
 const tooltip = document.getElementById('tooltip');
 
+let asOfDate = new Date().toISOString().split('T')[0];
+function isNonWorkingHoliday(dateStr, branchCode){
+  return HOLIDAYS_2026.some(h=>{
+    if(h.date !== dateStr || h.type==='working') return false;
+    if(h.branches === 'all') return true;
+    return h.branches.includes(branchCode);
+  });
+}
+
+function effectiveStatus(b, dateStr){
+  if(isNonWorkingHoliday(dateStr, b.code)) return 'closed';
+  if(b.closedFrom && b.closedUntil){
+    return (dateStr >= b.closedFrom && dateStr <= b.closedUntil) ? 'closed' : 'open';
+  }
+  return b.status;
+}
 function renderMetrics(){
   const total = branches.length;
-  const closed = branches.filter(b=>b.status==='closed');
-  document.getElementById('mTotal').textContent = total;
-  document.getElementById('mOpen').textContent = total - closed.length;
-  document.getElementById('mClosed').textContent = closed.length;
-  document.getElementById('mAlert').textContent = branches.filter(b=>b.emergency).length;
+  const closed = branches.filter(b=>effectiveStatus(b, asOfDate)==='closed');
+  const openCount = total - closed.length;
+
+  const pct = total ? Math.round((openCount / total) * 100) : 0;
+  document.getElementById('openPctValue').textContent = pct + '%';
+  document.getElementById('openPctDate').textContent = new Date(asOfDate+'T00:00:00')
+    .toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
 }
 
 function renderPins(){
   pinsLayer.innerHTML = '';
   branches.forEach(b=>{
+    const st = effectiveStatus(b, asOfDate);
+    const isEmergency = b.emergency && st==='closed';
     const {x,y} = project(b.lat,b.lng);
     const g = document.createElementNS(ns,'g');
-    g.setAttribute('class','pin'+(b.emergency?' emergency':''));
+    g.setAttribute('class','pin'+(isEmergency?' emergency':''));
     g.setAttribute('transform',`translate(${x},${y})`);
-
     const halo = document.createElementNS(ns,'circle');
     halo.setAttribute('class','halo'); halo.setAttribute('r','5');
     g.appendChild(halo);
-
     const core = document.createElementNS(ns,'circle');
     core.setAttribute('class','core'); core.setAttribute('r','4.8');
-    core.setAttribute('fill', b.status==='open' ? '#16a34a' : '#dc2626');
+    core.setAttribute('fill', st==='open' ? '#16a34a' : '#dc2626');
     g.appendChild(core);
-
     g.addEventListener('mouseenter',()=>{
-      tooltip.innerHTML = `<span class="t-name">${b.name}</span><span class="t-status ${b.status}">● ${b.status.toUpperCase()}</span>`;
+      tooltip.innerHTML = `<span class="t-name">${b.name}</span><span class="t-status ${st}">● ${st.toUpperCase()}</span>`;
       tooltip.style.left = x+'px';
       tooltip.style.top = y+'px';
       tooltip.classList.add('show');
@@ -1395,7 +2083,7 @@ function renderRegionList(){
   const regionMap = {};
   branches.forEach(b=>{
     regionMap[b.region] = regionMap[b.region] || {open:0,closed:0};
-    regionMap[b.region][b.status]++;
+    regionMap[b.region][effectiveStatus(b, asOfDate)]++;
   });
   const regionList = document.getElementById('regionList');
   regionList.innerHTML = '';
@@ -1404,31 +2092,143 @@ function renderRegionList(){
     const row = document.createElement('div');
     row.className='region-row';
     row.innerHTML = `<span class="name">${region}</span><span class="counts"><b class="o">${counts.open||0} open</b> · <b class="c">${counts.closed||0} closed</b></span>`;
+    row.addEventListener('click',()=>openRegionDrawer(region));
     regionList.appendChild(row);
   });
 }
 
 function renderAlertFeed(){
   const alertFeed = document.getElementById('alertFeed');
-  const closed = branches.filter(b=>b.status==='closed');
+  const closed = branches.filter(b=>effectiveStatus(b, asOfDate)==='closed');
   alertFeed.innerHTML = '';
   if(closed.length===0){
-    alertFeed.innerHTML = '<div class="empty">No active alerts.</div>';
+    alertFeed.innerHTML = '<div class="empty">No closed branches on this date.</div>';
   } else {
     closed.forEach(b=>{
       const item = document.createElement('div');
       item.className='alert-item';
-      const cat = b.history[0][0].replace('Closed — ','');
+      const cat = b.history[0] ? b.history[0][0].replace('Closed — ','') : (b.category||'Closed');
       item.innerHTML = `<div class="a-top"><span>${b.name}</span><span class="tag">${cat}</span></div>
-        <div class="a-meta">${b.region} · since ${b.history[0][2].toLowerCase()}</div>`;
+        <div class="a-meta">${b.region} · since ${b.history[0] ? b.history[0][2].toLowerCase() : ''}</div>`;
       item.addEventListener('click',()=>openDrawer(b));
       alertFeed.appendChild(item);
     });
   }
 }
 
+function renderHolidayIndicator(branchCode){
+  const el = document.getElementById('holidayIndicator');
+  const holidays = getHolidaysForBranch(branchCode);
+  if(holidays.length === 0){
+    el.innerHTML = '<div class="hi-header">Upcoming holidays</div><div class="hi-empty">No holidays remaining in 2026 for this branch.</div>';
+    el.style.display = 'block';
+    return;
+  }
+  const fmtDate = (ds) => {
+    const d = new Date(ds+'T00:00:00');
+    return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  };
+  el.innerHTML = '<div class="hi-header">Upcoming holidays for this branch</div>' +
+    holidays.map(h =>
+      `<div class="hi-item"><span class="hi-date">${fmtDate(h.date)}</span><div><div class="hi-name">${h.name}</div><span class="hi-type ${h.type}">${HOLIDAY_TYPE_LABELS[h.type]||h.type}</span></div></div>`
+    ).join('');
+  el.style.display = 'block';
+}
+
+function checkHolidayOverlap(){
+  const branchCode = reqBranchSel.value;
+  const dateVal = document.getElementById('reqClosedUntil').value;
+  const overlapEl = document.getElementById('holidayOverlap');
+  const suggestEl = document.getElementById('holidaySuggest');
+  overlapEl.style.display = 'none';
+  suggestEl.style.display = 'none';
+  if(!dateVal || !branchCode) return;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const selected = new Date(dateVal+'T00:00:00');
+  const holidays = getHolidaysBetween(today, selected, branchCode);
+  if(holidays.length > 0){
+    const fmtDate = (ds) => new Date(ds+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    overlapEl.innerHTML = `<strong>⚠ Closure period includes ${holidays.length} holiday(s):</strong>` +
+      holidays.map(h => `<div class="ho-item"><span class="ho-date">${fmtDate(h.date)}</span> — ${h.name} <em>(${HOLIDAY_TYPE_LABELS[h.type]||h.type})</em></div>`).join('');
+    overlapEl.style.display = 'block';
+  }
+  if(isHoliday(selected, branchCode)){
+    const next = getNextBusinessDay(selected, branchCode);
+    const fmtDate = (d) => d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    suggestEl.innerHTML = `<strong>ℹ Suggested reopening: ${fmtDate(next)}</strong> (next business day)`;
+    suggestEl.style.display = 'block';
+  }
+}
+const DONUT_REASON_COLORS = {
+  'Calamity':'#e67e22','Flooding':'#2980b9','Power Outage':'#f1c40f','Connectivity':'#8e44ad',
+  'System Maintenance':'#16a085','Security Incident':'#c0392b','Holiday':'#3498db','Other':'#7f8c8d'
+};
+
+function getClosureCategory(b, dateStr){
+  if(b.history && b.history[0] && b.history[0][0].indexOf('Closed') === 0){
+    return b.history[0][0].replace('Closed — ','').trim();
+  }
+  if(isNonWorkingHoliday(dateStr, b.code)) return 'Holiday';
+  return b.category || 'Other';
+}
+
+function drawDonut(svgEl, segments){
+  const r = 50, cx = 64, cy = 64, sw = 18;
+  const circumference = 2 * Math.PI * r;
+  const total = segments.reduce((s,d)=>s+d.value,0);
+  let html = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#eef1f6" stroke-width="${sw}"></circle>`;
+  let offset = 0;
+  segments.forEach(seg=>{
+    if(!seg.value) return;
+    const frac = total ? seg.value/total : 0;
+    const len = frac * circumference;
+    html += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${seg.color}" stroke-width="${sw}" stroke-dasharray="${len.toFixed(2)} ${(circumference-len).toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}" transform="rotate(-90 ${cx} ${cy})"><title>${seg.label}: ${seg.value}</title></circle>`;
+    offset += len;
+  });
+  svgEl.innerHTML = html;
+}
+
+function renderDonutLegend(containerEl, segments, total){
+  if(!segments.length || total === 0){
+    containerEl.innerHTML = '<div class="donut-empty">No data</div>';
+    return;
+  }
+  containerEl.innerHTML = segments.filter(s=>s.value>0).map(s=>{
+    const pct = total ? Math.round((s.value/total)*100) : 0;
+    return `<div class="donut-legend-item"><span class="sw" style="background:${s.color}"></span><span class="lbl">${s.label}</span><span class="val">${s.value} (${pct}%)</span></div>`;
+  }).join('');
+}
+
+function renderDonuts(){
+  const total = branches.length;
+  const closedList = branches.filter(b=>effectiveStatus(b, asOfDate)==='closed');
+  const openCount = total - closedList.length;
+
+  const statusSegments = [
+    {label:'Open', value:openCount, color:'var(--open)'},
+    {label:'Closed', value:closedList.length, color:'var(--closed)'}
+  ];
+  drawDonut(document.getElementById('donutStatusSvg'), statusSegments);
+  renderDonutLegend(document.getElementById('donutStatusLegend'), statusSegments, total);
+  document.getElementById('donutStatusValue').textContent = total;
+
+  const reasonCounts = {};
+  closedList.forEach(b=>{
+    const cat = getClosureCategory(b, asOfDate);
+    reasonCounts[cat] = (reasonCounts[cat]||0) + 1;
+  });
+  const reasonSegments = Object.keys(reasonCounts).map(cat=>({
+    label: cat,
+    value: reasonCounts[cat],
+    color: DONUT_REASON_COLORS[cat] || '#95a5a6'
+  })).sort((a,b)=>b.value-a.value);
+  drawDonut(document.getElementById('donutReasonSvg'), reasonSegments);
+  renderDonutLegend(document.getElementById('donutReasonLegend'), reasonSegments, closedList.length);
+  document.getElementById('donutReasonValue').textContent = closedList.length;
+}
 function refreshAll(){
   renderMetrics();
+  renderDonuts();
   renderPins();
   renderRegionList();
   renderAlertFeed();
@@ -1440,6 +2240,12 @@ function refreshAll(){
 const drawer = document.getElementById('drawer');
 const scrim = document.getElementById('scrim');
 function openDrawer(b){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelector('.tab[data-tab="directory"]').classList.add('active');
+  document.getElementById('pane-directory').classList.add('active');
+  document.querySelector('.tabs').style.display='';
+
   document.getElementById('dCode').textContent = b.code;
   document.getElementById('dName').textContent = b.name;
   const pill = document.getElementById('dStatus');
@@ -1466,6 +2272,43 @@ function openDrawer(b){
     item.innerHTML = `<div class="h-title">${title}</div><div class="h-meta">${reason} — ${when} · ${by}</div>`;
     hist.appendChild(item);
   });
+
+  drawer.classList.add('show');
+  scrim.classList.add('show');
+}
+function openRegionDrawer(regionName){
+  const regionBranches = branches.filter(b=>b.region===regionName);
+  const openCount = regionBranches.filter(b=>b.status==='open').length;
+  const closedCount = regionBranches.filter(b=>b.status==='closed').length;
+
+  document.getElementById('dCode').textContent = regionBranches.length+' branches';
+  document.getElementById('dName').textContent = regionName;
+  const pill = document.getElementById('dStatus');
+  pill.className = 'status-pill open';
+  document.getElementById('dStatusText').textContent = openCount+' open · '+closedCount+' closed';
+
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelector('.tabs').style.display='none';
+
+  document.getElementById('pane-region').innerHTML =
+    `<div class="region-drawer-hint">Click a branch to view its full details.</div>` +
+    regionBranches.sort((a,b)=>a.name.localeCompare(b.name)).map(b=>
+      `<div class="region-branch-item" data-code="${b.code}">
+        <div><div class="rb-name">${b.name}</div><div class="rb-code">${b.code}</div></div>
+        <span class="rb-status ${b.status}">${b.status==='open'?'Open':'Closed'}</span>
+      </div>`
+    ).join('');
+
+  document.getElementById('pane-region').querySelectorAll('.region-branch-item').forEach(item=>{
+    item.addEventListener('click',()=>{
+      const code = item.getAttribute('data-code');
+      const b = branches.find(x=>x.code===code);
+      if(b) openDrawer(b);
+    });
+  });
+
+  document.getElementById('pane-region').classList.add('active');
 
   drawer.classList.add('show');
   scrim.classList.add('show');
@@ -1527,9 +2370,29 @@ reqBranchSel.addEventListener('change',()=>{
   if(!b){ branchPreview.classList.remove('show'); return; }
   branchPreview.classList.add('show');
   branchPreview.innerHTML = `<b>${b.region}</b> · currently <b>${b.status.toUpperCase()}</b> · ${b.address||'—'}`;
-  // Pre-suggest the opposite action of current status
-  if(b.status==='open'){ document.getElementById('optClosed').querySelector('input').checked = true; }
-  else { document.getElementById('optOpen').querySelector('input').checked = true; }
+  const optClosedLabel = document.getElementById('optClosed');
+  const optOpenLabel = document.getElementById('optOpen');
+  optClosedLabel.classList.remove('disabled');
+  optOpenLabel.classList.remove('disabled');
+  optClosedLabel.querySelector('input').disabled = false;
+  optOpenLabel.querySelector('input').disabled = false;
+  if(b.status==='open'){
+    optOpenLabel.classList.add('disabled');
+    optOpenLabel.querySelector('input').disabled = true;
+    optClosedLabel.querySelector('input').checked = true;
+  } else {
+    optClosedLabel.classList.add('disabled');
+    optClosedLabel.querySelector('input').disabled = true;
+    optOpenLabel.querySelector('input').checked = true;
+  }
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('reqClosedFrom').min = today;
+  document.getElementById('reqClosedFrom').value = '';
+  document.getElementById('reqClosedUntil').min = today;
+  document.getElementById('reqClosedUntil').value = '';
+  document.getElementById('holidayOverlap').style.display = 'none';
+  document.getElementById('holidaySuggest').style.display = 'none';
+  renderHolidayIndicator(b.code);
   syncStatusChoiceUI();
 });
 
@@ -1538,8 +2401,27 @@ function syncStatusChoiceUI(){
   document.getElementById('optOpen').classList.toggle('checked', val==='open');
   document.getElementById('optClosed').classList.toggle('checked', val==='closed');
   document.getElementById('categoryGroup').style.display = val==='closed' ? 'block' : 'none';
+  document.getElementById('closedFromGroup').style.display = val==='closed' ? 'block' : 'none';
+  document.getElementById('closedUntilGroup').style.display = val==='closed' ? 'block' : 'none';
+  if(val!=='closed'){
+    document.getElementById('holidayIndicator').style.display = 'none';
+    document.getElementById('holidayOverlap').style.display = 'none';
+    document.getElementById('holidaySuggest').style.display = 'none';
+    document.getElementById('reqClosedFrom').value = '';
+    document.getElementById('reqClosedUntil').value = '';
+  }
 }
 document.querySelectorAll('input[name=reqStatus]').forEach(r=>r.addEventListener('change', syncStatusChoiceUI));
+
+document.getElementById('reqClosedUntil').addEventListener('change', checkHolidayOverlap);
+document.getElementById('reqClosedFrom').addEventListener('change', function(){
+  const today = new Date().toISOString().split('T')[0];
+  const untilInput = document.getElementById('reqClosedUntil');
+  untilInput.min = this.value || today;
+  if(untilInput.value && untilInput.value < untilInput.min){
+    untilInput.value = '';
+  }
+});
 
 let reqIdCounter = 1;
 let requests = [];
@@ -1556,6 +2438,16 @@ document.getElementById('requestForm').addEventListener('submit', function(e){
 
   const requestedStatus = statusInput.value;
   const category = requestedStatus==='closed' ? document.getElementById('reqCategory').value : null;
+  const closedFrom = requestedStatus==='closed' ? document.getElementById('reqClosedFrom').value : null;
+  const closedUntil = requestedStatus==='closed' ? document.getElementById('reqClosedUntil').value : null;
+  if(requestedStatus==='closed' && !closedFrom){
+    showToast('Select a "Closed from" date.', 'error');
+    return;
+  }
+  if(requestedStatus==='closed' && !closedUntil){
+    showToast('Select a "Closed until" date.', 'error');
+    return;
+  }
 
   const req = {
     id: 'REQ-'+String(1000+reqIdCounter++),
@@ -1563,7 +2455,7 @@ document.getElementById('requestForm').addEventListener('submit', function(e){
     branchName: b.name,
     region: b.region,
     currentStatus: b.status,
-    requestedStatus, category, reason,
+    requestedStatus, category, reason, closedFrom, closedUntil,
     submittedBy: USERS[currentRole].name,
     submittedByRole: currentRole,
     submittedAt: 'Just now',
@@ -1574,17 +2466,40 @@ document.getElementById('requestForm').addEventListener('submit', function(e){
   showToast(`Request ${req.id} submitted for approval.`, 'success');
   this.reset();
   branchPreview.classList.remove('show');
+  document.getElementById('optClosed').classList.remove('disabled');
+  document.getElementById('optOpen').classList.remove('disabled');
+  document.getElementById('optClosed').querySelector('input').disabled = false;
+  document.getElementById('optOpen').querySelector('input').disabled = false;
+  document.getElementById('reqClosedFrom').value = '';
+  document.getElementById('reqClosedUntil').value = '';
+  document.getElementById('holidayIndicator').style.display = 'none';
+  document.getElementById('holidayOverlap').style.display = 'none';
+  document.getElementById('holidaySuggest').style.display = 'none';
   syncStatusChoiceUI();
   updatePendingBadge();
   renderMySubmissions();
 });
 document.getElementById('reqResetBtn').addEventListener('click', ()=>{
-  setTimeout(()=>{ branchPreview.classList.remove('show'); syncStatusChoiceUI(); }, 0);
+  setTimeout(()=>{
+    branchPreview.classList.remove('show');
+    document.getElementById('optClosed').classList.remove('disabled');
+    document.getElementById('optOpen').classList.remove('disabled');
+    document.getElementById('optClosed').querySelector('input').disabled = false;
+    document.getElementById('optOpen').querySelector('input').disabled = false;
+    document.getElementById('reqClosedFrom').value = '';
+    document.getElementById('reqClosedUntil').value = '';
+    document.getElementById('holidayIndicator').style.display = 'none';
+    document.getElementById('holidayOverlap').style.display = 'none';
+    document.getElementById('holidaySuggest').style.display = 'none';
+    syncStatusChoiceUI();
+  }, 0);
 });
 
 function reqCardHTML(r, withActions){
+  const closedFromDate = r.closedFrom ? new Date(r.closedFrom+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
+  const closedUntilDate = r.closedUntil ? new Date(r.closedUntil+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
   const changeHTML = r.requestedStatus==='closed'
-    ? `<span class="pill open">OPEN</span><span class="arrow">→</span><span class="pill closed">CLOSED</span>${r.category?`<span class="pill cat">${r.category}</span>`:''}`
+    ? `<span class="pill open">OPEN</span><span class="arrow">→</span><span class="pill closed">CLOSED</span>${r.category?`<span class="pill cat">${r.category}</span>`:''}${closedFromDate?`<span class="pill cat">from ${closedFromDate}</span>`:''}${closedUntilDate?`<span class="pill cat">until ${closedUntilDate}</span>`:''}`
     : `<span class="pill closed">CLOSED</span><span class="arrow">→</span><span class="pill open">OPEN</span>`;
   const statusPillHTML = r.status==='pending'
     ? `<span class="pill pending">PENDING</span>`
@@ -1660,16 +2575,22 @@ function approveRequest(id){
   const reviewer = USERS[currentRole].name;
   if(req.requestedStatus==='closed'){
     b.status = 'closed';
+    b.closedFrom = req.closedFrom;
+    b.closedUntil = req.closedUntil;
     const catLabel = req.category || 'Other';
+    const untilDate = req.closedUntil ? new Date(req.closedUntil+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
     b.hours = catLabel==='System Maintenance' ? 'Suspended for scheduled maintenance'
       : catLabel==='Power Outage' ? 'Suspended — power outage'
       : catLabel==='Connectivity' ? 'Suspended — network outage'
       : catLabel==='Flooding' ? 'Suspended — flooding'
+      : untilDate ? `Suspended until ${untilDate}`
       : 'Suspended until further notice';
     b.history.unshift([`Closed — ${catLabel}`, req.reason, 'Just now', `${reviewer} (Approved ${req.id})`]);
     b.emergency = catLabel !== 'System Maintenance';
   } else {
     b.status = 'open';
+    b.closedFrom = null;
+    b.closedUntil = null;
     b.hours = '9:00 AM – 3:00 PM';
     b.history.unshift(['Opened', req.reason || 'Regular operating hours resumed', 'Just now', `${reviewer} (Approved ${req.id})`]);
     b.emergency = false;
@@ -1763,9 +2684,170 @@ window.addEventListener('mousemove',(e)=>{
 window.addEventListener('mouseup',()=>{ isDragging=false; mapScroll.classList.remove('dragging'); });
 
 /* =========================================================
+   SMS NOTIFICATION (MOCKUP)
+   ========================================================= */
+function renderSmsRecipientTags(){
+  const input = document.getElementById('smsRecipients').value;
+  const tags = document.getElementById('smsRecipientTags');
+  const numbers = input.split(',').map(s=>s.trim()).filter(Boolean);
+  tags.innerHTML = numbers.map(n=>`<span class="sms-rcpt-tag">${n}</span>`).join('');
+}
+
+function buildSmsMessage(){
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  const closed = branches.filter(b=>b.status==='closed');
+  const open = branches.filter(b=>b.status==='open');
+  let list = '';
+  if(closed.length === 0){
+    list = '(No branches currently closed)';
+  } else {
+    list = closed.map((b,i)=>{
+      const reason = b.hours || 'Suspended until further notice';
+      return `${i+1}. ${b.name} (${b.code}) — ${reason.replace('Suspended — ','').replace('Suspended for ','').replace('Suspended until ','').toLowerCase()}`;
+    }).join('\n');
+  }
+  const template = document.getElementById('smsTemplate').value;
+  return template
+    .replace(/\{\{DATE\}\}/g, dateStr)
+    .replace(/\{\{CLOSED_LIST\}\}/g, list)
+    .replace(/\{\{CLOSED_COUNT\}\}/g, closed.length)
+    .replace(/\{\{TOTAL_COUNT\}\}/g, branches.length);
+}
+
+function showSmsModal(){
+  const msg = buildSmsMessage();
+  document.getElementById('smsBubble').textContent = msg;
+  const now = new Date();
+  document.getElementById('smsTimestamp').textContent = now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true});
+  document.getElementById('smsScrim').classList.add('show');
+  document.getElementById('smsModal').classList.add('show');
+}
+
+function closeSmsModal(){
+  document.getElementById('smsScrim').classList.remove('show');
+  document.getElementById('smsModal').classList.remove('show');
+}
+
+document.getElementById('smsViewBtn').addEventListener('click', showSmsModal);
+document.getElementById('smsModalClose').addEventListener('click', closeSmsModal);
+document.getElementById('smsModalCloseBtn').addEventListener('click', closeSmsModal);
+document.getElementById('smsScrim').addEventListener('click', closeSmsModal);
+
+document.getElementById('smsTestBtn').addEventListener('click', ()=>{
+  showToast('Test SMS sent to ' + document.getElementById('smsRecipients').value.split(',').length + ' recipient(s). (mockup)', 'info');
+});
+
+document.getElementById('smsForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  showToast('SMS schedule saved. (mockup)', 'success');
+});
+
+document.getElementById('smsRecipients').addEventListener('input', renderSmsRecipientTags);
+
+/* =========================================================
+   HOLIDAYS LIST
+   ========================================================= */
+let holidayFilter = 'all';
+
+function getHolidayScope(h){
+  if(h.branches === 'all') return '<span class="scope-national">National</span>';
+  if(!h.branches.length) return '<span class="scope-none">—</span>';
+  const names = h.branches.map(code=>{
+    const b = branches.find(x=>x.code===code);
+    return b ? b.name.replace(' Branch','').replace(' City Branch',' City') : code;
+  });
+  return '<span class="scope-local">' + names.join(', ') + '</span>';
+}
+
+function renderHolidaysList(){
+  const filtered = holidayFilter === 'all'
+    ? [...HOLIDAYS_2026]
+    : HOLIDAYS_2026.filter(h=>h.type===holidayFilter);
+  filtered.sort((a,b)=> a.date.localeCompare(b.date));
+  const tbody = document.getElementById('holidayTableBody');
+  if(filtered.length === 0){
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--muted);font-size:12px;">No holidays match this filter.</td></tr>';
+    return;
+  }
+  const fmtDate = (ds) => new Date(ds+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  tbody.innerHTML = filtered.map(h=>
+    `<tr>
+      <td class="ht-date">${fmtDate(h.date)}</td>
+      <td class="ht-name">${h.name}</td>
+      <td class="ht-type"><span class="hi-type ${h.type}">${HOLIDAY_TYPE_LABELS[h.type]||h.type}</span></td>
+      <td class="ht-ref">${h.ref}</td>
+      <td class="ht-scope">${getHolidayScope(h)}</td>
+    </tr>`
+  ).join('');
+}
+
+document.getElementById('link-holidays').addEventListener('click',(e)=>{e.preventDefault(); switchView('holidays'); renderHolidaysList();});
+
+document.querySelectorAll('#holidayFilterRow .filter-chip').forEach(chip=>{
+  chip.addEventListener('click',()=>{
+    document.querySelectorAll('#holidayFilterRow .filter-chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    holidayFilter = chip.dataset.filter;
+    renderHolidaysList();
+  });
+});
+
+/* =========================================================
+   USER ACCESS SETTINGS — mockup
+   ========================================================= */
+const ACCESS_USERS = [
+  { name:'fjprincipe',  role:'Admin',      roleClass:'role-admin',     perms:{can_login:true,can_access_dashboard:true,can_request:true,can_approve:true,can_access_user_access:true,can_view_archive:true,can_export_data:true,can_manage_users:true,can_view_audit_log:true} },
+  { name:'cbulayan',    role:'User',       roleClass:'',               perms:{can_login:true,can_access_dashboard:true,can_request:true,can_approve:false,can_access_user_access:false,can_view_archive:true,can_export_data:false,can_manage_users:false,can_view_audit_log:false} },
+  { name:'mgarcia',     role:'Supervisor', roleClass:'role-supervisor', perms:{can_login:true,can_access_dashboard:true,can_request:true,can_approve:true,can_access_user_access:false,can_view_archive:true,can_export_data:true,can_manage_users:false,can_view_audit_log:false} },
+  { name:'rdela Cruz',  role:'Staff',      roleClass:'',               perms:{can_login:true,can_access_dashboard:true,can_request:false,can_approve:false,can_access_user_access:false,can_view_archive:false,can_export_data:false,can_manage_users:false,can_view_audit_log:false} },
+];
+
+const ACCESS_PERMS = [
+  { key:'can_login',              label:'Login' },
+  { key:'can_access_dashboard',   label:'Dashboard' },
+  { key:'can_request',            label:'Request' },
+  { key:'can_approve',            label:'Approve' },
+  { key:'can_access_user_access', label:'User Access' },
+  { key:'can_view_archive',       label:'Archive' },
+  { key:'can_export_data',        label:'Export' },
+  { key:'can_manage_users',       label:'Manage Users' },
+  { key:'can_view_audit_log',     label:'Audit Log' },
+];
+
+function renderAccessTable(){
+  const tbody = document.getElementById('accessTableBody');
+  tbody.innerHTML = ACCESS_USERS.map(u=>{
+    const roleTag = u.roleClass ? `<span class="au-role ${u.roleClass}">${u.role}</span>` : `<span class="au-role">${u.role}</span>`;
+    const toggles = ACCESS_PERMS.map(p=>{
+      const checked = u.perms[p.key] ? 'checked' : '';
+      return `<td><label class="toggle"><input type="checkbox" ${checked} data-user="${u.name}" data-perm="${p.key}"><span class="slider"></span></label></td>`;
+    }).join('');
+    return `<tr><td class="au-name">${u.name}</td><td>${roleTag}</td>${toggles}</tr>`;
+  }).join('');
+}
+
+document.getElementById('link-user-access').addEventListener('click',(e)=>{
+  e.preventDefault();
+  switchView('user-access');
+  renderAccessTable();
+});
+
+/* =========================================================
    INIT
    ========================================================= */
 applyRole('admin');
+document.getElementById('asOfDate').value = asOfDate;
+document.getElementById('asOfDate').addEventListener('change', function(){
+  asOfDate = this.value || new Date().toISOString().split('T')[0];
+  refreshAll();
+});
+document.getElementById('asOfTodayBtn').addEventListener('click', function(){
+  asOfDate = new Date().toISOString().split('T')[0];
+  document.getElementById('asOfDate').value = asOfDate;
+  refreshAll();
+});
+
 refreshAll();
 populateBranchSelect();
 syncStatusChoiceUI();
