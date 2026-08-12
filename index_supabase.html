@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -898,7 +899,7 @@
     <div class="avatar" id="userAvatar">FJ</div>
     <div class="account-dropdown" id="dd-account">
       <div class="who"><div class="n" id="userNameFull">fjprincipe</div><div class="r" id="userRoleFull">Admin · NCR</div></div>
-      <a href="#">View Profile</a>
+      <a href="#" id="link-view-profile">View Profile</a>
       <a href="#">Settings</a>
       <a href="#" class="danger" id="logoutLink">Logout</a>
     </div>
@@ -1077,9 +1078,6 @@
               <label for="reqClosedUntil">Closed until</label>
               <input type="date" id="reqClosedUntil" min="">
               <div class="f-help">The branch will remain closed until this date.</div>
-              <div id="holidayIndicator" class="holiday-indicator" style="display:none;"></div>
-              <div id="holidayOverlap" class="holiday-overlap" style="display:none;"></div>
-              <div id="holidaySuggest" class="holiday-suggest" style="display:none;"></div>
             </div>
             <div class="f-group" id="closedUntilTimeGroup" style="display:none; flex:0 0 130px;">
               <label for="reqClosedUntilTime">Time</label>
@@ -1303,13 +1301,16 @@ For concerns, contact the CBAMS Helpdesk.</textarea>
       <div class="page-title">2026 Philippine Holidays</div>
       <div class="page-sub">Based on Proclamation No. 1006 and local proclamations. Local holiday dates are based on 2025 proclamations and may change once 2026 official proclamations are issued.</div>
     </div>
-    <div class="filter-row" id="holidayFilterRow">
-      <div class="filter-chip active" data-filter="all">All</div>
-      <div class="filter-chip" data-filter="regular">Regular Holiday</div>
-      <div class="filter-chip" data-filter="special">Special (Non-Working)</div>
-      <div class="filter-chip" data-filter="working">Special (Working)</div>
-      <div class="filter-chip" data-filter="additional">Additional (Non-Working)</div>
-      <div class="filter-chip" data-filter="local">Local Holiday</div>
+    <div class="filter-row" id="holidayFilterRow" style="justify-content:space-between;align-items:center;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <div class="filter-chip active" data-filter="all">All</div>
+        <div class="filter-chip" data-filter="regular">Regular Holiday</div>
+        <div class="filter-chip" data-filter="special">Special (Non-Working)</div>
+        <div class="filter-chip" data-filter="working">Special (Working)</div>
+        <div class="filter-chip" data-filter="additional">Additional (Non-Working)</div>
+        <div class="filter-chip" data-filter="local">Local Holiday</div>
+      </div>
+      <button type="button" class="btn btn-primary admin-only" id="openAddHolidayBtn">+ Add Holiday</button>
     </div>
     <div class="holiday-table-wrap">
       <table class="holiday-table">
@@ -1330,9 +1331,12 @@ For concerns, contact the CBAMS Helpdesk.</textarea>
   <div class="view" id="view-user-access">
     <div class="page-head">
       <div class="page-title">User Access Settings</div>
-      <div class="page-sub">Manage user permissions for system modules and features. Changes here are for demonstration purposes only.</div>
+      <div class="page-sub">Manage users and their permissions for system modules and features.</div>
     </div>
-    <div class="access-hint">Toggle permissions for each user. Permission changes will not be saved in this mockup.</div>
+    <div class="directory-head-row">
+      <div class="access-hint" style="margin-bottom:0;">Toggle permissions for each user — changes save immediately.</div>
+      <button type="button" class="btn btn-primary admin-only" id="openAddUserBtn">+ Add User</button>
+    </div>
     <div class="access-table-wrap">
       <table class="access-table">
         <thead>
@@ -1352,10 +1356,6 @@ For concerns, contact the CBAMS Helpdesk.</textarea>
         </thead>
         <tbody id="accessTableBody"></tbody>
       </table>
-    </div>
-    <div class="access-actions">
-      <button class="btn btn-ghost" id="btnResetAccess" disabled>Reset</button>
-      <button class="btn btn-primary" id="btnSaveAccess" disabled>Save Changes</button>
     </div>
   </div>
 
@@ -1493,6 +1493,138 @@ For concerns, contact the CBAMS Helpdesk.</textarea>
   </div>
 </div>
 
+<div class="sms-scrim" id="profileScrim"></div>
+<div class="sms-modal" id="profileModal">
+  <div class="sms-modal-head">
+    <h3>My Profile</h3>
+    <button class="sms-close" id="profileModalClose">✕</button>
+  </div>
+  <div class="sms-modal-body">
+    <div class="ab-modal-body" style="grid-template-columns:1fr;gap:10px;">
+      <div class="f-group">
+        <label>Full Name</label>
+        <div id="profFullName" style="font-size:13.5px;font-weight:600;color:var(--ink);">—</div>
+      </div>
+      <div class="f-group">
+        <label>Username</label>
+        <div id="profUsername" style="font-size:13px;color:var(--ink);">—</div>
+      </div>
+      <div class="f-group">
+        <label>Email</label>
+        <div id="profEmail" style="font-size:13px;color:var(--ink);">—</div>
+      </div>
+      <div class="f-group">
+        <label>Role</label>
+        <div id="profRole" style="font-size:13px;color:var(--ink);">—</div>
+      </div>
+      <div class="f-group">
+        <label>Permissions</label>
+        <div id="profPerms" style="font-size:12px;color:var(--muted);line-height:1.7;"></div>
+      </div>
+    </div>
+  </div>
+  <div class="sms-modal-foot">
+    <button class="btn btn-ghost" id="profileCloseBtn">Close</button>
+  </div>
+</div>
+
+<div class="sms-scrim" id="addUserScrim"></div>
+<div class="sms-modal ab-modal" id="addUserModal">
+  <div class="sms-modal-head">
+    <h3>Add New User</h3>
+    <button class="sms-close" id="addUserModalClose">✕</button>
+  </div>
+  <div class="sms-modal-body">
+    <form id="addUserForm" class="ab-modal-body">
+      <div class="f-group">
+        <label for="auFullName">Full Name</label>
+        <input type="text" id="auFullName" placeholder="e.g. Juan Dela Cruz" required>
+      </div>
+      <div class="f-group">
+        <label for="auUsername">Username</label>
+        <input type="text" id="auUsername" placeholder="e.g. jdelacruz" required>
+      </div>
+      <div class="f-group full">
+        <label for="auEmail">Email</label>
+        <input type="email" id="auEmail" placeholder="e.g. jdelacruz@agribank.ph" required>
+      </div>
+      <div class="f-group">
+        <label for="auPassword">Temporary Password</label>
+        <input type="text" id="auPassword" placeholder="min. 6 characters" required>
+      </div>
+      <div class="f-group">
+        <label for="auRole">Role</label>
+        <select id="auRole" required>
+          <option value="staff">Staff</option>
+          <option value="supervisor">Supervisor</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div class="f-group full">
+        <label for="auRoleLabel">Role Label</label>
+        <input type="text" id="auRoleLabel" placeholder="e.g. Staff · NCR">
+      </div>
+    </form>
+    <div class="sms-config-note" style="margin-top:2px;">
+      <strong>ℹ Note</strong> — This creates a real login account. Share the temporary password with the user securely and have them change it on first login. If email confirmation is enabled in Supabase Auth, the user must confirm their email before they can sign in.
+    </div>
+  </div>
+  <div class="sms-modal-foot">
+    <button class="btn btn-ghost" id="addUserCancelBtn">Cancel</button>
+    <button class="btn btn-primary" id="addUserSaveBtn">Create User</button>
+  </div>
+</div>
+
+<div class="sms-scrim" id="addHolidayScrim"></div>
+<div class="sms-modal ab-modal" id="addHolidayModal">
+  <div class="sms-modal-head">
+    <h3>Add Holiday</h3>
+    <button class="sms-close" id="addHolidayModalClose">✕</button>
+  </div>
+  <div class="sms-modal-body">
+    <form id="addHolidayForm" class="ab-modal-body">
+      <div class="f-group">
+        <label for="ahDate">Date</label>
+        <input type="date" id="ahDate" required>
+      </div>
+      <div class="f-group">
+        <label for="ahType">Type</label>
+        <select id="ahType" required>
+          <option value="regular">Regular Holiday</option>
+          <option value="special">Special (Non-Working) Day</option>
+          <option value="working">Special (Working) Day</option>
+          <option value="additional">Additional Special (Non-Working) Day</option>
+          <option value="local">Local Holiday</option>
+        </select>
+      </div>
+      <div class="f-group full">
+        <label for="ahName">Holiday Name</label>
+        <input type="text" id="ahName" placeholder="e.g. Founding Anniversary" required>
+      </div>
+      <div class="f-group full">
+        <label for="ahRef">Reference</label>
+        <input type="text" id="ahRef" placeholder="e.g. Proclamation No. 1006">
+      </div>
+      <div class="f-group">
+        <label for="ahScope">Scope</label>
+        <select id="ahScope">
+          <option value="all">All branches (National)</option>
+          <option value="local">Specific branch(es)</option>
+        </select>
+      </div>
+      <div class="f-group full" id="ahBranchesGroup" style="display:none;">
+        <label for="ahBranches">Branch(es)</label>
+        <select id="ahBranches" multiple size="6"></select>
+        <div class="f-help">Hold Ctrl/Cmd to select multiple branches. Leave empty for a local holiday not yet tied to a specific branch.</div>
+      </div>
+    </form>
+  </div>
+  <div class="sms-modal-foot">
+    <button class="btn btn-ghost" id="addHolidayCancelBtn">Cancel</button>
+    <button class="btn btn-primary" id="addHolidaySaveBtn">Save Holiday</button>
+  </div>
+</div>
+
 </div><!-- /#portal -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1583,7 +1715,7 @@ function timeAgo(iso){
 }
 
 async function refreshFromSupabase(){
-  await Promise.all([loadBranches(), loadCategories(), loadRequests()]);
+  await Promise.all([loadBranches(), loadCategories(), loadRequests(), loadHolidaysFromDB()]);
   refreshAll();
   populateBranchSelect();
   populateCategorySelect(false);
@@ -1628,6 +1760,12 @@ async function loadCurrentUserProfile(userId){
   const { data, error } = await sb.from('user_profiles').select('*').eq('id', userId).single();
   if(error){ console.error(error); currentUser = null; return; }
   currentUser = data;
+  // user_profiles may not store email (it lives on auth.users) — pull it from the
+  // current auth session so View Profile has something to show.
+  if(!currentUser.email){
+    const { data:{ user } } = await sb.auth.getUser();
+    if(user?.email) currentUser.email = user.email;
+  }
 }
 
 async function doLogout(){
@@ -1675,7 +1813,7 @@ let branches = []; // populated from Supabase — see loadBranches()
    Note: local holiday dates are based on 2025 proclamations and may
    change once 2026 official proclamations are issued.
    ========================================================= */
-const HOLIDAYS_2026 = [
+let HOLIDAYS_2026 = [
   // === REGULAR HOLIDAYS (National) ===
   {date:'2026-01-01', name:"New Year's Day", type:'regular', ref:'Proclamation No. 1006', branches:'all'},
   {date:'2026-04-01', name:"Eid'l Fitr", type:'regular', ref:'Proclamation No. 1006', branches:'all'},
@@ -1764,6 +1902,18 @@ const HOLIDAYS_2026 = [
   {date:'2026-11-15', name:'Araw ng Oriental Mindoro', type:'local', ref:'Republic Act No. 12055', branches:['BR-2011']},
 ];
 
+/* Loads holidays from Supabase (public.holidays table). If the table
+   doesn't exist yet or is empty, the hardcoded seed list above stays
+   in effect so the app keeps working before that migration is run. */
+async function loadHolidaysFromDB(){
+  const { data: rows, error } = await sb.from('holidays').select('*').order('date');
+  if(error || !rows || rows.length === 0) return;
+  HOLIDAYS_2026 = rows.map(r => ({
+    id: r.id, date: r.date, name: r.name, type: r.type, ref: r.ref || '',
+    branches: (r.branches === null || r.branches === undefined) ? 'all' : r.branches
+  }));
+}
+
 function getHolidaysForBranch(branchCode){
   const today = new Date(); today.setHours(0,0,0,0);
   const endOfYear = new Date('2026-12-31T00:00:00');
@@ -1840,6 +1990,38 @@ document.getElementById('logoutLink').addEventListener('click', (e)=>{
   e.preventDefault();
   doLogout();
 });
+
+/* =========================================================
+   VIEW PROFILE — read-only modal populated from currentUser
+   ========================================================= */
+function openProfileModal(){
+  if(!currentUser) return;
+  document.getElementById('profFullName').textContent = currentUser.full_name || '—';
+  document.getElementById('profUsername').textContent = currentUser.username || '—';
+  document.getElementById('profEmail').textContent = currentUser.email || '—';
+  document.getElementById('profRole').textContent = currentUser.role_label || currentUser.role || '—';
+  const perms = currentUser.permissions || {};
+  const permsEl = document.getElementById('profPerms');
+  const granted = ACCESS_PERMS.filter(p => perms[p.key]).map(p => p.label);
+  permsEl.innerHTML = granted.length
+    ? granted.map(l => `<div>✓ ${l}</div>`).join('')
+    : '<div>No permissions granted.</div>';
+  document.getElementById('profileScrim').classList.add('show');
+  document.getElementById('profileModal').classList.add('show');
+  document.getElementById('dd-account').classList.remove('show');
+}
+function closeProfileModal(){
+  document.getElementById('profileScrim').classList.remove('show');
+  document.getElementById('profileModal').classList.remove('show');
+}
+document.getElementById('link-view-profile').addEventListener('click', (e)=>{
+  e.preventDefault();
+  openProfileModal();
+});
+document.getElementById('profileModalClose').addEventListener('click', closeProfileModal);
+document.getElementById('profileCloseBtn').addEventListener('click', closeProfileModal);
+document.getElementById('profileScrim').addEventListener('click', closeProfileModal);
+
 
 const loginToggleBtn = document.getElementById('toggleVis');
 const loginPwdInput = document.getElementById('loginPassword');
@@ -2252,49 +2434,6 @@ function renderAlertFeed(){
   }
 }
 
-function renderHolidayIndicator(branchCode){
-  const el = document.getElementById('holidayIndicator');
-  const holidays = getHolidaysForBranch(branchCode);
-  if(holidays.length === 0){
-    el.innerHTML = '<div class="hi-header">Upcoming holidays</div><div class="hi-empty">No holidays remaining in 2026 for this branch.</div>';
-    el.style.display = 'block';
-    return;
-  }
-  const fmtDate = (ds) => {
-    const d = new Date(ds+'T00:00:00');
-    return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
-  };
-  el.innerHTML = '<div class="hi-header">Upcoming holidays for this branch</div>' +
-    holidays.map(h =>
-      `<div class="hi-item"><span class="hi-date">${fmtDate(h.date)}</span><div><div class="hi-name">${h.name}</div><span class="hi-type ${h.type}">${HOLIDAY_TYPE_LABELS[h.type]||h.type}</span></div></div>`
-    ).join('');
-  el.style.display = 'block';
-}
-
-function checkHolidayOverlap(){
-  const branchCode = reqBranchSel.value;
-  const dateVal = document.getElementById('reqClosedUntil').value;
-  const overlapEl = document.getElementById('holidayOverlap');
-  const suggestEl = document.getElementById('holidaySuggest');
-  overlapEl.style.display = 'none';
-  suggestEl.style.display = 'none';
-  if(!dateVal || !branchCode) return;
-  const today = new Date(); today.setHours(0,0,0,0);
-  const selected = new Date(dateVal+'T00:00:00');
-  const holidays = getHolidaysBetween(today, selected, branchCode);
-  if(holidays.length > 0){
-    const fmtDate = (ds) => new Date(ds+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-    overlapEl.innerHTML = `<strong>⚠ Closure period includes ${holidays.length} holiday(s):</strong>` +
-      holidays.map(h => `<div class="ho-item"><span class="ho-date">${fmtDate(h.date)}</span> — ${h.name} <em>(${HOLIDAY_TYPE_LABELS[h.type]||h.type})</em></div>`).join('');
-    overlapEl.style.display = 'block';
-  }
-  if(isHoliday(selected, branchCode)){
-    const next = getNextBusinessDay(selected, branchCode);
-    const fmtDate = (d) => d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
-    suggestEl.innerHTML = `<strong>ℹ Suggested reopening: ${fmtDate(next)}</strong> (next business day)`;
-    suggestEl.style.display = 'block';
-  }
-}
 const DONUT_REASON_COLORS = {
   'Calamity':'#e67e22','Flooding':'#2980b9','Power Outage':'#f1c40f','Connectivity':'#8e44ad',
   'System Maintenance':'#16a085','Security Incident':'#c0392b','Holiday':'#3498db','Other':'#7f8c8d',
@@ -2533,9 +2672,6 @@ reqBranchSel.addEventListener('change',()=>{
   document.getElementById('reqClosedFrom').value = '';
   document.getElementById('reqClosedUntil').min = today;
   document.getElementById('reqClosedUntil').value = '';
-  document.getElementById('holidayOverlap').style.display = 'none';
-  document.getElementById('holidaySuggest').style.display = 'none';
-  renderHolidayIndicator(b.code);
   syncStatusChoiceUI();
 });
 
@@ -2552,9 +2688,6 @@ function syncStatusChoiceUI(){
   if(val!=='closed'){
     document.getElementById('newCategoryGroup').style.display = 'none';
     document.getElementById('newSubcategoryGroup').style.display = 'none';
-    document.getElementById('holidayIndicator').style.display = 'none';
-    document.getElementById('holidayOverlap').style.display = 'none';
-    document.getElementById('holidaySuggest').style.display = 'none';
     document.getElementById('reqClosedFrom').value = '';
     document.getElementById('reqClosedUntil').value = '';
   } else {
@@ -2564,7 +2697,6 @@ function syncStatusChoiceUI(){
 }
 document.querySelectorAll('input[name=reqStatus]').forEach(r=>r.addEventListener('change', syncStatusChoiceUI));
 
-document.getElementById('reqClosedUntil').addEventListener('change', checkHolidayOverlap);
 document.getElementById('reqClosedFrom').addEventListener('change', function(){
   const today = new Date().toISOString().split('T')[0];
   const untilInput = document.getElementById('reqClosedUntil');
@@ -2731,9 +2863,6 @@ document.getElementById('requestForm').addEventListener('submit', async function
   document.getElementById('optOpen').querySelector('input').disabled = false;
   document.getElementById('reqClosedFrom').value = '';
   document.getElementById('reqClosedUntil').value = '';
-  document.getElementById('holidayIndicator').style.display = 'none';
-  document.getElementById('holidayOverlap').style.display = 'none';
-  document.getElementById('holidaySuggest').style.display = 'none';
   syncStatusChoiceUI();
   updatePendingBadge();
   renderMySubmissions();
@@ -2747,9 +2876,6 @@ document.getElementById('reqResetBtn').addEventListener('click', ()=>{
     document.getElementById('optOpen').querySelector('input').disabled = false;
     document.getElementById('reqClosedFrom').value = '';
     document.getElementById('reqClosedUntil').value = '';
-    document.getElementById('holidayIndicator').style.display = 'none';
-    document.getElementById('holidayOverlap').style.display = 'none';
-    document.getElementById('holidaySuggest').style.display = 'none';
     syncStatusChoiceUI();
   }, 0);
 });
@@ -3059,7 +3185,12 @@ function renderHolidaysList(){
   ).join('');
 }
 
-document.getElementById('link-holidays').addEventListener('click',(e)=>{e.preventDefault(); switchView('holidays'); renderHolidaysList();});
+document.getElementById('link-holidays').addEventListener('click', async (e)=>{
+  e.preventDefault();
+  switchView('holidays');
+  await loadHolidaysFromDB();
+  renderHolidaysList();
+});
 
 document.querySelectorAll('#holidayFilterRow .filter-chip').forEach(chip=>{
   chip.addEventListener('click',()=>{
@@ -3069,6 +3200,65 @@ document.querySelectorAll('#holidayFilterRow .filter-chip').forEach(chip=>{
     renderHolidaysList();
   });
 });
+
+/* =========================================================
+   ADD HOLIDAY — modal form, backed by Supabase public.holidays
+   ========================================================= */
+function populateAddHolidayBranches(){
+  const sel = document.getElementById('ahBranches');
+  sel.innerHTML = branches.map(b=>`<option value="${b.code}">${b.name} (${b.code})</option>`).join('');
+}
+document.getElementById('ahScope').addEventListener('change', function(){
+  document.getElementById('ahBranchesGroup').style.display = this.value === 'local' ? 'block' : 'none';
+});
+function openAddHolidayModal(){
+  if(!can('can_manage_users')){ showToast('Adding holidays requires admin access.', 'error'); return; }
+  document.getElementById('addHolidayForm').reset();
+  document.getElementById('ahBranchesGroup').style.display = 'none';
+  populateAddHolidayBranches();
+  document.getElementById('addHolidayScrim').classList.add('show');
+  document.getElementById('addHolidayModal').classList.add('show');
+}
+function closeAddHolidayModal(){
+  document.getElementById('addHolidayScrim').classList.remove('show');
+  document.getElementById('addHolidayModal').classList.remove('show');
+}
+document.getElementById('openAddHolidayBtn').addEventListener('click', openAddHolidayModal);
+document.getElementById('addHolidayModalClose').addEventListener('click', closeAddHolidayModal);
+document.getElementById('addHolidayCancelBtn').addEventListener('click', closeAddHolidayModal);
+document.getElementById('addHolidayScrim').addEventListener('click', closeAddHolidayModal);
+
+document.getElementById('addHolidaySaveBtn').addEventListener('click', async function(){
+  const date = document.getElementById('ahDate').value;
+  const type = document.getElementById('ahType').value;
+  const name = document.getElementById('ahName').value.trim();
+  const ref = document.getElementById('ahRef').value.trim();
+  const scope = document.getElementById('ahScope').value;
+  const selectedBranches = Array.from(document.getElementById('ahBranches').selectedOptions).map(o=>o.value);
+
+  if(!date || !type || !name){ showToast('Date, type, and holiday name are required.', 'error'); return; }
+
+  const row = { date, type, name, ref: ref || null, branches: scope === 'all' ? null : selectedBranches };
+
+  const saveBtn = this;
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Saving…';
+  const { error } = await sb.from('holidays').insert(row);
+  saveBtn.disabled = false;
+  saveBtn.textContent = 'Save Holiday';
+
+  if(error){
+    showToast('Failed to save holiday: ' + error.message, 'error');
+    return;
+  }
+
+  await loadHolidaysFromDB();
+  closeAddHolidayModal();
+  renderHolidaysList();
+  refreshAll(); // branch statuses/labels can depend on isNonWorkingHoliday()
+  showToast(`Holiday "${name}" added.`, 'success');
+});
+
 
 /* =========================================================
    MAINTENANCE REPORTS — extract by date range
@@ -3228,6 +3418,99 @@ document.getElementById('accessTableBody').addEventListener('change', async (e)=
   user.perms = nextPerms;
   showToast(`Updated "${ACCESS_PERMS.find(p=>p.key===perm).label}" for ${user.name}.`, 'success');
 });
+
+/* =========================================================
+   ADD USER — modal form
+   Client-side supabase.auth.signUp() switches the browser's active
+   session to the newly created user, so we snapshot the admin's
+   session first and restore it right after signUp resolves.
+   ========================================================= */
+const DEFAULT_PERMS_BY_ROLE = {
+  staff: { can_login:true, can_access_dashboard:true, can_request:true, can_approve:false, can_access_user_access:false, can_view_archive:true, can_export_data:false, can_manage_users:false, can_view_audit_log:false },
+  supervisor: { can_login:true, can_access_dashboard:true, can_request:true, can_approve:true, can_access_user_access:false, can_view_archive:true, can_export_data:true, can_manage_users:false, can_view_audit_log:false },
+  admin: { can_login:true, can_access_dashboard:true, can_request:true, can_approve:true, can_access_user_access:true, can_view_archive:true, can_export_data:true, can_manage_users:true, can_view_audit_log:true },
+};
+
+function openAddUserModal(){
+  if(!can('can_manage_users')){ showToast('Adding users requires admin access.', 'error'); return; }
+  document.getElementById('addUserForm').reset();
+  document.getElementById('addUserScrim').classList.add('show');
+  document.getElementById('addUserModal').classList.add('show');
+}
+function closeAddUserModal(){
+  document.getElementById('addUserScrim').classList.remove('show');
+  document.getElementById('addUserModal').classList.remove('show');
+}
+document.getElementById('openAddUserBtn').addEventListener('click', openAddUserModal);
+document.getElementById('addUserModalClose').addEventListener('click', closeAddUserModal);
+document.getElementById('addUserCancelBtn').addEventListener('click', closeAddUserModal);
+document.getElementById('addUserScrim').addEventListener('click', closeAddUserModal);
+
+document.getElementById('addUserSaveBtn').addEventListener('click', async function(){
+  const fullName = document.getElementById('auFullName').value.trim();
+  const username = document.getElementById('auUsername').value.trim();
+  const email = document.getElementById('auEmail').value.trim();
+  const password = document.getElementById('auPassword').value;
+  const role = document.getElementById('auRole').value;
+  const roleLabel = document.getElementById('auRoleLabel').value.trim() || (role.charAt(0).toUpperCase()+role.slice(1));
+
+  if(!fullName || !username || !email || !password || !role){
+    showToast('Full name, username, email, password, and role are all required.', 'error');
+    return;
+  }
+  if(password.length < 6){ showToast('Temporary password must be at least 6 characters.', 'error'); return; }
+  if(ACCESS_USERS.some(u => (u.name||'').toLowerCase() === username.toLowerCase())){
+    showToast(`Username "${username}" already exists.`, 'error');
+    return;
+  }
+
+  const saveBtn = this;
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Creating…';
+
+  // Snapshot the admin's session so we can restore it after signUp.
+  const { data: { session: adminSession } } = await sb.auth.getSession();
+
+  const { data: signUpData, error: signUpErr } = await sb.auth.signUp({
+    email, password,
+    options: { data: { username, full_name: fullName } }
+  });
+
+  // Restore the admin's session immediately — signUp() switches the
+  // client's active session to the new user by default.
+  if(adminSession){
+    await sb.auth.setSession({ access_token: adminSession.access_token, refresh_token: adminSession.refresh_token });
+  }
+
+  if(signUpErr || !signUpData?.user){
+    showToast('Failed to create user: ' + (signUpErr?.message || 'Unknown error'), 'error');
+    saveBtn.disabled = false; saveBtn.textContent = 'Create User';
+    return;
+  }
+
+  const newUserId = signUpData.user.id;
+  const permissions = DEFAULT_PERMS_BY_ROLE[role] || DEFAULT_PERMS_BY_ROLE.staff;
+
+  // The DB trigger (see 01_schema.sql) creates a default user_profiles row
+  // on signUp with role='staff' — patch it with the real role/label/perms.
+  const { error: updErr } = await sb.from('user_profiles')
+    .update({ username, full_name: fullName, role, role_label: roleLabel, permissions })
+    .eq('id', newUserId);
+
+  saveBtn.disabled = false;
+  saveBtn.textContent = 'Create User';
+
+  if(updErr){
+    showToast('User account created, but profile setup failed: ' + updErr.message + ' — check User Access Settings and fix manually.', 'error');
+  } else {
+    showToast(`User "${fullName}" (${username}) created.`, 'success');
+  }
+
+  closeAddUserModal();
+  await loadAccessUsers();
+  renderAccessTable();
+});
+
 
 /* =========================================================
    INIT
