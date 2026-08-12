@@ -3447,20 +3447,33 @@ document.getElementById('addUserCancelBtn').addEventListener('click', closeAddUs
 document.getElementById('addUserScrim').addEventListener('click', closeAddUserModal);
 
 document.getElementById('addUserSaveBtn').addEventListener('click', async function(){
+  if(!can('can_manage_users')){
+    showToast('Adding users requires admin access.', 'error');
+    return;
+  }
+
   const fullName = document.getElementById('auFullName').value.trim();
-  const username = document.getElementById('auUsername').value.trim();
-  const email = document.getElementById('auEmail').value.trim();
+  const username = document.getElementById('auUsername').value.trim().toLowerCase();
+  const email = document.getElementById('auEmail').value.trim().toLowerCase();
   const password = document.getElementById('auPassword').value;
   const role = document.getElementById('auRole').value;
-  const roleLabel = document.getElementById('auRoleLabel').value.trim() || (role.charAt(0).toUpperCase()+role.slice(1));
+  const roleLabel = document.getElementById('auRoleLabel').value.trim() ||
+    (role.charAt(0).toUpperCase()+role.slice(1));
 
   if(!fullName || !username || !email || !password || !role){
     showToast('Full name, username, email, password, and role are all required.', 'error');
     return;
   }
-  if(password.length < 6){ showToast('Temporary password must be at least 6 characters.', 'error'); return; }
-  if(ACCESS_USERS.some(u => (u.name||'').toLowerCase() === username.toLowerCase())){
-    showToast(`Username "${username}" already exists.`, 'error');
+  if(!/^[a-z0-9._-]{3,30}$/.test(username)){
+    showToast('Username must be 3–30 characters and use only letters, numbers, dot, underscore, or hyphen.', 'error');
+    return;
+  }
+  if(password.length < 8){
+    showToast('Temporary password must be at least 8 characters.', 'error');
+    return;
+  }
+  if(!/^\S+@\S+\.\S+$/.test(email)){
+    showToast('Please enter a valid email address.', 'error');
     return;
   }
 
@@ -3468,47 +3481,40 @@ document.getElementById('addUserSaveBtn').addEventListener('click', async functi
   saveBtn.disabled = true;
   saveBtn.textContent = 'Creating…';
 
-  // Snapshot the admin's session so we can restore it after signUp.
-  const { data: { session: adminSession } } = await sb.auth.getSession();
+  try {
+    // IMPORTANT: Do not call sb.auth.signUp() here.
+    // signUp() is a client-side self-registration flow and can replace
+    // the admin's active session with the newly created account.
+    // The secure solution is a Supabase Edge Function using auth.admin.createUser().
+    const permissions = DEFAULT_PERMS_BY_ROLE[role] || DEFAULT_PERMS_BY_ROLE.staff;
 
-  const { data: signUpData, error: signUpErr } = await sb.auth.signUp({
-    email, password,
-    options: { data: { username, full_name: fullName } }
-  });
+    const { data, error } = await sb.functions.invoke('create-user', {
+      body: {
+        fullName,
+        username,
+        email,
+        password,
+        role,
+        roleLabel,
+        permissions
+      }
+    });
 
-  // Restore the admin's session immediately — signUp() switches the
-  // client's active session to the new user by default.
-  if(adminSession){
-    await sb.auth.setSession({ access_token: adminSession.access_token, refresh_token: adminSession.refresh_token });
+    if(error) throw error;
+    if(!data?.user?.id) throw new Error(data?.error || 'User was not created.');
+
+    showToast(`User "${fullName}" (${username}) created successfully.`, 'success');
+    closeAddUserModal();
+    await loadAccessUsers();
+    renderAccessTable();
+  } catch(err) {
+    console.error('Create user error:', err);
+    const message = err?.context?.body?.error || err?.message || 'Unknown error';
+    showToast('Failed to create user: ' + message, 'error');
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Create User';
   }
-
-  if(signUpErr || !signUpData?.user){
-    showToast('Failed to create user: ' + (signUpErr?.message || 'Unknown error'), 'error');
-    saveBtn.disabled = false; saveBtn.textContent = 'Create User';
-    return;
-  }
-
-  const newUserId = signUpData.user.id;
-  const permissions = DEFAULT_PERMS_BY_ROLE[role] || DEFAULT_PERMS_BY_ROLE.staff;
-
-  // The DB trigger (see 01_schema.sql) creates a default user_profiles row
-  // on signUp with role='staff' — patch it with the real role/label/perms.
-  const { error: updErr } = await sb.from('user_profiles')
-    .update({ username, full_name: fullName, role, role_label: roleLabel, permissions })
-    .eq('id', newUserId);
-
-  saveBtn.disabled = false;
-  saveBtn.textContent = 'Create User';
-
-  if(updErr){
-    showToast('User account created, but profile setup failed: ' + updErr.message + ' — check User Access Settings and fix manually.', 'error');
-  } else {
-    showToast(`User "${fullName}" (${username}) created.`, 'success');
-  }
-
-  closeAddUserModal();
-  await loadAccessUsers();
-  renderAccessTable();
 });
 
 
