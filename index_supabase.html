@@ -232,6 +232,14 @@
   .metric-card.alert-c .value{color:var(--alert);}
   .metric-card.asof-c .asof-row{display:flex;align-items:center;gap:6px;}
   .metric-card.asof-c input[type=date]{padding:6px 8px;font-size:11.5px;width:auto;flex:1;}
+  .reason-bar-card{min-width:0;}
+  .reason-bar-chart{padding:12px 18px 16px;min-height:150px;display:flex;flex-direction:column;justify-content:center;gap:9px;}
+  .reason-bar-row{display:grid;grid-template-columns:minmax(95px,120px) 1fr 28px;align-items:center;gap:8px;font-size:10.5px;}
+  .reason-bar-label{color:var(--ink);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .reason-bar-track{height:10px;background:#eef1f3;border-radius:6px;overflow:hidden;}
+  .reason-bar-fill{height:100%;background:var(--forest);border-radius:6px;min-width:2px;transition:width .25s ease;}
+  .reason-bar-count{color:var(--muted);font-weight:700;text-align:right;}
+  .reason-bar-empty{color:var(--muted);font-size:11px;text-align:center;padding:25px 0;}
   .donuts-row{display:grid;grid-template-columns:1fr 427px;gap:14px;margin-bottom:16px;align-items:stretch;}
   .donuts-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   .asof-card{display:flex;flex-direction:column;}
@@ -1028,18 +1036,9 @@
             <div class="donut-legend" id="donutStatusLegend"></div>
           </div>
         </div>
-        <div class="donut-card">
+        <div class="donut-card reason-bar-card">
           <div class="donut-card-head"><h3>Reason for Closure</h3></div>
-          <div class="donut-body">
-            <div class="donut-svg-wrap">
-              <svg viewBox="0 0 128 128" id="donutReasonSvg"></svg>
-              <div class="donut-center">
-                <div class="donut-center-value" id="donutReasonValue">0</div>
-                <div class="donut-center-label">Closed</div>
-              </div>
-            </div>
-            <div class="donut-legend" id="donutReasonLegend"></div>
-          </div>
+          <div class="reason-bar-chart" id="reasonBarChart"><div class="reason-bar-empty">No closed branches</div></div>
         </div>
       </div>
       <div class="donut-card asof-card">
@@ -1896,29 +1895,23 @@ async function refreshFromSupabase(){
    AUTH — Supabase Auth replaces the old LOGIN_CREDENTIALS map.
    Sign-in uses email + password.
    ========================================================= */
-async function doLogin(email, password){
-  const loginError = document.getElementById('loginError');
-  const { data, error } = await sb.auth.signInWithPassword({ email: email.trim(), password });
-  if(error || !data.user){
-    loginError.textContent = error?.message || 'Invalid email or password.';
-    loginError.classList.add('show');
-    return;
-  }
-  await loadCurrentUserProfile(data.user.id);
-  if(!currentUser || !currentUser.permissions.can_login){
-    loginError.textContent = 'This account is not permitted to sign in.';
-    loginError.classList.add('show');
-    await sb.auth.signOut();
-    return;
-  }
-  loginError.classList.remove('show');
-  document.getElementById('login-page').style.display = 'none';
-  document.getElementById('portal').style.display = 'block';
-  document.body.classList.remove('login-active');
-  applyRole(currentUser.role);
-  switchView('dashboard');
-  await refreshFromSupabase();
-  showToast(`Signed in as ${currentUser.full_name}.`, 'success');
+async function doLogin(email,password){
+  const loginError=document.getElementById('loginError');
+  const btn=document.querySelector('#loginForm button[type="submit"]');
+  const fail=m=>{loginError.textContent=m||'Unable to sign in.';loginError.classList.add('show');};
+  if(!email||!password){fail('Please enter your email and password.');return;}
+  try{
+    if(btn){btn.disabled=true;btn.textContent='Signing in…';}
+    loginError.classList.remove('show');
+    const {data,error}=await sb.auth.signInWithPassword({email:email.trim(),password});
+    if(error||!data?.user){fail(error?.message||'Invalid email or password.');return;}
+    await loadCurrentUserProfile(data.user.id);
+    if(!currentUser){await sb.auth.signOut();fail('Login succeeded, but no user profile was found. Please contact the administrator.');return;}
+    if(currentUser.permissions?.can_login!==true){await sb.auth.signOut();currentUser=null;fail('This account is not permitted to sign in. Please ask an administrator to enable Login access.');return;}
+    document.getElementById('login-page').style.display='none';document.getElementById('portal').style.display='block';document.body.classList.remove('login-active');
+    applyRole(currentUser.role);await switchView('dashboard');await refreshFromSupabase();showToast(`Signed in as ${currentUser.full_name||data.user.email}.`,'success');
+  }catch(err){console.error('Login error:',err);fail(err?.message||'Unable to sign in. Please try again.');}
+  finally{if(btn){btn.disabled=false;btn.textContent='Log in';}}
 }
 
 async function loadCurrentUserProfile(userId){
@@ -1949,7 +1942,7 @@ async function bootstrapSession(){
   const { data:{ session } } = await sb.auth.getSession();
   if(session?.user){
     await loadCurrentUserProfile(session.user.id);
-    if(currentUser && currentUser.permissions.can_login){
+    if(currentUser && currentUser.permissions?.can_login === true){
       document.getElementById('login-page').style.display = 'none';
       document.getElementById('portal').style.display = 'block';
       document.body.classList.remove('login-active');
@@ -2665,31 +2658,28 @@ function renderDonutLegend(containerEl, segments, total){
 }
 
 function renderDonuts(){
-  const total = branches.length;
-  const closedList = branches.filter(b=>effectiveStatus(b, asOfDate)==='closed');
-  const openCount = total - closedList.length;
-
-  const statusSegments = [
-    {label:'Open', value:openCount, color:'var(--open)'},
-    {label:'Closed', value:closedList.length, color:'var(--closed)'}
-  ];
-  drawDonut(document.getElementById('donutStatusSvg'), statusSegments);
-  renderDonutLegend(document.getElementById('donutStatusLegend'), statusSegments, total);
-  document.getElementById('donutStatusValue').textContent = total;
-
-  const reasonCounts = {};
-  closedList.forEach(b=>{
-    const cat = getClosureCategory(b, asOfDate);
-    reasonCounts[cat] = (reasonCounts[cat]||0) + 1;
+  const total=branches.length;
+  const closedList=branches.filter(b=>effectiveStatus(b,asOfDate)==='closed');
+  const openCount=total-closedList.length;
+  const statusSegments=[{label:'Open',value:openCount,color:'var(--open)'},{label:'Closed',value:closedList.length,color:'var(--closed)'}];
+  drawDonut(document.getElementById('donutStatusSvg'),statusSegments);
+  renderDonutLegend(document.getElementById('donutStatusLegend'),statusSegments,total);
+  document.getElementById('donutStatusValue').textContent=total;
+  const reasonCounts={};
+  closedList.forEach(b=>{const cat=getClosureCategory(b,asOfDate);reasonCounts[cat]=(reasonCounts[cat]||0)+1;});
+  const entries=Object.keys(reasonCounts).map(cat=>[cat,reasonCounts[cat]]).sort((a,b)=>b[1]-a[1]);
+  const chart=document.getElementById('reasonBarChart');
+  chart.innerHTML='';
+  if(!entries.length){chart.innerHTML='<div class="reason-bar-empty">No closed branches</div>';return;}
+  const max=Math.max(...entries.map(x=>x[1]),1);
+  entries.forEach(([label,count])=>{
+    const row=document.createElement('div');row.className='reason-bar-row';row.title=`${label}: ${count}`;
+    const l=document.createElement('div');l.className='reason-bar-label';l.textContent=label;
+    const track=document.createElement('div');track.className='reason-bar-track';
+    const fill=document.createElement('div');fill.className='reason-bar-fill';fill.style.width=`${Math.max(count/max*100,2)}%`;track.appendChild(fill);
+    const c=document.createElement('div');c.className='reason-bar-count';c.textContent=count;
+    row.append(l,track,c);chart.appendChild(row);
   });
-  const reasonSegments = Object.keys(reasonCounts).map(cat=>({
-    label: cat,
-    value: reasonCounts[cat],
-    color: DONUT_REASON_COLORS[cat] || '#95a5a6'
-  })).sort((a,b)=>b.value-a.value);
-  drawDonut(document.getElementById('donutReasonSvg'), reasonSegments);
-  renderDonutLegend(document.getElementById('donutReasonLegend'), reasonSegments, closedList.length);
-  document.getElementById('donutReasonValue').textContent = closedList.length;
 }
 function refreshAll(){
   renderMetrics();
