@@ -655,8 +655,31 @@
   @keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
 
   /* ===== Form card ===== */
-  .form-layout{display:grid;grid-template-columns:1fr 300px;gap:14px;align-items:start;}
+  .form-layout{display:grid;grid-template-columns:1fr;gap:14px;align-items:start;}
   .form-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow-sm);}
+  .request-module{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden;}
+  .request-module-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border);}
+  .request-module-title{font-size:13.5px;font-weight:700;color:var(--ink);}
+  .request-module-sub{font-size:11px;color:var(--muted);margin-top:3px;}
+  .request-table-wrap{overflow-x:auto;}
+  .request-table{width:100%;border-collapse:collapse;min-width:760px;}
+  .request-table th{background:var(--surface);color:var(--muted);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;text-align:left;padding:11px 14px;border-bottom:1px solid var(--border);white-space:nowrap;}
+  .request-table td{font-size:11.5px;color:var(--ink);padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+  .request-table tbody tr:last-child td{border-bottom:0;}
+  .request-table tbody tr:hover{background:var(--surface);}
+  .request-id{font-weight:700;color:var(--green);}
+  .request-branch-name{font-weight:600;}
+  .request-branch-code{font-size:10px;color:var(--muted);margin-top:2px;}
+  .request-action-cell{font-weight:600;}
+  .request-form-module{display:none;}
+  .request-form-module.show{display:block;}
+  .request-form-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;}
+  .request-form-head h2{font-size:15px;font-weight:700;margin:0;}
+  .request-form-head .hint{margin:4px 0 0;}
+  .request-empty{padding:38px 18px;text-align:center;color:var(--muted);font-size:11.5px;}
+  @media(max-width:900px){
+    .request-table{min-width:680px;}
+  }
   .form-card h2{font-size:13.5px;font-weight:600;margin-bottom:4px;}
   .form-card .hint{font-size:11.5px;color:var(--muted);margin-bottom:18px;}
   .f-group{margin-bottom:16px;}
@@ -699,6 +722,82 @@
 
   .mini-track{margin-top:14px;}
   .mini-track h4{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;}
+
+
+  /* ===== Approval / Archive request tables ===== */
+  .request-admin-table-wrap{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    box-shadow:var(--shadow-sm);overflow-x:auto;
+  }
+  .request-admin-table{width:100%;border-collapse:collapse;min-width:900px;}
+  .request-admin-table th{
+    background:var(--surface);color:var(--muted);font-size:10.5px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.04em;text-align:left;padding:11px 14px;
+    border-bottom:1px solid var(--border);white-space:nowrap;
+  }
+  .request-admin-table td{
+    font-size:11.5px;color:var(--ink);padding:12px 14px;border-bottom:1px solid var(--border);
+    vertical-align:middle;
+  }
+  .request-admin-table tbody tr:last-child td{border-bottom:0;}
+  .request-admin-table tbody tr:hover{background:var(--surface);}
+  .request-admin-table .view-col{width:72px;text-align:center;}
+  .request-admin-table .action-col{white-space:nowrap;width:160px;}
+  .request-admin-table .request-id-cell{font-weight:700;color:var(--forest);}
+  .request-admin-table .branch-name-cell{font-weight:600;}
+  .request-admin-table .branch-code-cell{font-size:10px;color:var(--muted);margin-top:2px;}
+  .request-admin-table .submitted-cell{white-space:nowrap;}
+  .request-admin-table .details-cell{max-width:280px;line-height:1.45;}
+  .request-admin-table .details-main{font-weight:600;}
+  .request-admin-table .details-sub{font-size:10.5px;color:var(--muted);margin-top:2px;}
+  .request-admin-table .row-actions{display:flex;gap:6px;align-items:center;}
+  .btn-view{background:#fff;color:var(--ink);border:1px solid var(--border);}
+  .btn-view:hover{background:var(--bg);border-color:#cbd0d8;}
+  .request-admin-empty{padding:38px 18px;text-align:center;color:var(--muted);font-size:11.5px;}
+
+  /* Request details modal */
+  .request-detail-scrim{
+    position:fixed;inset:0;background:rgba(20,20,30,.42);opacity:0;pointer-events:none;
+    transition:opacity .2s;z-index:70;
+  }
+  .request-detail-scrim.show{opacity:1;pointer-events:auto;}
+  .request-detail-modal{
+    position:fixed;top:50%;left:50%;transform:translate(-50%,-48%) scale(.97);
+    width:620px;max-width:94vw;max-height:88vh;background:#fff;border-radius:12px;
+    box-shadow:var(--shadow-lift);z-index:71;opacity:0;pointer-events:none;
+    transition:opacity .2s,transform .2s;display:flex;flex-direction:column;overflow:hidden;
+  }
+  .request-detail-modal.show{
+    opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1);
+  }
+  .request-detail-head{
+    padding:18px 20px 14px;border-bottom:1px solid var(--border);
+    display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+  }
+  .request-detail-head h3{font-size:15px;font-weight:700;color:var(--ink);}
+  .request-detail-head .sub{font-size:10.5px;color:var(--muted);margin-top:3px;}
+  .request-detail-close{
+    width:28px;height:28px;border:1px solid var(--border);border-radius:7px;background:#fff;
+    color:var(--muted);cursor:pointer;font-size:13px;
+  }
+  .request-detail-close:hover{background:var(--bg);}
+  .request-detail-body{padding:18px 20px;overflow-y:auto;}
+  .request-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 18px;}
+  .request-detail-item{padding:10px 0;border-bottom:1px solid var(--border);}
+  .request-detail-item.full{grid-column:1 / -1;}
+  .request-detail-item .label{
+    font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+    margin-bottom:4px;
+  }
+  .request-detail-item .value{font-size:12px;color:var(--ink);font-weight:600;line-height:1.5;}
+  .request-detail-item .value.reason{font-weight:500;white-space:pre-wrap;}
+  .request-detail-foot{
+    padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;
+  }
+  @media(max-width:700px){
+    .request-detail-grid{grid-template-columns:1fr;}
+    .request-detail-item.full{grid-column:auto;}
+  }
 
   /* ===== Request / archive cards ===== */
   .req-list{display:flex;flex-direction:column;gap:10px;}
@@ -1003,111 +1102,125 @@
   <div class="view" id="view-request">
     <div class="page-head">
       <div class="page-title">Branch Status Request</div>
-      <div class="page-sub">Report a branch closure or reopening. Submitted requests are reviewed by an admin before the map and alert feed update.</div>
+      <div class="page-sub">View your recent submissions or create a new branch closure/reopening request.</div>
     </div>
 
-    <div class="form-layout">
-      <div class="form-card">
-        <h2>New request</h2>
-        <div class="hint">Fields marked with the branch selector auto-fill the current recorded status.</div>
-
-        <form id="requestForm">
-          <div class="f-group">
-            <label for="reqBranch">Branch</label>
-            <select id="reqBranch" required>
-              <option value="" disabled selected>Select a branch…</option>
-            </select>
-            <div class="branch-preview" id="branchPreview"></div>
-          </div>
-
-          <div class="f-group">
-            <label>Requested action</label>
-            <div class="status-choice">
-              <label class="status-opt sel-closed" id="optClosed">
-                <input type="radio" name="reqStatus" value="closed">
-                <span class="so-label">Report Closed</span>
-              </label>
-              <label class="status-opt sel-open" id="optOpen">
-                <input type="radio" name="reqStatus" value="open">
-                <span class="so-label">Report Reopened</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="f-group" id="categoryGroup" style="display:none;">
-            <label for="reqCategory">Category</label>
-            <select id="reqCategory"></select>
-          </div>
-
-          <div class="f-group" id="newCategoryGroup" style="display:none;">
-            <label for="newCategoryInput">New category name</label>
-            <div class="cat-inline-add">
-              <input type="text" id="newCategoryInput" placeholder="e.g. Civil Unrest">
-              <button type="button" class="btn btn-ghost btn-sm" id="addCategoryBtn">Add</button>
-              <button type="button" class="btn btn-ghost btn-sm" id="cancelCategoryBtn">Cancel</button>
-            </div>
-            <div class="f-help">Creates a new top-level category with its own subcategories.</div>
-          </div>
-
-          <div class="f-group" id="subcategoryGroup" style="display:none;">
-            <label for="reqSubcategory">Subcategory</label>
-            <select id="reqSubcategory"></select>
-          </div>
-
-          <div class="f-group" id="newSubcategoryGroup" style="display:none;">
-            <label for="newSubcategoryInput">New subcategory name</label>
-            <div class="cat-inline-add">
-              <input type="text" id="newSubcategoryInput" placeholder="e.g. Landslide">
-              <button type="button" class="btn btn-ghost btn-sm" id="addSubcategoryBtn">Add</button>
-              <button type="button" class="btn btn-ghost btn-sm" id="cancelSubcategoryBtn">Cancel</button>
-            </div>
-            <div class="f-help">Adds a new subcategory under the selected category.</div>
-          </div>
-
-          <div class="f-row" style="display:flex; gap:12px; flex-wrap:wrap;">
-            <div class="f-group" id="closedFromGroup" style="display:none; flex:1; min-width:150px;">
-              <label for="reqClosedFrom">Closed from</label>
-              <input type="date" id="reqClosedFrom" min="">
-              <div class="f-help">The date the branch closure begins.</div>
-            </div>
-            <div class="f-group" id="closedFromTimeGroup" style="display:none; flex:0 0 130px;">
-              <label for="reqClosedFromTime">Time</label>
-              <input type="time" id="reqClosedFromTime" value="08:00">
-            </div>
-            <div class="f-group" id="closedUntilGroup" style="display:none; flex:1; min-width:150px;">
-              <label for="reqClosedUntil">Closed until</label>
-              <input type="date" id="reqClosedUntil" min="">
-              <div class="f-help">The branch will remain closed until this date.</div>
-            </div>
-            <div class="f-group" id="closedUntilTimeGroup" style="display:none; flex:0 0 130px;">
-              <label for="reqClosedUntilTime">Time</label>
-              <input type="time" id="reqClosedUntilTime" value="15:00">
-            </div>
-          </div>
-
-          <div class="f-group">
-            <label for="reqReason">Details</label>
-            <textarea id="reqReason" placeholder="Describe what happened and any relevant context (LGU advisory, ETA to resume, etc.)" required></textarea>
-          </div>
-
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Submit for approval</button>
-            <button type="reset" class="btn btn-ghost" id="reqResetBtn">Clear</button>
-          </div>
-        </form>
+    <!-- REQUEST LIST MODULE -->
+    <div class="request-module" id="requestListModule">
+      <div class="request-module-head">
+        <div>
+          <div class="request-module-title">Recent Submitted Requests</div>
+          <div class="request-module-sub">Your latest requests and their current approval status.</div>
+        </div>
+        <button type="button" class="btn btn-primary" id="openRequestFormBtn">+ Request</button>
       </div>
 
-      <div class="tips-card">
-        <h3>How approval works</h3>
-        <ul>
-          <li>Your request is queued under <b>Records → Approval</b> for an admin to review.</li>
-          <li>Once approved, the branch's map pin, status metrics, and the active alert feed update automatically — no page reload needed.</li>
-          <li>Rejected requests stay visible in <b>Archive</b> with the reviewer's note.</li>
-          <li>For life-safety emergencies, also call the regional hotline directly.</li>
-        </ul>
-        <div class="mini-track">
-          <h4>Your recent submissions</h4>
-          <div id="mySubmissions" class="req-list"><div class="empty">No submissions yet this session.</div></div>
+      <div class="request-table-wrap">
+        <table class="request-table">
+          <thead>
+            <tr>
+              <th>Request ID</th>
+              <th>Branch</th>
+              <th>Request</th>
+              <th>Details</th>
+              <th>Date Submitted</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="mySubmissionsTableBody"></tbody>
+        </table>
+        <div id="mySubmissionsEmpty" class="request-empty" style="display:none;">No submitted requests yet.</div>
+      </div>
+    </div>
+
+    <!-- REQUEST FORM MODULE -->
+    <div class="request-form-module" id="requestFormModule">
+      <div class="request-module">
+        <div class="request-module-head">
+          <div>
+            <div class="request-module-title">New Branch Status Request</div>
+            <div class="request-module-sub">Complete the form below. Your request will be sent to an admin for approval.</div>
+          </div>
+          <button type="button" class="btn btn-ghost" id="backToRequestListBtn">← Back to Requests</button>
+        </div>
+
+        <div class="form-card" style="border:0;box-shadow:none;border-radius:0;">
+          <form id="requestForm">
+            <div class="f-group">
+              <label for="reqBranch">Branch</label>
+              <select id="reqBranch" required>
+                <option value="" disabled selected>Select a branch…</option>
+              </select>
+              <div class="branch-preview" id="branchPreview"></div>
+            </div>
+
+            <div class="f-group">
+              <label>Requested action</label>
+              <div class="status-choice">
+                <label class="status-opt sel-closed" id="optClosed">
+                  <input type="radio" name="reqStatus" value="closed">
+                  <span class="so-label">Report Closed</span>
+                </label>
+                <label class="status-opt sel-open" id="optOpen">
+                  <input type="radio" name="reqStatus" value="open">
+                  <span class="so-label">Report Reopened</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="f-group" id="categoryGroup" style="display:none;">
+              <label for="reqCategory">Category</label>
+              <select id="reqCategory"></select>
+            </div>
+
+            <div class="f-group" id="newCategoryGroup" style="display:none;">
+              <label for="newCategoryInput">New category name</label>
+              <div class="cat-inline-add">
+                <input type="text" id="newCategoryInput" placeholder="e.g. Civil Unrest">
+                <button type="button" class="btn btn-ghost btn-sm" id="addCategoryBtn">Add</button>
+                <button type="button" class="btn btn-ghost btn-sm" id="cancelCategoryBtn">Cancel</button>
+              </div>
+              <div class="f-help">Creates a new top-level category with its own subcategories.</div>
+            </div>
+
+            <div class="f-group" id="subcategoryGroup" style="display:none;">
+              <label for="reqSubcategory">Subcategory</label>
+              <select id="reqSubcategory"></select>
+            </div>
+
+            <div class="f-group" id="newSubcategoryGroup" style="display:none;">
+              <label for="newSubcategoryInput">New subcategory name</label>
+              <div class="cat-inline-add">
+                <input type="text" id="newSubcategoryInput" placeholder="e.g. Landslide">
+                <button type="button" class="btn btn-ghost btn-sm" id="addSubcategoryBtn">Add</button>
+                <button type="button" class="btn btn-ghost btn-sm" id="cancelSubcategoryBtn">Cancel</button>
+              </div>
+              <div class="f-help">Adds a new subcategory under the selected category.</div>
+            </div>
+
+            <div class="f-row" style="display:flex;gap:12px;flex-wrap:wrap;">
+              <div class="f-group" id="closedFromGroup" style="display:none;flex:1;min-width:210px;">
+                <label for="reqClosedFrom">Closed from (Date &amp; Time)</label>
+                <input type="datetime-local" id="reqClosedFrom" min="">
+                <div class="f-help">The date and time the branch closure begins.</div>
+              </div>
+              <div class="f-group" id="closedUntilGroup" style="display:none;flex:1;min-width:210px;">
+                <label for="reqClosedUntil">Closed until (Date &amp; Time)</label>
+                <input type="datetime-local" id="reqClosedUntil" min="">
+                <div class="f-help">The branch will remain closed until this date and time.</div>
+              </div>
+            </div>
+
+            <div class="f-group">
+              <label for="reqReason">Details</label>
+              <textarea id="reqReason" placeholder="Describe what happened and any relevant context (LGU advisory, ETA to resume, etc.)" required></textarea>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Submit for approval</button>
+              <button type="button" class="btn btn-ghost" id="reqResetBtn">Clear</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -1117,10 +1230,27 @@
   <div class="view" id="view-approval">
     <div class="page-head">
       <div class="page-title">Pending Approvals</div>
-      <div class="page-sub">Approving a request immediately updates the branch's status on the dashboard map and alert feed.</div>
+      <div class="page-sub">Review submitted branch status requests before approving or rejecting them.</div>
     </div>
     <div id="approvalAdminBlock" class="admin-only block">
-      <div class="req-list" id="pendingList"></div>
+      <div class="request-admin-table-wrap">
+        <table class="request-admin-table">
+          <thead>
+            <tr>
+              <th class="view-col">View</th>
+              <th>Request ID</th>
+              <th>Branch</th>
+              <th>Request</th>
+              <th>Details</th>
+              <th>Date Submitted</th>
+              <th>Status</th>
+              <th class="action-col">Action</th>
+            </tr>
+          </thead>
+          <tbody id="pendingTableBody"></tbody>
+        </table>
+        <div id="pendingTableEmpty" class="request-admin-empty" style="display:none;">No pending requests. New submissions will appear here.</div>
+      </div>
     </div>
     <div class="locked-state admin-hide" id="approvalLocked">
       <div class="ico">🔒</div>
@@ -1140,7 +1270,24 @@
       <div class="filter-chip" data-filter="approved">Approved</div>
       <div class="filter-chip" data-filter="rejected">Rejected</div>
     </div>
-    <div class="req-list" id="archiveList"></div>
+    <div class="request-admin-table-wrap">
+      <table class="request-admin-table">
+        <thead>
+          <tr>
+            <th class="view-col">View</th>
+            <th>Request ID</th>
+            <th>Branch</th>
+            <th>Request</th>
+            <th>Details</th>
+            <th>Date Submitted</th>
+            <th>Status</th>
+            <th>Reviewed By</th>
+          </tr>
+        </thead>
+        <tbody id="archiveTableBody"></tbody>
+      </table>
+      <div id="archiveTableEmpty" class="request-admin-empty" style="display:none;">No archived requests yet.</div>
+    </div>
   </div>
 
   <!-- ============ BRANCH DIRECTORY VIEW ============ -->
@@ -1360,6 +1507,24 @@ For concerns, contact the CBAMS Helpdesk.</textarea>
   </div>
 
 </main>
+
+<!-- Request detail modal -->
+<div class="request-detail-scrim" id="requestDetailScrim"></div>
+<div class="request-detail-modal" id="requestDetailModal" role="dialog" aria-modal="true" aria-labelledby="requestDetailTitle">
+  <div class="request-detail-head">
+    <div>
+      <h3 id="requestDetailTitle">Request Details</h3>
+      <div class="sub" id="requestDetailSubtitle"></div>
+    </div>
+    <button type="button" class="request-detail-close" id="requestDetailClose" aria-label="Close">×</button>
+  </div>
+  <div class="request-detail-body">
+    <div class="request-detail-grid" id="requestDetailGrid"></div>
+  </div>
+  <div class="request-detail-foot">
+    <button type="button" class="btn btn-ghost" id="requestDetailCloseBtn">Close</button>
+  </div>
+</div>
 
 <div class="toast-stack" id="toastStack"></div>
 
@@ -2109,15 +2274,25 @@ function showToast(msg, type){
 /* =========================================================
    VIEW SWITCHING
    ========================================================= */
-function switchView(name){
+async function switchView(name){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
   document.getElementById('nav-dashboard').classList.toggle('current', name==='dashboard');
   document.getElementById('nav-directory').classList.toggle('current', name==='branch-directory');
   closeAllDropdowns();
-  if(name==='approval') renderPendingList();
-  if(name==='archive') renderArchiveList();
-  if(name==='request') renderMySubmissions();
+  if(name==='approval'){
+    await loadRequests();
+    renderPendingList();
+    updatePendingBadge();
+  }
+  if(name==='archive'){
+    await loadRequests();
+    renderArchiveList();
+  }
+  if(name==='request'){
+    await loadRequests();
+    showRequestList();
+  }
   if(name==='branch-directory') renderDirectoryList();
   if(name==='reports'){ populateReportCategoryFilter(); renderReportTable(); }
   window.scrollTo({top:0, behavior:'smooth'});
@@ -2125,13 +2300,28 @@ function switchView(name){
 document.getElementById('nav-dashboard').addEventListener('click', ()=>switchView('dashboard'));
 document.getElementById('nav-directory').addEventListener('click', ()=>switchView('branch-directory'));
 document.getElementById('brand-home').addEventListener('click', ()=>switchView('dashboard'));
-document.getElementById('link-request').addEventListener('click',(e)=>{e.preventDefault(); switchView('request');});
-document.getElementById('link-approval').addEventListener('click',(e)=>{e.preventDefault(); switchView('approval');});
+document.getElementById('link-request').addEventListener('click',(e)=>{
+  e.preventDefault();
+  e.stopPropagation();
+  closeAllDropdowns();
+  switchView('request');
+});
+document.getElementById('link-approval').addEventListener('click',(e)=>{
+  e.preventDefault();
+  e.stopPropagation();
+  closeAllDropdowns();
+  switchView('approval');
+});
 document.getElementById('link-approval-locked').addEventListener('click',(e)=>{
   e.preventDefault();
   showToast('Approval queue requires admin access. Switch role in the account menu.', 'error');
 });
-document.getElementById('link-archive').addEventListener('click',(e)=>{e.preventDefault(); switchView('archive');});
+document.getElementById('link-archive').addEventListener('click',(e)=>{
+  e.preventDefault();
+  e.stopPropagation();
+  closeAllDropdowns();
+  switchView('archive');
+});
 document.getElementById('link-sms').addEventListener('click',(e)=>{e.preventDefault(); switchView('sms'); renderSmsRecipientTags();});
 document.getElementById('link-reports').addEventListener('click',(e)=>{e.preventDefault(); switchView('reports');});
 
@@ -2667,10 +2857,11 @@ reqBranchSel.addEventListener('change',()=>{
     optClosedLabel.querySelector('input').disabled = true;
     optOpenLabel.querySelector('input').checked = true;
   }
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('reqClosedFrom').min = today;
+  const now = new Date();
+  const localNow = new Date(now.getTime() - now.getTimezoneOffset()*60000).toISOString().slice(0,16);
+  document.getElementById('reqClosedFrom').min = localNow;
   document.getElementById('reqClosedFrom').value = '';
-  document.getElementById('reqClosedUntil').min = today;
+  document.getElementById('reqClosedUntil').min = localNow;
   document.getElementById('reqClosedUntil').value = '';
   syncStatusChoiceUI();
 });
@@ -2810,6 +3001,61 @@ populateSubcategorySelect(false);
 let reqIdCounter = 1;
 let requests = [];
 
+function resetRequestForm(){
+  const form = document.getElementById('requestForm');
+  const branchSelect = document.getElementById('reqBranch');
+
+  if(form) form.reset();
+
+  if(branchSelect) branchSelect.value = '';
+
+  document.getElementById('reqCategory').value = '';
+  document.getElementById('reqSubcategory').value = '';
+  document.getElementById('reqReason').value = '';
+  document.getElementById('reqClosedFrom').value = '';
+  document.getElementById('reqClosedUntil').value = '';
+
+  const openRadio = document.querySelector('input[name="reqStatus"][value="open"]');
+  const closedRadio = document.querySelector('input[name="reqStatus"][value="closed"]');
+  if(openRadio) openRadio.checked = true;
+  if(closedRadio) closedRadio.checked = false;
+
+  branchPreview.classList.remove('show');
+  document.getElementById('optClosed').classList.remove('disabled','checked');
+  document.getElementById('optOpen').classList.remove('disabled');
+  document.getElementById('optClosed').querySelector('input').disabled = false;
+  document.getElementById('optOpen').querySelector('input').disabled = false;
+
+  document.getElementById('closedFromGroup').style.display = 'none';
+  document.getElementById('closedFromTimeGroup').style.display = 'none';
+  document.getElementById('closedUntilGroup').style.display = 'none';
+  document.getElementById('closedUntilTimeGroup').style.display = 'none';
+
+  syncStatusChoiceUI();
+  populateCategorySelect(false);
+  populateSubcategorySelect(false);
+}
+
+function showRequestForm(){
+  closeAllDropdowns();
+  resetRequestForm();
+  populateBranchSelect();
+  document.getElementById('requestListModule').style.display = 'none';
+  document.getElementById('requestFormModule').classList.add('show');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function showRequestList(){
+  resetRequestForm();
+  document.getElementById('requestFormModule').classList.remove('show');
+  document.getElementById('requestListModule').style.display = 'block';
+  renderMySubmissions();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+document.getElementById('openRequestFormBtn').addEventListener('click', showRequestForm);
+document.getElementById('backToRequestListBtn').addEventListener('click', showRequestList);
+
 document.getElementById('requestForm').addEventListener('submit', async function(e){
   e.preventDefault();
   const branchCode = reqBranchSel.value;
@@ -2823,10 +3069,22 @@ document.getElementById('requestForm').addEventListener('submit', async function
   const requestedStatus = statusInput.value;
   const category = requestedStatus==='closed' ? document.getElementById('reqCategory').value : null;
   const subcategory = requestedStatus==='closed' ? document.getElementById('reqSubcategory').value : null;
-  const closedFrom = requestedStatus==='closed' ? document.getElementById('reqClosedFrom').value : null;
-  const closedUntil = requestedStatus==='closed' ? document.getElementById('reqClosedUntil').value : null;
-  const closedFromTime = requestedStatus==='closed' ? (document.getElementById('reqClosedFromTime').value || '08:00') : null;
-  const closedUntilTime = requestedStatus==='closed' ? (document.getElementById('reqClosedUntilTime').value || '15:00') : null;
+  const closedFromDateTime = requestedStatus==='closed' ? document.getElementById('reqClosedFrom').value : null;
+  const closedUntilDateTime = requestedStatus==='closed' ? document.getElementById('reqClosedUntil').value : null;
+
+  // Store the date and time separately because the existing Supabase schema
+  // uses closed_from/closed_until plus closed_from_time/closed_until_time.
+  const splitDateTimeLocal = (value) => {
+    if(!value) return {date:null,time:null};
+    const parts = value.split('T');
+    return {date:parts[0] || null, time:(parts[1] || '').slice(0,5) || null};
+  };
+  const fromParts = splitDateTimeLocal(closedFromDateTime);
+  const untilParts = splitDateTimeLocal(closedUntilDateTime);
+  const closedFrom = fromParts.date;
+  const closedUntil = untilParts.date;
+  const closedFromTime = fromParts.time;
+  const closedUntilTime = untilParts.time;
   if(requestedStatus==='closed' && category==='__add__'){
     showToast('Finish adding the new category, or choose an existing one.', 'error');
     return;
@@ -2844,28 +3102,27 @@ document.getElementById('requestForm').addEventListener('submit', async function
     return;
   }
 
-  const id = 'REQ-'+String(1000+reqIdCounter++);
-  const { error } = await sb.from('closure_requests').insert({
-    id, branch_code: b.code, requested_status: requestedStatus,
-    category, subcategory, reason,
-    closed_from: closedFrom || null, closed_until: closedUntil || null,
-    closed_from_time: closedFromTime, closed_until_time: closedUntilTime,
-    status: 'pending', submitted_by: currentUser.id
-  });
-  if(error){ showToast('Failed to submit request: ' + error.message, 'error'); return; }
+  const id = null; // Supabase generates the unique REQ-#### ID
+  const { data: createdRequest, error } = await sb.from('closure_requests')
+    .insert({
+      branch_code: b.code, requested_status: requestedStatus,
+      category, subcategory, reason,
+      closed_from: closedFrom || null, closed_until: closedUntil || null,
+      closed_from_time: closedFromTime, closed_until_time: closedUntilTime,
+      status: 'pending', submitted_by: currentUser.id
+    })
+    .select('id')
+    .single();
+
+  if(error){
+    showToast('Failed to submit request: ' + error.message, 'error');
+    return;
+  }
   await loadRequests();
-  showToast(`Request ${id} submitted for approval.`, 'success');
-  this.reset();
-  branchPreview.classList.remove('show');
-  document.getElementById('optClosed').classList.remove('disabled');
-  document.getElementById('optOpen').classList.remove('disabled');
-  document.getElementById('optClosed').querySelector('input').disabled = false;
-  document.getElementById('optOpen').querySelector('input').disabled = false;
-  document.getElementById('reqClosedFrom').value = '';
-  document.getElementById('reqClosedUntil').value = '';
-  syncStatusChoiceUI();
+  showToast(`Request ${createdRequest.id} submitted for approval.`, 'success');
   updatePendingBadge();
   renderMySubmissions();
+  showRequestList();
 });
 document.getElementById('reqResetBtn').addEventListener('click', ()=>{
   setTimeout(()=>{
@@ -2881,71 +3138,246 @@ document.getElementById('reqResetBtn').addEventListener('click', ()=>{
 });
 
 function fmtDateTime(dateStr, timeStr){
-  if(!dateStr) return '';
-  const d = new Date(dateStr+'T'+(timeStr||'00:00')+':00');
-  return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + (timeStr ? ', '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true}) : '');
+  if(!dateStr) return '—';
+
+  let d = null;
+  const raw = String(dateStr).trim();
+  const rawTime = timeStr ? String(timeStr).trim() : '';
+
+  // Supabase may return a date, a timestamp, or an ISO timestamp.
+  if(raw.includes('T') || raw.includes('Z') || /[+-]\d{2}:?\d{2}$/.test(raw)){
+    d = new Date(raw);
+  } else if(/^\d{4}-\d{2}-\d{2}$/.test(raw)){
+    const safeTime = rawTime ? rawTime.slice(0,8) : '00:00';
+    d = new Date(`${raw}T${safeTime}`);
+  } else {
+    d = new Date(raw);
+  }
+
+  if(Number.isNaN(d.getTime())) return '—';
+
+  const datePart = d.toLocaleDateString('en-US',{
+    month:'short',day:'numeric',year:'numeric'
+  });
+
+  const hasTime = !!rawTime || raw.includes('T') || raw.includes('Z') || /[+-]\d{2}:?\d{2}$/.test(raw);
+  if(!hasTime) return datePart;
+
+  const timePart = d.toLocaleTimeString('en-US',{
+    hour:'numeric',minute:'2-digit',hour12:true
+  });
+  return `${datePart}, ${timePart}`;
 }
 
-function reqCardHTML(r, withActions){
-  const closedFromDate = r.closedFrom ? fmtDateTime(r.closedFrom, r.closedFromTime) : '';
-  const closedUntilDate = r.closedUntil ? fmtDateTime(r.closedUntil, r.closedUntilTime) : '';
-  const changeHTML = r.requestedStatus==='closed'
-    ? `<span class="pill open">OPEN</span><span class="arrow">→</span><span class="pill closed">CLOSED</span>${r.category?`<span class="pill cat">${r.category}</span>`:''}${r.subcategory?`<span class="pill cat">${r.subcategory}</span>`:''}${closedFromDate?`<span class="pill cat">from ${closedFromDate}</span>`:''}${closedUntilDate?`<span class="pill cat">until ${closedUntilDate}</span>`:''}`
-    : `<span class="pill closed">CLOSED</span><span class="arrow">→</span><span class="pill open">OPEN</span>`;
-  const statusPillHTML = r.status==='pending'
-    ? `<span class="pill pending">PENDING</span>`
-    : r.status==='approved' ? `<span class="pill approved">APPROVED</span>` : `<span class="pill rejected">REJECTED</span>`;
-  let actionsOrStatus = '';
-  if(withActions && r.status==='pending'){
-    actionsOrStatus = `<div class="req-actions admin-only flex">
-        <button class="btn btn-approve btn-sm" onclick="approveRequest('${r.id}')">Approve</button>
-        <button class="btn btn-danger btn-sm" onclick="rejectRequest('${r.id}')">Reject</button>
-      </div>`;
-  } else if(r.status!=='pending'){
-    actionsOrStatus = `<div class="req-status-line">${r.status==='approved'?'Approved':'Rejected'} by ${r.reviewedBy} · ${r.reviewedAt}</div>`;
+function requestLabel(r){
+  return r.requestedStatus === 'closed' ? 'Report Closed' : 'Report Reopened';
+}
+
+function requestDetailsLabel(r){
+  if(r.requestedStatus === 'closed'){
+    return [r.category, r.subcategory].filter(Boolean).join(' · ') || 'Branch closure';
   }
-  return `<div class="req-card">
-      <div class="req-top">
-        <div><div class="req-branch">${r.branchName}</div><div class="req-code">${r.branchCode} · ${r.region}</div></div>
-        ${statusPillHTML}
-      </div>
-      <div class="req-change">${changeHTML}</div>
-      <div class="req-reason">${r.reason}</div>
-      <div class="req-meta"><span>${r.id}</span><span>Submitted by ${r.submittedBy}${r.submittedByPosition?` (${r.submittedByPosition})`:''} · ${r.submittedAt}</span></div>
-      ${actionsOrStatus}
-    </div>`;
+  return 'Branch reopening';
+}
+
+function requestStatusPill(r){
+  return r.status === 'pending'
+    ? '<span class="pill pending">PENDING</span>'
+    : r.status === 'approved'
+      ? '<span class="pill approved">APPROVED</span>'
+      : '<span class="pill rejected">REJECTED</span>';
+}
+
+function requestTableRowHTML(r, mode){
+  const isPending = r.status === 'pending';
+  const actionHTML = mode === 'approval'
+    ? `<div class="row-actions">
+         <button class="btn btn-approve btn-sm" onclick="approveRequest('${r.id}')">Approve</button>
+         <button class="btn btn-danger btn-sm" onclick="rejectRequest('${r.id}')">Reject</button>
+       </div>`
+    : `<span class="request-detail-sub">${r.reviewedBy || '—'}</span>`;
+
+  return `<tr>
+    <td class="view-col">
+      <button type="button" class="btn btn-view btn-sm" onclick="openRequestDetails('${r.id}')">View</button>
+    </td>
+    <td><span class="request-id-cell">${r.id}</span></td>
+    <td>
+      <div class="branch-name-cell">${r.branchName || '—'}</div>
+      <div class="branch-code-cell">${r.branchCode || ''}${r.region ? ' · '+r.region : ''}</div>
+    </td>
+    <td class="request-action-cell">${requestLabel(r)}</td>
+    <td class="details-cell">
+      <div class="details-main">${requestDetailsLabel(r)}</div>
+      ${r.requestedStatus === 'closed' && r.closedFrom ? `<div class="details-sub">From ${fmtDateTime(r.closedFrom, r.closedFromTime)}${r.closedUntil ? ' · Until '+fmtDateTime(r.closedUntil, r.closedUntilTime) : ''}</div>` : ''}
+    </td>
+    <td class="submitted-cell">${r.submittedAt || '—'}</td>
+    <td>${requestStatusPill(r)}</td>
+    <td class="action-col">${actionHTML}</td>
+  </tr>`;
 }
 
 function renderMySubmissions(){
-  const mine = requests.filter(r=>r.submittedById===currentUser?.id);
-  const el = document.getElementById('mySubmissions');
-  if(mine.length===0){ el.innerHTML = '<div class="empty">No submissions yet this session.</div>'; return; }
-  el.innerHTML = mine.map(r=>reqCardHTML(r,false)).join('');
+  const mine = requests
+    .filter(r=>r.submittedById===currentUser?.id)
+    .sort((a,b)=>(b.submittedAtDate||0)-(a.submittedAtDate||0));
+
+  const tbody = document.getElementById('mySubmissionsTableBody');
+  const empty = document.getElementById('mySubmissionsEmpty');
+  if(!tbody || !empty) return;
+
+  if(mine.length===0){
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+
+  empty.style.display = 'none';
+  tbody.innerHTML = mine.map(r=>{
+    const requestLabelText = requestLabel(r);
+    const details = requestDetailsLabel(r);
+    const status = requestStatusPill(r);
+
+    return `<tr>
+      <td><span class="request-id">${r.id}</span></td>
+      <td>
+        <div class="request-branch-name">${r.branchName || '—'}</div>
+        <div class="request-branch-code">${r.branchCode || ''}${r.region ? ' · '+r.region : ''}</div>
+      </td>
+      <td class="request-action-cell">${requestLabelText}</td>
+      <td>${details}</td>
+      <td>${r.submittedAt || '—'}</td>
+      <td>${status}</td>
+    </tr>`;
+  }).join('');
 }
 
 function renderPendingList(){
   const pending = requests.filter(r=>r.status==='pending');
-  const el = document.getElementById('pendingList');
-  if(pending.length===0){ el.innerHTML = '<div class="empty">No pending requests. New submissions will appear here.</div>'; return; }
-  el.innerHTML = pending.map(r=>reqCardHTML(r,true)).join('');
+  const tbody = document.getElementById('pendingTableBody');
+  const empty = document.getElementById('pendingTableEmpty');
+  if(!tbody || !empty) return;
+
+  if(pending.length===0){
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+
+  empty.style.display = 'none';
+  tbody.innerHTML = pending.map(r=>requestTableRowHTML(r,'approval')).join('');
 }
 
 let archiveFilter = 'all';
 function renderArchiveList(){
   let list = requests.filter(r=>r.status!=='pending');
   if(archiveFilter!=='all') list = list.filter(r=>r.status===archiveFilter);
-  const el = document.getElementById('archiveList');
-  if(list.length===0){ el.innerHTML = '<div class="empty">No archived requests yet.</div>'; return; }
-  el.innerHTML = list.map(r=>reqCardHTML(r,false)).join('');
+
+  const tbody = document.getElementById('archiveTableBody');
+  const empty = document.getElementById('archiveTableEmpty');
+  if(!tbody || !empty) return;
+
+  if(list.length===0){
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+
+  empty.style.display = 'none';
+  tbody.innerHTML = list.map(r=>requestTableRowHTML(r,'archive')).join('');
 }
-document.querySelectorAll('.filter-chip').forEach(chip=>{
-  chip.addEventListener('click',()=>{
-    document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
-    chip.classList.add('active');
-    archiveFilter = chip.dataset.filter;
-    renderArchiveList();
-  });
-});
+
+function openRequestDetails(id){
+  const r = requests.find(x=>x.id===id);
+  if(!r) return;
+
+  const modal = document.getElementById('requestDetailModal');
+  const scrim = document.getElementById('requestDetailScrim');
+  const grid = document.getElementById('requestDetailGrid');
+
+  document.getElementById('requestDetailTitle').textContent = 'Request Details';
+  document.getElementById('requestDetailSubtitle').textContent =
+    `${r.id} · ${r.branchName || 'Unknown Branch'}${r.branchCode ? ' ('+r.branchCode+')' : ''}`;
+
+  const status = requestStatusPill(r);
+  const change = r.requestedStatus === 'closed'
+    ? `OPEN → CLOSED${r.category ? ' · '+r.category : ''}${r.subcategory ? ' · '+r.subcategory : ''}`
+    : 'CLOSED → OPEN';
+
+  grid.innerHTML = `
+    <div class="request-detail-item">
+      <div class="label">Request ID</div>
+      <div class="value">${r.id}</div>
+    </div>
+    <div class="request-detail-item">
+      <div class="label">Status</div>
+      <div class="value">${status}</div>
+    </div>
+    <div class="request-detail-item">
+      <div class="label">Branch</div>
+      <div class="value">${r.branchName || '—'}${r.branchCode ? ' · '+r.branchCode : ''}</div>
+    </div>
+    <div class="request-detail-item">
+      <div class="label">Region</div>
+      <div class="value">${r.region || '—'}</div>
+    </div>
+    <div class="request-detail-item">
+      <div class="label">Request</div>
+      <div class="value">${requestLabel(r)}</div>
+    </div>
+    <div class="request-detail-item">
+      <div class="label">Status Change</div>
+      <div class="value">${change}</div>
+    </div>
+    <div class="request-detail-item">
+      <div class="label">Category</div>
+      <div class="value">${r.category || '—'}</div>
+    </div>
+    <div class="request-detail-item">
+      <div class="label">Subcategory</div>
+      <div class="value">${r.subcategory || '—'}</div>
+    </div>
+    <div class="request-detail-item">
+      <div class="label">Closed From (Date &amp; Time)</div>
+      <div class="value">${r.closedFrom ? fmtDateTime(r.closedFrom,r.closedFromTime) : '—'}</div>
+    </div>
+    <div class="request-detail-item">
+      <div class="label">Closed Until (Date &amp; Time)</div>
+      <div class="value">${r.closedUntil ? fmtDateTime(r.closedUntil,r.closedUntilTime) : '—'}</div>
+    </div>
+    <div class="request-detail-item">
+      <div class="label">Submitted By</div>
+      <div class="value">${r.submittedBy || '—'}${r.submittedByPosition ? ' · '+r.submittedByPosition : ''}</div>
+    </div>
+    <div class="request-detail-item">
+      <div class="label">Date Submitted</div>
+      <div class="value">${r.submittedAt || '—'}</div>
+    </div>
+    <div class="request-detail-item">
+      <div class="label">Reviewed By</div>
+      <div class="value">${r.reviewedBy || '—'}</div>
+    </div>
+    <div class="request-detail-item">
+      <div class="label">Reviewed At</div>
+      <div class="value">${r.reviewedAt || '—'}</div>
+    </div>
+    <div class="request-detail-item full">
+      <div class="label">Details / Reason</div>
+      <div class="value reason">${r.reason || '—'}</div>
+    </div>`;
+
+  modal.classList.add('show');
+  scrim.classList.add('show');
+}
+
+function closeRequestDetails(){
+  document.getElementById('requestDetailModal')?.classList.remove('show');
+  document.getElementById('requestDetailScrim')?.classList.remove('show');
+}
+
+document.getElementById('requestDetailClose')?.addEventListener('click', closeRequestDetails);
+document.getElementById('requestDetailCloseBtn')?.addEventListener('click', closeRequestDetails);
+document.getElementById('requestDetailScrim')?.addEventListener('click', closeRequestDetails);
 
 function updatePendingBadge(){
   const n = requests.filter(r=>r.status==='pending').length;
@@ -2953,6 +3385,22 @@ function updatePendingBadge(){
   if(n>0){ badge.style.display='inline-flex'; badge.textContent = n; }
   else { badge.style.display='none'; }
 }
+
+// Keep the Approval queue synchronized across users/tabs.
+// A new request remains pending in the database and is immediately reflected
+// in the approver's queue.
+const closureRequestChannel = sb.channel('closure-requests-live')
+  .on('postgres_changes',
+    { event:'*', schema:'public', table:'closure_requests' },
+    async () => {
+      await loadRequests();
+      renderPendingList();
+      renderArchiveList();
+      renderMySubmissions();
+      updatePendingBadge();
+    }
+  )
+  .subscribe();
 
 /* =========================================================
    APPROVE / REJECT — this is what auto-updates the map + feed
