@@ -2873,9 +2873,7 @@ function syncStatusChoiceUI(){
   document.getElementById('categoryGroup').style.display = val==='closed' ? 'block' : 'none';
   document.getElementById('subcategoryGroup').style.display = val==='closed' ? 'block' : 'none';
   document.getElementById('closedFromGroup').style.display = val==='closed' ? 'block' : 'none';
-  document.getElementById('closedFromTimeGroup').style.display = val==='closed' ? 'block' : 'none';
   document.getElementById('closedUntilGroup').style.display = val==='closed' ? 'block' : 'none';
-  document.getElementById('closedUntilTimeGroup').style.display = val==='closed' ? 'block' : 'none';
   if(val!=='closed'){
     document.getElementById('newCategoryGroup').style.display = 'none';
     document.getElementById('newSubcategoryGroup').style.display = 'none';
@@ -3027,9 +3025,7 @@ function resetRequestForm(){
   document.getElementById('optOpen').querySelector('input').disabled = false;
 
   document.getElementById('closedFromGroup').style.display = 'none';
-  document.getElementById('closedFromTimeGroup').style.display = 'none';
   document.getElementById('closedUntilGroup').style.display = 'none';
-  document.getElementById('closedUntilTimeGroup').style.display = 'none';
 
   syncStatusChoiceUI();
   populateCategorySelect(false);
