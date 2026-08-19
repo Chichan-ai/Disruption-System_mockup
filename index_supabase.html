@@ -1,6 +1,3 @@
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -464,6 +461,15 @@
   .sms-modal-body{padding:16px 20px;overflow-y:auto;flex:1;}
   .sms-modal-foot{padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;}
 
+  /* ===== Session timeout modal ===== */
+  .timeout-modal{width:380px;text-align:center;}
+  .timeout-modal .sms-modal-body{padding:22px 24px 6px;}
+  .timeout-icon{width:52px;height:52px;border-radius:50%;background:#fdecea;color:#c0392b;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:22px;}
+  .timeout-modal p{font-size:12.5px;color:var(--muted);line-height:1.6;margin:0 0 4px;}
+  .timeout-countdown{font-size:26px;font-weight:800;color:var(--ink);margin:10px 0 4px;font-variant-numeric:tabular-nums;}
+  .timeout-modal-foot{padding:14px 20px 20px;display:flex;justify-content:center;gap:8px;}
+  .timeout-modal-foot .btn{flex:1;}
+
   .sms-phone{background:#f0f2f5;border-radius:12px;padding:3px;margin-bottom:14px;}
   .sms-bubble{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-family:'Courier New',Courier,monospace;font-size:11.5px;line-height:1.65;color:var(--ink);white-space:pre-wrap;word-break:break-word;max-height:340px;overflow-y:auto;}
   .sms-bubble::-webkit-scrollbar{width:6px;}
@@ -510,6 +516,9 @@
   }
   .directory-head-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
   .directory-head-row .directory-search{flex:1;margin-bottom:0;}
+  .directory-head-row .access-hint{flex:1;}
+  .directory-head-row #openAddBranchBtn,
+  .directory-head-row #openAddUserBtn{margin-left:auto;flex-shrink:0;}
 
   .alert-item{padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;}
   .alert-item:last-child{border-bottom:none;}
@@ -881,6 +890,8 @@
   .access-table .au-role{font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:20px;background:rgba(46,139,63,.12);color:var(--forest);white-space:nowrap;}
   .access-table .au-role.role-admin{background:rgba(255,193,7,.15);color:#b8860b;}
   .access-table .au-role.role-supervisor{background:rgba(52,152,219,.12);color:#2980b9;}
+  .access-table .au-role.role-admin1{background:rgba(224,168,0,.15);color:#a67c00;}
+  .access-table .au-role.role-admin2{background:rgba(123,79,201,.14);color:#6a3fb0;}
 
   .toggle{position:relative;display:inline-block;width:34px;height:18px;cursor:pointer;}
   .toggle input{opacity:0;width:0;height:0;}
@@ -1477,10 +1488,10 @@ For concerns, contact the CBAMS Helpdesk.</textarea>
   <div class="view" id="view-user-access">
     <div class="page-head">
       <div class="page-title">User Access Settings</div>
-      <div class="page-sub">Manage users and their permissions for system modules and features.</div>
+      <div class="page-sub">Manage users and their permissions for system modules and features. Admin I (Approval) reviews and approves/rejects branch status requests; Admin II (User Access) configures permissions and creates users. Toggle any permission below to customize further.</div>
     </div>
     <div class="directory-head-row">
-      <div class="access-hint" style="margin-bottom:0;">Toggle permissions for each user — changes save immediately.</div>
+      <div class="access-hint" style="margin-bottom:0;">Toggle permissions for each user. As the main Admin, your changes save immediately; Admin II's changes are submitted for your approval below.</div>
       <button type="button" class="btn btn-primary admin-only" id="openAddUserBtn">+ Add User</button>
     </div>
     <div class="access-table-wrap">
@@ -1502,6 +1513,28 @@ For concerns, contact the CBAMS Helpdesk.</textarea>
         </thead>
         <tbody id="accessTableBody"></tbody>
       </table>
+    </div>
+
+    <div id="userAccessApprovalsBlock" style="display:none; margin-top:28px;">
+      <div class="page-head" style="margin-bottom:12px;">
+        <div class="page-title" style="font-size:15px;">Pending User Access Requests</div>
+        <div class="page-sub">Permission changes and new users submitted by Admin II require your approval before they take effect.</div>
+      </div>
+      <div class="request-admin-table-wrap">
+        <table class="request-admin-table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Requested By</th>
+              <th>Details</th>
+              <th>Submitted</th>
+              <th class="action-col">Action</th>
+            </tr>
+          </thead>
+          <tbody id="userAccessRequestsTableBody"></tbody>
+        </table>
+        <div id="userAccessRequestsEmpty" class="request-admin-empty" style="display:none;">No pending user access requests.</div>
+      </div>
     </div>
   </div>
 
@@ -1721,7 +1754,8 @@ For concerns, contact the CBAMS Helpdesk.</textarea>
         <select id="auRole" required>
           <option value="staff">Staff</option>
           <option value="supervisor">Supervisor</option>
-          <option value="admin">Admin</option>
+          <option value="admin1">Admin I — Approval</option>
+          <option value="admin2">Admin II — User Access</option>
         </select>
       </div>
       <div class="f-group full">
@@ -1730,12 +1764,28 @@ For concerns, contact the CBAMS Helpdesk.</textarea>
       </div>
     </form>
     <div class="sms-config-note" style="margin-top:2px;">
-      <strong>ℹ Note</strong> — This creates a real login account. Share the temporary password with the user securely and have them change it on first login. If email confirmation is enabled in Supabase Auth, the user must confirm their email before they can sign in.
+      <strong>ℹ Note</strong> — If you're the main admin, this creates the account immediately. Otherwise it's submitted to the main admin for approval before the account is created. Share the temporary password with the user securely and have them change it on first login. If email confirmation is enabled in Supabase Auth, the user must confirm their email before they can sign in.
     </div>
   </div>
   <div class="sms-modal-foot">
     <button class="btn btn-ghost" id="addUserCancelBtn">Cancel</button>
     <button class="btn btn-primary" id="addUserSaveBtn">Create User</button>
+  </div>
+</div>
+
+<!-- ============ SESSION TIMEOUT WARNING MODAL ============ -->
+<div class="sms-scrim" id="sessionTimeoutScrim"></div>
+<div class="sms-modal timeout-modal" id="sessionTimeoutModal">
+  <div class="sms-modal-body">
+    <div class="timeout-icon">⏱</div>
+    <p><strong>You've been inactive for a while.</strong></p>
+    <p>For your security, you'll be automatically logged out in:</p>
+    <div class="timeout-countdown" id="sessionTimeoutCountdown">01:00</div>
+    <p>Click "Stay Logged In" to continue your session.</p>
+  </div>
+  <div class="timeout-modal-foot">
+    <button class="btn btn-ghost" id="sessionTimeoutLogoutBtn">Log Out Now</button>
+    <button class="btn btn-primary" id="sessionTimeoutStayBtn">Stay Logged In</button>
   </div>
 </div>
 
@@ -1863,7 +1913,7 @@ async function loadAccessUsers(){
   ACCESS_USERS.length = 0;
   rows.forEach(u=>ACCESS_USERS.push({
     id:u.id, name:u.username, role:u.role_label || u.role,
-    roleClass: u.role==='admin' ? 'role-admin' : u.role==='supervisor' ? 'role-supervisor' : '',
+    roleClass: u.role==='admin' ? 'role-admin' : u.role==='admin1' ? 'role-admin1' : u.role==='admin2' ? 'role-admin2' : u.role==='supervisor' ? 'role-supervisor' : '',
     perms:u.permissions
   }));
 }
@@ -1909,7 +1959,7 @@ async function doLogin(email,password){
     if(!currentUser){await sb.auth.signOut();fail('Login succeeded, but no user profile was found. Please contact the administrator.');return;}
     if(currentUser.permissions?.can_login!==true){await sb.auth.signOut();currentUser=null;fail('This account is not permitted to sign in. Please ask an administrator to enable Login access.');return;}
     document.getElementById('login-page').style.display='none';document.getElementById('portal').style.display='block';document.body.classList.remove('login-active');
-    applyRole(currentUser.role);await switchView('dashboard');await refreshFromSupabase();showToast(`Signed in as ${currentUser.full_name||data.user.email}.`,'success');
+    applyRole(currentUser.role);await switchView('dashboard');await refreshFromSupabase();showToast(`Signed in as ${currentUser.full_name||data.user.email}.`,'success');startIdleTimer();
   }catch(err){console.error('Login error:',err);fail(err?.message||'Unable to sign in. Please try again.');}
   finally{if(btn){btn.disabled=false;btn.textContent='Log in';}}
 }
@@ -1926,7 +1976,8 @@ async function loadCurrentUserProfile(userId){
   }
 }
 
-async function doLogout(){
+async function doLogout(reason){
+  stopIdleTimer();
   await sb.auth.signOut();
   currentUser = null;
   document.getElementById('portal').style.display = 'none';
@@ -1934,8 +1985,83 @@ async function doLogout(){
   document.body.classList.add('login-active');
   document.getElementById('dd-account').classList.remove('show');
   document.getElementById('loginForm').reset();
-  document.getElementById('loginError').classList.remove('show');
+  const loginError=document.getElementById('loginError');
+  if(reason==='timeout'){loginError.textContent='You were logged out due to inactivity. Please log in again.';loginError.classList.add('show');}
+  else{loginError.classList.remove('show');}
 }
+
+/* =========================================================
+   SESSION IDLE TIMEOUT
+   Auto-logs the user out after a period of inactivity, with a
+   warning modal + countdown shown before the timeout occurs.
+   ========================================================= */
+const IDLE_TIMEOUT_MS   = 15 * 60 * 1000;  // 15 min of inactivity before warning
+const IDLE_WARNING_MS   = 60 * 1000;       // 60s warning countdown before logout
+const IDLE_ACTIVITY_EVENTS = ['mousedown','mousemove','keydown','scroll','touchstart','click'];
+
+let idleWarnTimer = null;
+let idleLogoutTimer = null;
+let idleCountdownInterval = null;
+let idleWarningShownAt = 0;
+let idleListenersBound = false;
+
+function resetIdleTimer(){
+  // Ignore activity while the warning modal itself is open — the
+  // countdown should keep running until the user explicitly responds.
+  if(document.getElementById('sessionTimeoutScrim')?.classList.contains('show')) return;
+  clearTimeout(idleWarnTimer);
+  idleWarnTimer = setTimeout(showIdleWarning, IDLE_TIMEOUT_MS);
+}
+
+function startIdleTimer(){
+  if(!idleListenersBound){
+    IDLE_ACTIVITY_EVENTS.forEach(evt=>document.addEventListener(evt, resetIdleTimer, {passive:true}));
+    idleListenersBound = true;
+  }
+  resetIdleTimer();
+}
+
+function stopIdleTimer(){
+  clearTimeout(idleWarnTimer);
+  clearTimeout(idleLogoutTimer);
+  clearInterval(idleCountdownInterval);
+  hideIdleWarning();
+}
+
+function showIdleWarning(){
+  idleWarningShownAt = Date.now();
+  document.getElementById('sessionTimeoutScrim').classList.add('show');
+  document.getElementById('sessionTimeoutModal').classList.add('show');
+  updateIdleCountdown();
+  idleCountdownInterval = setInterval(updateIdleCountdown, 250);
+  idleLogoutTimer = setTimeout(()=>{ doLogout('timeout'); }, IDLE_WARNING_MS);
+}
+
+function hideIdleWarning(){
+  document.getElementById('sessionTimeoutScrim')?.classList.remove('show');
+  document.getElementById('sessionTimeoutModal')?.classList.remove('show');
+}
+
+function updateIdleCountdown(){
+  const remainingMs = Math.max(0, IDLE_WARNING_MS - (Date.now() - idleWarningShownAt));
+  const totalSec = Math.ceil(remainingMs/1000);
+  const m = Math.floor(totalSec/60).toString().padStart(2,'0');
+  const s = (totalSec%60).toString().padStart(2,'0');
+  const el = document.getElementById('sessionTimeoutCountdown');
+  if(el) el.textContent = `${m}:${s}`;
+  if(remainingMs<=0) clearInterval(idleCountdownInterval);
+}
+
+function stayLoggedIn(){
+  clearTimeout(idleLogoutTimer);
+  clearInterval(idleCountdownInterval);
+  hideIdleWarning();
+  resetIdleTimer();
+}
+
+document.getElementById('sessionTimeoutStayBtn').addEventListener('click', stayLoggedIn);
+document.getElementById('sessionTimeoutLogoutBtn').addEventListener('click', ()=>doLogout());
+document.getElementById('sessionTimeoutScrim').addEventListener('click', stayLoggedIn);
 
 /* Auto-resume an existing session on page load (e.g. after refresh) */
 async function bootstrapSession(){
@@ -1948,6 +2074,7 @@ async function bootstrapSession(){
       document.body.classList.remove('login-active');
       applyRole(currentUser.role);
       await refreshFromSupabase();
+      startIdleTimer();
       return;
     }
   }
@@ -2123,7 +2250,9 @@ const HOLIDAY_TYPE_LABELS = {
    ========================================================= */
 function applyRole(role){
   // CSS gating only understands two buckets: admin vs everyone else.
-  const cssBucket = role === 'admin' ? 'admin' : 'user';
+  // Admin I (approval) and Admin II (user access) are both "admin" for
+  // general admin-only chrome (Settings menu items, Add Branch/Holiday, etc).
+  const cssBucket = (role === 'admin' || role === 'admin1' || role === 'admin2') ? 'admin' : 'user';
   document.body.classList.remove('role-admin','role-user');
   document.body.classList.add('role-'+cssBucket);
   const initials = (currentUser.full_name||currentUser.username||'?')
@@ -2131,12 +2260,31 @@ function applyRole(role){
   document.getElementById('userAvatar').textContent = initials;
   document.getElementById('userNameFull').textContent = currentUser.full_name;
   document.getElementById('userRoleFull').textContent = currentUser.role_label || currentUser.role;
-  // If a non-admin is sitting on the approval view, bounce to dashboard
-  if(!can('can_approve') && document.getElementById('view-approval').classList.contains('active')){
+  applyApprovalAccess();
+  updatePendingBadge();
+}
+
+// Approval is Admin I's exclusive domain — gate it on the actual
+// can_approve permission (not the coarse admin/user CSS bucket), so
+// Admin II (User Access) sees the same locked state a non-admin would.
+function applyApprovalAccess(){
+  const approvalOK = can('can_approve');
+  document.getElementById('link-approval').style.display = approvalOK ? 'flex' : 'none';
+  document.getElementById('link-approval-locked').style.display = approvalOK ? 'none' : 'flex';
+  const adminBlock = document.getElementById('approvalAdminBlock');
+  const locked = document.getElementById('approvalLocked');
+  if(adminBlock) adminBlock.style.display = approvalOK ? 'block' : 'none';
+  if(locked){
+    locked.style.display = approvalOK ? 'none' : 'block';
+    if(!approvalOK){
+      locked.querySelector('p').textContent = 'This account doesn\'t have approval access. Approval rights are limited to Admin I — an Admin II (User Access) can grant the "Approve" permission from User Access Settings.';
+    }
+  }
+  // If a user without approval access is sitting on the approval view, bounce to dashboard
+  if(!approvalOK && document.getElementById('view-approval').classList.contains('active')){
     switchView('dashboard');
     showToast('Approval queue requires approval access.', 'info');
   }
-  updatePendingBadge();
 }
 
 document.getElementById('loginForm').addEventListener('submit', (e)=>{
@@ -2307,7 +2455,7 @@ document.getElementById('link-approval').addEventListener('click',(e)=>{
 });
 document.getElementById('link-approval-locked').addEventListener('click',(e)=>{
   e.preventDefault();
-  showToast('Approval queue requires admin access. Switch role in the account menu.', 'error');
+  showToast('Approval queue requires approval access (Admin I).', 'error');
 });
 document.getElementById('link-archive').addEventListener('click',(e)=>{
   e.preventDefault();
@@ -3828,9 +3976,19 @@ document.getElementById('link-user-access').addEventListener('click', async (e)=
   switchView('user-access');
   await loadAccessUsers();
   renderAccessTable();
+  const approvalsBlock = document.getElementById('userAccessApprovalsBlock');
+  if(currentUser.role === 'admin'){
+    approvalsBlock.style.display = 'block';
+    await loadUserAccessRequests();
+    renderUserAccessRequestsTable();
+  } else {
+    approvalsBlock.style.display = 'none';
+  }
 });
 
-// Persist permission toggle edits straight to user_profiles.permissions
+// Persist permission toggle edits straight to user_profiles.permissions —
+// EXCEPT when the caller isn't the main admin, in which case the change is
+// queued in user_access_requests for the main admin to approve first.
 document.getElementById('accessTableBody').addEventListener('change', async (e)=>{
   const input = e.target.closest('input[type=checkbox][data-user][data-perm]');
   if(!input) return;
@@ -3842,16 +4000,122 @@ document.getElementById('accessTableBody').addEventListener('change', async (e)=
   const userId = input.dataset.user, perm = input.dataset.perm;
   const user = ACCESS_USERS.find(u=>u.id===userId);
   if(!user) return;
-  const nextPerms = { ...user.perms, [perm]: input.checked };
+  const permLabel = ACCESS_PERMS.find(p=>p.key===perm)?.label || perm;
+  const newValue = input.checked;
+
+  if(currentUser.role !== 'admin'){
+    input.checked = !newValue; // don't reflect it in the table until the main admin approves it
+    const { error } = await sb.from('user_access_requests').insert({
+      type: 'permission_change',
+      target_user_id: userId,
+      target_user_name: user.name,
+      payload: { perm, perm_label: permLabel, value: newValue },
+      requested_by: currentUser.id,
+      requested_by_name: currentUser.full_name || currentUser.username,
+      status: 'pending'
+    });
+    if(error){ showToast('Failed to submit change: ' + error.message, 'error'); return; }
+    showToast(`Submitted for approval: "${permLabel}" ${newValue ? 'on' : 'off'} for ${user.name}.`, 'success');
+    return;
+  }
+
+  const nextPerms = { ...user.perms, [perm]: newValue };
   const { error } = await sb.from('user_profiles').update({ permissions: nextPerms }).eq('id', userId);
   if(error){
     showToast('Failed to update permission: ' + error.message, 'error');
-    input.checked = !input.checked;
+    input.checked = !newValue;
     return;
   }
   user.perms = nextPerms;
-  showToast(`Updated "${ACCESS_PERMS.find(p=>p.key===perm).label}" for ${user.name}.`, 'success');
+  showToast(`Updated "${permLabel}" for ${user.name}.`, 'success');
 });
+
+/* =========================================================
+   USER ACCESS APPROVALS — main admin reviews permission
+   changes and new-user requests submitted by Admin II.
+   ========================================================= */
+const USER_ACCESS_REQUESTS = [];
+
+async function loadUserAccessRequests(){
+  const { data: rows, error } = await sb.from('user_access_requests')
+    .select('*').eq('status', 'pending').order('created_at', { ascending: false });
+  if(error){ console.error(error); showToast('Failed to load pending user access requests.', 'error'); return; }
+  USER_ACCESS_REQUESTS.length = 0;
+  rows.forEach(r=>USER_ACCESS_REQUESTS.push(r));
+}
+
+function userAccessRequestDetailHTML(r){
+  if(r.type === 'create_user'){
+    const p = r.payload || {};
+    return `Create user <strong>${p.fullName || p.username}</strong> (${p.username}) — role: ${p.roleLabel || p.role}`;
+  }
+  const p = r.payload || {};
+  return `${p.value ? 'Grant' : 'Revoke'} <strong>${p.perm_label}</strong> for ${r.target_user_name || 'user'}`;
+}
+
+function renderUserAccessRequestsTable(){
+  const tbody = document.getElementById('userAccessRequestsTableBody');
+  const empty = document.getElementById('userAccessRequestsEmpty');
+  if(USER_ACCESS_REQUESTS.length === 0){
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.innerHTML = USER_ACCESS_REQUESTS.map(r=>`
+    <tr>
+      <td>${r.type === 'create_user' ? 'New User' : 'Permission Change'}</td>
+      <td>${r.requested_by_name || '—'}</td>
+      <td class="details-cell">${userAccessRequestDetailHTML(r)}</td>
+      <td class="submitted-cell">${timeAgo(r.created_at)}</td>
+      <td class="row-actions">
+        <button class="btn btn-approve btn-sm" onclick="approveUserAccessRequest('${r.id}')">Approve</button>
+        <button class="btn btn-ghost btn-sm" onclick="rejectUserAccessRequest('${r.id}')">Reject</button>
+      </td>
+    </tr>`).join('');
+}
+
+async function approveUserAccessRequest(id){
+  if(currentUser.role !== 'admin'){ showToast('Only the main admin can approve user access requests.', 'error'); return; }
+  const req = USER_ACCESS_REQUESTS.find(r=>r.id===id);
+  if(!req) return;
+
+  if(req.type === 'permission_change'){
+    const target = ACCESS_USERS.find(u=>u.id===req.target_user_id);
+    const basePerms = target ? target.perms : (await sb.from('user_profiles').select('permissions').eq('id', req.target_user_id).single()).data?.permissions || {};
+    const nextPerms = { ...basePerms, [req.payload.perm]: req.payload.value };
+    const { error } = await sb.from('user_profiles').update({ permissions: nextPerms }).eq('id', req.target_user_id);
+    if(error){ showToast('Failed to apply permission change: ' + error.message, 'error'); return; }
+  } else if(req.type === 'create_user'){
+    const p = req.payload;
+    const { data, error } = await sb.functions.invoke('create-user', {
+      body: { fullName:p.fullName, username:p.username, email:p.email, password:p.password, role:p.role, roleLabel:p.roleLabel }
+    });
+    if(error || !data?.user?.id){
+      showToast('Failed to create user: ' + (data?.error || error?.message || 'Unknown error'), 'error');
+      return;
+    }
+  }
+
+  const { error: reviewErr } = await sb.from('user_access_requests')
+    .update({ status:'approved', reviewed_by: currentUser.id, reviewed_at: new Date().toISOString() })
+    .eq('id', id);
+  if(reviewErr) console.error(reviewErr);
+
+  showToast('Request approved.', 'success');
+  await loadAccessUsers(); renderAccessTable();
+  await loadUserAccessRequests(); renderUserAccessRequestsTable();
+}
+
+async function rejectUserAccessRequest(id){
+  if(currentUser.role !== 'admin'){ showToast('Only the main admin can review user access requests.', 'error'); return; }
+  const { error } = await sb.from('user_access_requests')
+    .update({ status:'rejected', reviewed_by: currentUser.id, reviewed_at: new Date().toISOString() })
+    .eq('id', id);
+  if(error){ showToast('Failed to reject request: ' + error.message, 'error'); return; }
+  showToast('Request rejected.', 'info');
+  await loadUserAccessRequests(); renderUserAccessRequestsTable();
+}
 
 /* =========================================================
    ADD USER — modal form
@@ -3862,6 +4126,11 @@ document.getElementById('accessTableBody').addEventListener('change', async (e)=
 const DEFAULT_PERMS_BY_ROLE = {
   staff: { can_login:true, can_access_dashboard:true, can_request:true, can_approve:false, can_access_user_access:false, can_view_archive:true, can_export_data:false, can_manage_users:false, can_view_audit_log:false },
   supervisor: { can_login:true, can_access_dashboard:true, can_request:true, can_approve:true, can_access_user_access:false, can_view_archive:true, can_export_data:true, can_manage_users:false, can_view_audit_log:false },
+  // Admin I — Approval: reviews/approves or rejects branch status requests. Cannot touch User Access or create/manage users.
+  admin1: { can_login:true, can_access_dashboard:true, can_request:true, can_approve:true, can_access_user_access:false, can_view_archive:true, can_export_data:true, can_manage_users:false, can_view_audit_log:true },
+  // Admin II — User Access: configures permissions and creates users. Cannot approve/reject requests.
+  admin2: { can_login:true, can_access_dashboard:true, can_request:true, can_approve:false, can_access_user_access:true, can_view_archive:true, can_export_data:true, can_manage_users:true, can_view_audit_log:true },
+  // Legacy super-admin role, kept for existing accounts — has full access via the can() bypass below.
   admin: { can_login:true, can_access_dashboard:true, can_request:true, can_approve:true, can_access_user_access:true, can_view_archive:true, can_export_data:true, can_manage_users:true, can_view_audit_log:true },
 };
 
@@ -3891,8 +4160,9 @@ document.getElementById('addUserSaveBtn').addEventListener('click', async functi
   const email = document.getElementById('auEmail').value.trim().toLowerCase();
   const password = document.getElementById('auPassword').value;
   const role = document.getElementById('auRole').value;
+  const ROLE_LABEL_DEFAULTS = { staff:'Staff', supervisor:'Supervisor', admin1:'Admin I — Approval', admin2:'Admin II — User Access', admin:'Admin' };
   const roleLabel = document.getElementById('auRoleLabel').value.trim() ||
-    (role.charAt(0).toUpperCase()+role.slice(1));
+    (ROLE_LABEL_DEFAULTS[role] || (role.charAt(0).toUpperCase()+role.slice(1)));
 
   if(!fullName || !username || !email || !password || !role){
     showToast('Full name, username, email, password, and role are all required.', 'error');
@@ -3913,9 +4183,26 @@ document.getElementById('addUserSaveBtn').addEventListener('click', async functi
 
   const saveBtn = this;
   saveBtn.disabled = true;
-  saveBtn.textContent = 'Creating…';
+  saveBtn.textContent = currentUser.role === 'admin' ? 'Creating…' : 'Submitting…';
 
   try {
+    if(currentUser.role !== 'admin'){
+      // Admin II (and anyone else with can_manage_users but not the main
+      // admin) can't create the account directly — it's queued for the
+      // main admin to review and approve.
+      const { error } = await sb.from('user_access_requests').insert({
+        type: 'create_user',
+        payload: { fullName, username, email, password, role, roleLabel },
+        requested_by: currentUser.id,
+        requested_by_name: currentUser.full_name || currentUser.username,
+        status: 'pending'
+      });
+      if(error) throw error;
+      showToast(`User "${fullName}" (${username}) submitted for the main admin's approval.`, 'success');
+      closeAddUserModal();
+      return;
+    }
+
     // IMPORTANT: Do not call sb.auth.signUp() here.
     // signUp() is a client-side self-registration flow and can replace
     // the admin's active session with the newly created account.
